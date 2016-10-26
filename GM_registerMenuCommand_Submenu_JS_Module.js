@@ -17,7 +17,7 @@
 // @updated  Feb 2016.  1.1.2 Works also on Google Chromium.  Adds positioning of menu-command within submenu.
 //
 // Function: With this script all GM-menu-commands are given a separate submenu under
-// Tools-->Greasemonkey-->User Scripts Commands...--><your script's menu name>...
+// Tools-->Greasemonkey-->User Scripts Commands....--><your script's menu name>...
 // When clicked on this opens a submenu on the page with all your script's menu items that
 // have been registered as usual by the use of GM_registerMenuCommand("name", function);
 //
