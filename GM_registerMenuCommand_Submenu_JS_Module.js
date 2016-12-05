@@ -1,5 +1,5 @@
 // ==UserLibrary==
-// @version     1.2.3
+// @version     1.2.5
 // @updateURL   https://openuserjs.org/meta/libs/slow!/GM_registerMenuCommand_Submenu_JS_Module.meta.js
 // @name        GM_registerMenuCommand Submenu
 // @require     http://code.jquery.com/jquery-latest.js 
@@ -17,7 +17,7 @@
 // @updated  Feb 2016.  1.1.2 Works also on Google Chromium.  Adds positioning of menu-command within submenu.
 //
 // Function: With this script all GM-menu-commands are given a separate submenu under
-// Tools-->Greasemonkey-->User Scripts Commands....--><your script's menu name>...
+// Tools-->Greasemonkey-->User Scripts Commands...--><your script's menu name>...
 // When clicked on this opens a submenu on the page with all your script's menu items that
 // have been registered as usual by the use of GM_registerMenuCommand("name", function);
 //
@@ -63,14 +63,14 @@ var submenuModule=(function() { //a module, js pattern module, ownSubmenu() is a
     var coord_id=1, $, nlist=1, scriptName, altHotkey=77, thishere, list_orig_height, chromeButton, queue;
     var osmlisel="li.osm-button",lis, uw=unsafeWindow, cmd, ln="\u2501", menuwrap, shrink_factor, header;
     var iframe=window!=window.parent, lmarg=window.innerWidth*0.04, blank_textContent=false;    //77==m, 0.04==4%.
-    var init=function(script_name, hotkey) //is submenuModule.register() 
-    {
+    var init=function(script_name, hotkey, title_color, itsBackgroundColor) //is submenuModule.register() 
+    { try {  
 	scriptName=script_name||"";
 	queue.push(coord_id);
 	queue.sort();   // In GM execution order.  Some may not call register();
 	$=ensurejQuery(); //@ require jquery, is not honoured in a library.
 	if (hotkey) altHotkey=hotkey.charCodeAt(0)-32;
-	createOwnSubmenu(hotkey); //html setup
+	createOwnSubmenu(hotkey, title_color, itsBackgroundColor); //html setup
 	ownSubmenu.hide();
 	ownSubmenu.find(".osmXbutton").click(closeSubmenu); //handler
 	//ownSubmenu.draggable(); // remove due to dependency to jquery.ui
@@ -90,7 +90,9 @@ var submenuModule=(function() { //a module, js pattern module, ownSubmenu() is a
 	$(document).on("coord_GM_menu", coord_GM_menu);
 	if (document.readyState=="complete") docload();
 	else $(window).load(docload); //start-at may mean no body yet.  $(func) is same as window.ready(func), also runs function even if already ready.
-    }, //init().   
+    } catch(e){
+	if (old_GM_registerMenuCommand) GM_registerMenuCommand=old_GM_registerMenuCommand; console.info("Failed to use submenuModule, "+script_name,e);
+    } }, //init().   
     docready=function() { // Setup menuwrapper and add own submenu div.  Prior to docload, have body.
     	body=$("body");
 	menuwrap=$("#osm-menuwrap");
@@ -143,7 +145,6 @@ var submenuModule=(function() { //a module, js pattern module, ownSubmenu() is a
 	ownSubmenuList.append(li);
     },
     openSubmenu=function() {
-	//console.log("openSubmenu");
 	if (interfaceObj.isOpen) return; interfaceObj.isOpen=true;
 	var diagdist=Infinity;
 	if (uw.osm_queue.indexOf(coord_id)==-1) uw.osm_queue.push(coord_id);
@@ -166,6 +167,7 @@ var submenuModule=(function() { //a module, js pattern module, ownSubmenu() is a
 	lis.on("focus.osm",function(e){
 	    var t=$(e.target);
 	    window.status=t.text();
+	    //lis.removeClass("osm-selected");
 	    t.addClass("osm-selected"); t.removeClass("osm-not-selected");
 	    uw.osm_last_focus=e.target;
 	});
@@ -216,6 +218,7 @@ var submenuModule=(function() { //a module, js pattern module, ownSubmenu() is a
 	ownSubmenu.off(".osm");
 	ownSubmenuList.off(".osm");
 	body.off(".osm");
+	lis=ownSubmenuList.find("li");
 	lis.off(".osm");
 	lis.removeClass("osm-selected osm-not-selected");
 	var lastf=uw.osm_last_focus;
@@ -283,7 +286,7 @@ var submenuModule=(function() { //a module, js pattern module, ownSubmenu() is a
     },
     mvitem=function(oldname,newname,positionAt) {
 	var match=matchItem(oldname);
-	if (oldname!=newname) match.text(newname);
+	if (oldname!=newname) { match.text(newname); match.prop("title",newname); }
 	if (positionAt!=="" && !isNaN(positionAt)) {
 	    var liatpos=ownSubmenuList.find("li").eq(positionAt);
 	    if (liatpos.length) {
@@ -313,44 +316,63 @@ var submenuModule=(function() { //a module, js pattern module, ownSubmenu() is a
     //                                <ul id=ownSubmenuList>
     //                                    <li class=osm-button id=ownSubmenuList(coord_id)>
     //                                    <li>...</>..<li>s
-    createOwnSubmenu=function(hotkey) {
+    createOwnSubmenu=function(hotkey, title_color, li_text_color) { // li_text_color is also menu frame background, color must be in string form, eg, '#ffffff'
 	xbutton="<b class=osmXbutton style='float:right;margin-top:-7px;color:black;margin-right:-4px;"
-	    +"font-size:xx-small;'>&#x2715;</b>"; // 2715 is an 'x'
-
-	ownSubmenu=$("<div id=ownSubmenu"+coord_id+" class=osm-box data-coord_id="+coord_id+" script-name='"+scriptName+coord_id+"' tabindex='' "
-		     +"style='z-index:2147483647;"
-		     +"background-color: #ffffee; color:#3f005e; "
-		     +"text-align:center;padding:10px;"
-		     +"border: solid 2px #88885e;"
-		     +"border-radius: 10px; "
-		     +"box-shadow: 10px 10px 5px #88885e; box-sizing: border-box;"
-		     +"display: inline-block; " //float:left;"
+	    +"font-size:xx-small;'>&#x2715;</b>";         // #2715 is an 'x'
+	//if (val.startsWith("rgb")) val="#"+val.replace(/[^\d,]/g,"").split(/,/).map(x=>Number(x).toString(16)).join("");
+	
+	var style_id= (title_color || li_text_color) ? "#ownSubmenu"+coord_id 	 : "";
+	var selected_bg_color= !li_text_color ? "#f69c55" : modColor(li_text_color+"+0x096399"),
+	    selected_color=modColor(selected_bg_color+"^0xffffff"); //, 0x33);
+	
+	title_color=title_color||"#3f005e", li_text_color=li_text_color||"#ffffee"; // bg of title is li text color, bg of li text is lighter form of title color.
+	
+	var title_color_limited=modColor(title_color,0x33); //limitminmax to between 0x33 and 0xcc (0xff-0x33).
+	if (title_color_limited != title_color) console.log("limited ",title_color, "to ",title_color_limited);
+	title_color=title_color_limited;
+	var title_bg=li_text_color,	    //li_bg_color=modColor(title_color+( modColor(title_color,true)<0x7fffff ? "+" : "-")+"0x5fa361"),                 //("0x"+title_color.substr(1) - - 0x5fa361).toString(16), //#9ea3bf, two minuses make a plus
+	    li_bg_color,                    //=modColor(title_color+"+0x5fa361"),
+	    shadow_color=modColor(li_text_color+"^ 0xffffff",null,0.3);         //("0x"+li_text_color.substr(1) - 0x777790).toString(16);
+	li_bg_color=modColor(title_color+" ^ 0xa1a3e1");
+	
+	console.log("Colors: title_color:",title_color,"li_text_color:", li_text_color,"computed: li_bg_color:",
+		    li_bg_color,"shadow_color:",shadow_color," selected_color",selected_color,"selected_bg_color",selected_bg_color);
+	
+	ownSubmenu=$("<div id=ownSubmenu"+coord_id+" class=osm-box data-coord_id="+coord_id
+		     +" script-name='"+scriptName+coord_id+"' tabindex='' "
+		     + "style='z-index:2147483647;"
+		     //+"background-color: "+(backgroundColor||"#ffffee;")+"; color:"+(color||"#3f005e")+";"
+		     + "background-color: "+li_text_color+"; color:"+title_color+";"
+		     + "text-align:center;padding:10px;"
+		     + "border: solid 2px "+shadow_color+";"             // #88885e;"
+		     + "border-radius: 10px; "
+		     + "box-shadow: 10px 10px 5px "+shadow_color+";"     // box-sizing: border-box;"
+		     + "display: inline-block; "                         //float:left;"
 		     //+"overflow-y: auto;overflow-x:hidden;"
-		     +"position:relative;"
-		     +"padding: 10px;" //max-width:40%"
-		     +"cursor:default;"
+		     + "position:relative;"
+		     + "padding: 10px;"                            //max-width:40%"
+		     + "cursor:default;"
 		     //		     +"height: 60%;"
 		     +"'><div class=osm-header title='Double click to maximize (toggle), Esc to remove (focus with a click here first).' style='box-sizing: border-box;cursor:default; min-height: 5px;'>"
-		     +xbutton
-		     +"<b class=menu-title style='font-weight:bold; line-height:1; color: #3f005e; "
-		     +"font-family: \"Squada One\",\"Helvetica Neue\",Helvetica,Arial,sans-serif; "
-		     +"font-size: 18px;'>"
-		     +scriptName
-		     +(hotkey ? " (alt-"+String.fromCharCode(altHotkey+32)+")" : "")
-		     +"</b>"+xbutton
-		     +"</div></div>");
-	
+		     + xbutton
+		     + "<b class=menu-title style='font-weight:bold; line-height:1; " // "color: #3f005e; "
+		     + "font-family: \"Squada One\",\"Helvetica Neue\",Helvetica,Arial,sans-serif; "
+		     + "font-size: 18px;'>"
+		     + scriptName
+		     + (hotkey ?  ", alt-"+String.fromCharCode(altHotkey+32) : ", alt-m")
+		     + "</b>"+xbutton
+		     + "</div></div>");
+		     
 	ownSubmenuList=$("<ul id=ownSubmenuList"+coord_id+ " tabindex='' style='list-style:none;padding:0;margin:0;"
 			 +"text-align:center;overflow-y:auto;overflow-x:hidden;"
 			 +"cursor:pointer; box-sizing: border-box;"
 			 +"'></ul>");
-	addStyle("li.osm-button:hover, ul li.osm-selected {background: #f69c55 none repeat scroll 0 0;z-index:2147483647;overflow:visible; color: #ffffff;}"
-		 +"ul li.osm-not-selected { background: #9ea3bf none repeat scroll 0 0 !important;}"
-		 +"li.osm-button {  background: #9ea3bf none repeat scroll 0 0;"
-		 +"                 z-index:2147483647;font-family:Helvetica; min-height:10px;min-width: 100px;"
-		 +"                 color:#ffffee; padding:0; margin:0; width:100%;white-space:nowrap;}","osm-licolors"
-		 +""
-		);
+	addStyle(style_id+" li.osm-button:hover, "+style_id+" ul li.osm-selected {color: "+selected_color+"; background: "+selected_bg_color+" none repeat scroll 0 0;z-index:2147483647;overflow:visible; }" // #f69c55
+		 +"\n"+style_id+" ul li.osm-not-selected { background: "+li_bg_color+" none repeat scroll 0 0 !important; } "
+		 +"\n"+style_id+" li.osm-button {  color:"+li_text_color+"; background: "+li_bg_color+" none repeat scroll 0 0; "             // #ffffee #9ea3bf;
+		 +"\n                 z-index:2147483647;font-family:Helvetica; min-height:10px;min-width: 100px;"
+		 +"\n                 padding:0; margin:0; width:100%;white-space:nowrap;}",  "osm-licolors"+style_id.substr(1)    //2nd param is id of style elem.
+		 +"");
 	ownSubmenu.find("b.osmXbutton:first").css("float","left");
 	header=ownSubmenu.find(".osm-header");
     },
@@ -370,6 +392,26 @@ var submenuModule=(function() { //a module, js pattern module, ownSubmenu() is a
 	xmlHttp.open("GET", theUrl, CB ? true:false); // false for synchronous request, not recommended but do once only on first use, then cache in GM_setValue.
 	xmlHttp.send(null);
 	return xmlHttp.responseText;
+    },
+    modColor=function(hexstr,limit_minmax,darken_factor) { // return color1 <operator> color2 <operator> colorN, or return hex number if only one color.
+    var rgb_ar, res, part_res, character_class_hexdigit="[\\da-fA-F]", re=RegExp(( "("+character_class_hexdigit+"{2})" ).repeat(3),"g"),
+	str_split_to_rgb=()=>(hexstr=hexstr.replace(/#/g,"0x"), rgb_ar=[1,2,3].map(x=>hexstr.replace(re,"$"+x))) ;
+	str_split_to_rgb();
+	if (darken_factor) { // darken but maintain color.
+	    hexstr=modColor(hexstr,limit_minmax);
+	    str_split_to_rgb();
+	    rgb_ar.forEach((el,i,arr)=>arr[i]=arr[i]*darken_factor|0); 	    //var min=darken_factor*rgb_ar.reduce((p,c)=>c<p?c:p)|0;  rgb_ar.forEach((el,i,arr)=>arr[i]-=min);
+	}
+	res=rgb_ar.reduce((prev,curr)=> {
+	    part_res=eval(curr);
+	    if (limit_minmax)
+		part_res=Math.max(Math.min(part_res, 0xff - limit_minmax ), 0);        // ), limit_minmax); //limits only max values
+	    else
+		part_res=part_res<0 ? 0xff+part_res : part_res>0xff ? part_res%0xff : part_res;
+	    part_res=part_res.toString(16);
+	    return prev+"0".repeat(2-part_res.length)+part_res; //repeat pads zeroes on the left side
+	} ,"");
+	return "#"+res; 
     },
     addStyle=function(style_text, id) {
 	if ($("#"+id).length==0) $("head").prepend("<style id="+id+">"+style_text+"</style>");
@@ -528,3 +570,11 @@ var submenuModule=(function() { //a module, js pattern module, ownSubmenu() is a
     } catch(e) { console.log("Cannot get font, error: "+e+", line:"+e.lineNumber+".");} } //end if !getElementById
 })(); //var submenuModule=(function(){.
 
+function logStack(fileToo) { // deepest first.
+    var res="", e=new Error;
+    var s=e.stack.split("\n");
+    if (fileToo) res="Stack of callers:\n\t\t"; //+s[1].split("@")[0]+"():\n\t\t"
+    for (var i=1;i<s.length-1;i++)
+	res+=s[i].split("@")[0]+"() "+s[i].split(":").slice(-2)+"\n";
+    return !fileToo ? res : {Stack:s[0]+"\n"+res}; 
+}
