@@ -1,4 +1,5 @@
 // ==UserLibrary==
+// @pseudoHeader
 // @version     1.2.5
 // @updateURL   https://openuserjs.org/meta/libs/slow!/GM_registerMenuCommand_Submenu_JS_Module.meta.js
 // @name        GM_registerMenuCommand Submenu
@@ -58,13 +59,14 @@
 // If openuserjs.org where this lib script is stored is down or busy and GM needs to update this script
 // you may need to bracket the calls to submenuModule with try/catch.
 //
+
 var submenuModule=(function() { //a module, js pattern module, ownSubmenu() is a closure returning an interface object.  Side effect alters GM_registerMenuCommand.
     var sify=JSON.stringify, ownSubmenu, ownSubmenuList, xbutton, old_GM_registerMenuCommand, body, state=null;
     var coord_id=1, $, nlist=1, scriptName, altHotkey=77, thishere, list_orig_height, chromeButton, queue;
     var osmlisel="li.osm-button",lis, uw=unsafeWindow, cmd, ln="\u2501", menuwrap, shrink_factor, header;
     var iframe=window!=window.parent, lmarg=window.innerWidth*0.04, blank_textContent=false;    //77==m, 0.04==4%.
     var init=function(script_name, hotkey, title_color, itsBackgroundColor) //is submenuModule.register() 
-    { try {  
+    { try {
 	scriptName=script_name||"";
 	queue.push(coord_id);
 	queue.sort();   // In GM execution order.  Some may not call register();
@@ -91,7 +93,7 @@ var submenuModule=(function() { //a module, js pattern module, ownSubmenu() is a
 	if (document.readyState=="complete") docload();
 	else $(window).load(docload); //start-at may mean no body yet.  $(func) is same as window.ready(func), also runs function even if already ready.
     } catch(e){
-	if (old_GM_registerMenuCommand) GM_registerMenuCommand=old_GM_registerMenuCommand; console.info("Failed to use submenuModule, "+script_name,e);
+	if (old_GM_registerMenuCommand) GM_registerMenuCommand=old_GM_registerMenuCommand; console.info("Failed to load/init submenuModule, "+script_name,e);
     } }, //init().   
     docready=function() { // Setup menuwrapper and add own submenu div.  Prior to docload, have body.
     	body=$("body");
@@ -335,8 +337,7 @@ var submenuModule=(function() { //a module, js pattern module, ownSubmenu() is a
 	    shadow_color=modColor(li_text_color+"^ 0xffffff",null,0.3);         //("0x"+li_text_color.substr(1) - 0x777790).toString(16);
 	li_bg_color=modColor(title_color+" ^ 0xa1a3e1");
 	
-	console.log("Colors: title_color:",title_color,"li_text_color:", li_text_color,"computed: li_bg_color:",
-		    li_bg_color,"shadow_color:",shadow_color," selected_color",selected_color,"selected_bg_color",selected_bg_color);
+	//console.log("Colors: title_color:",title_color,"li_text_color:", li_text_color,"computed: li_bg_color:",li_bg_color,"shadow_color:",shadow_color," selected_color",selected_color,"selected_bg_color",selected_bg_color);
 	
 	ownSubmenu=$("<div id=ownSubmenu"+coord_id+" class=osm-box data-coord_id="+coord_id
 		     +" script-name='"+scriptName+coord_id+"' tabindex='' "
