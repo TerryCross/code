@@ -188,7 +188,7 @@ var submenuModule=(function() { //a module, js pattern module, ownSubmenu() is a
 	body.on("keydown.osm", keyhandler);
     },  //openSubmenu()
     keyhandler=function(e){
-	//console.log(scriptName+" keyhandler "+e.which+" coord_id:"+coord_id+" activeCoord_id "+activeCoord_id(),document.activeElement, iframe, document.documentElement);
+	console.log(scriptName+" keyhandler "+e.which+" coord_id:"+coord_id+" activeCoord_id "+activeCoord_id(),document.activeElement, iframe, document.documentElement);
 	
 	switch(e.which) {
 	case 27: if (coord_id==activeCoord_id()) closeSubmenu(); else return true; break; //esc
