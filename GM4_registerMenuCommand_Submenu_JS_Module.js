@@ -1,8 +1,11 @@
+// ==UserScript==
+// @exclude       *
+// @author        Sloan Fox
 // ==UserLibrary==
 // @pseudoHeader
-// @version     1.2.8
+// @version     1.2.9
 // @updateURL   https://openuserjs.org/meta/libs/slow!/GM4_registerMenuCommand_Submenu_JS_Module.meta.js
-// @name        GM4_registerMenuCommand Submenu
+// @name        GM4_registerMenuCommand Submenu JS Module
 // @require     http://code.jquery.com/jquery-latest.js 
 // @license     GPL-3.0
 // @copyright   2017, slow! (https://openuserjs.org/users/slow!)
@@ -14,6 +17,8 @@
 // @grant       GM.xmlHttpRequest
 // @exclude     *
 // ==/UserLibrary==
+// ==/UserScript==
+
 //
 // @updated  Dec 2017.  Adapt to GM4, use new name "GM4_registerMenuCommand Submenu", the 4 indicating its use in GM4 onward.
 // @updated  Dec 2017.  Use the submenuModule object to access document.activeElement that was set on webpage prior to menu click; use submenuModule.activeElement variable to access it.
@@ -64,9 +69,9 @@
 //
 // If openuserjs.org where this lib script is stored is down or busy and GM needs to update this script
 // you may need to bracket the calls to submenuModule with try/catch.
-//
+// If not loaded by Require in script header ensure module is loaded using the correct "this" pointer.
 
-var submenuModule=(function() { //a module, js pattern module, ownSubmenu() is a closure returning an interface object.  Side effect alters GM_registerMenuCommand.
+var submenuModule=(function() { try { //a module, js pattern module, ownSubmenu() is a closure returning an interface object in scope of 'this'.  Side effect alters GM_registerMenuCommand.
     var sify=JSON.stringify, ownSubmenu, ownSubmenuList, xbutton, old_GM_registerMenuCommand, body, state=null;
     var coord_id=1, $, nlist=1, scriptName, altHotkey=77, thishere, list_orig_height, chromeButton, queue;
     var osmlisel="li.osm-button",lis, uw=unsafeWindow, cmd, ln="\u2501", menuwrap, shrink_factor, header;
@@ -83,7 +88,7 @@ var submenuModule=(function() { //a module, js pattern module, ownSubmenu() is a
 	ownSubmenu.find(".osmXbutton").click(closeSubmenu); //handler
 	//ownSubmenu.draggable(); // remove due to dependency to jquery.ui
 	ownSubmenu.append(ownSubmenuList);
-	old_GM_registerMenuCommand=function(){}; // GM4
+	old_GM_registerMenuCommand=GM_registerMenuCommand;  //function(){}; // GM4
 	if (window.chrome)     setUpChromeButton();
 	//else old_GM_registerMenuCommand=GM_registerMenuCommand;
 	GM_registerMenuCommand=registerInOwnSubmenu;
@@ -98,7 +103,7 @@ var submenuModule=(function() { //a module, js pattern module, ownSubmenu() is a
 	if (document.readyState=="complete") docload();
 	else $(window).load(docload); //start-at may mean no body yet.  $(func) is same as window.ready(func), also runs function even if already ready.
     } catch(e){
-	console.info("Failed to load/init submenuModule, "+script_name,e);
+	console.info("Failed to load/init submenuModule, "+script_name,e,"this is:",this);
 	if (old_GM_registerMenuCommand) GM_registerMenuCommand=old_GM_registerMenuCommand; 
     } }, //init().   
     docready=function() { // Setup menuwrapper and add own submenu div.  Prior to docload, have body.
@@ -151,7 +156,7 @@ var submenuModule=(function() { //a module, js pattern module, ownSubmenu() is a
 	if (blank_textContent) li.text("");
 	li.click(function(e){
 	    var ae=window.document.activeElement;
-	    console.log("In registerInOwnSubmenu ae is",ae);
+	    //console.log("In registerInOwnSubmenu ae is",ae);
 	    closeSubmenu(true);
 	    //body.trigger("click");
 	    dispatch("coord_resize",{please:"close"});
@@ -159,7 +164,7 @@ var submenuModule=(function() { //a module, js pattern module, ownSubmenu() is a
 	ownSubmenuList.append(li);
     },
     openSubmenu=function() {
-	console.log("openSubmenu.on ficus, ae",document.activeElement);
+	//console.log("openSubmenu.on ficus, ae",document.activeElement);
 	interfaceObj.activeElement=document.activeElement;
 	if (interfaceObj.isOpen) return; interfaceObj.isOpen=true;
 	var diagdist=Infinity;
@@ -176,14 +181,14 @@ var submenuModule=(function() { //a module, js pattern module, ownSubmenu() is a
 	    else { boxes.filter("#ownSubmenu"+uw.osm_queue[0]).focus(); }
 	}); //.show()
 	ownSubmenu.on("focus.osm",function(e){
-	    console.log("ownSubmenu.on ficus, ae",document.activeElement);
+	    //console.log("ownSubmenu.on ficus, ae",document.activeElement);
 	    ownSubmenuList.focus();});
 	ownSubmenu.on("dblclick.osm",function(e){
 	    if ($(".osm-header",ownSubmenu).text()=="")	closeSubmenu();
 	    else toggleMenu();});
 	ownSubmenuList.on("focus.osm",function(e){ $(":first",this).focus();});
 	lis.on("focus.osm",function(e){
-	    console.log("lis.on ficus, ae",document.activeElement);
+	    //console.log("lis.on ficus, ae",document.activeElement);
 	    var t=$(e.target);
 	    window.status=t.text();
 	    //lis.removeClass("osm-selected");
@@ -198,10 +203,10 @@ var submenuModule=(function() { //a module, js pattern module, ownSubmenu() is a
 	body.on("click.osm",function(e){
 	    var t=$(e.target);
 	    e.target.focus(); //needed on chromium.
-	    if (t.is("li.osm-button") || (t.closest("div.osm-box").length==0 && t.closest("div#GM_menu_button").length==0)) {
-		console.log("click on target",t,"if osm-button or not child of osm & button");
+	    if (t.is("li.osm-button") || (t.closest("div.osm-box").length==0 && t.closest("div#GM_menu_button").length==0) && ! /menuitem/i.test(t[0].tagName)) {
+		//console.log("click on target",t[0].tagName,"if osm-button or not child of osm & button");
 		closeSubmenu(e.clientX==0 && e.clientY==0);
-	    }
+	    } // close if body clicked but not bubbled from a menu item.
 	});
 	body.on("keydown.osm", keyhandler);
     },  //openSubmenu()
@@ -358,7 +363,6 @@ var submenuModule=(function() { //a module, js pattern module, ownSubmenu() is a
 	li_bg_color=modColor(title_color+" ^ 0xa1a3e1");
 	
 	//console.log("Colors: title_color:",title_color,"li_text_color:", li_text_color,"computed: li_bg_color:",li_bg_color,"shadow_color:",shadow_color," selected_color",selected_color,"selected_bg_color",selected_bg_color);
-	
 	ownSubmenu=$("<div id=ownSubmenu"+coord_id+" class=osm-box data-coord_id="+coord_id
 		     +" script-name='"+scriptName+coord_id+"' tabindex='' "
 		     + "style='z-index:2147483647;"
@@ -383,7 +387,6 @@ var submenuModule=(function() { //a module, js pattern module, ownSubmenu() is a
 		     + (hotkey ?  ", alt-"+String.fromCharCode(altHotkey+32) : ", alt-m")
 		     + "</b>"+xbutton
 		     + "</div></div>");
-		     
 	ownSubmenuList=$("<ul id=ownSubmenuList"+coord_id+ " tabindex='' style='list-style:none;padding:0;margin:0;"
 			 +"text-align:center;overflow-y:auto;overflow-x:hidden;"
 			 +"cursor:pointer; box-sizing: border-box;"
@@ -397,14 +400,13 @@ var submenuModule=(function() { //a module, js pattern module, ownSubmenu() is a
 	ownSubmenu.find("b.osmXbutton:first").css("float","left");
 	header=ownSubmenu.find(".osm-header");
     },
-    ensurejQuery=async function() {
-	if (window.jQuery) return window.jQuery;                     //Use of unsafeWindow.$ is plagued by permssions problems.
-	var code=await GM.getValue ? await GM.getValue("osm_jqueryCode","") : "";
-	if (!code) {
-	    code=httpGet("https://code.jquery.com/jquery-latest.js");
-	    if (GM.setValue) GM.setValue("osm_jqueryCode",code);
+    ensurejQuery=function() {
+	if (this.jQuery) return this.jQuery;                     //Use of unsafeWindow.$ is plagued by permssions problems.
+	if (!this.jqcode) {
+	    this.jqcode=httpGet("https://code.jquery.com/jquery-latest.js");
+	    if (GM.setValue) GM.setValue("osm_jqueryCode",jqcode);
 	}
-	eval(code);
+	eval(this.jqcode);
 	return jQuery.noConflict(true);
     },
     httpGet=function(theUrl, CB) {
@@ -542,10 +544,11 @@ var submenuModule=(function() { //a module, js pattern module, ownSubmenu() is a
 	}; //end prototype.
 	function toType(obj) { return ({}).toString.call(obj).match(/\s([a-zA-Z]+)/)[1]; }
 	return (new unsafeWindowObj()).read();
-    }; //initUWonChrome=function()
-    var getCoordid=function(){return coord_id;};
+    }; //End of var comma module function def sequence.  End of var initUWonChrome=function()
     //END of variable/function definitions of object, main():
+
     //pre-init:
+    var getCoordid=function(){return coord_id;}; 
     String.prototype.trim = function (charset) { if (!charset) return this.replace(/^\s*|\s*$/g,""); else return this.replace( RegExp("^["+charset+"]*|["+charset+"]*$", "g" ) , "");}; //trim spaces or any set of characters.
     if (window.chrome) uw=initUWonChrome();
     else uw=unsafeWindow;
@@ -596,7 +599,10 @@ var submenuModule=(function() { //a module, js pattern module, ownSubmenu() is a
 	    injectCss(css);
 	} //endif !getElementById
     } catch(e) { console.log("Cannot get font, error: "+e+", line:"+e.lineNumber+".");} } //end if !getElementById
-})(); //var submenuModule=(function(){.
+} catch(e){console.log("Error in submenuModule",e);}} )(); //var submenuModule=(function(){.
+
+(async()=>{ if (!this.jQuery) this.jqcode= GM.getValue ? await GM.getValue("osm_jqueryCode","") : ""; }
+)();
 
 function logStack(fileToo) { // deepest first.
     var res="", e=new Error;
@@ -606,3 +612,5 @@ function logStack(fileToo) { // deepest first.
 	res+=s[i].split("@")[0]+"() "+s[i].split(":").slice(-2)+"\n";
     return !fileToo ? res : {Stack:s[0]+"\n"+res}; 
 }
+
+
