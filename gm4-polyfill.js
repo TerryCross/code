@@ -47,6 +47,8 @@ if (typeof GM_addStyle == 'undefined') {
     };
 }
 
+if (typeof GM_registerMenuCommand=="function" && /is not supported[^]{0,100}$/.test(GM_registerMenuCommand.toString()))
+    GM_registerMenuCommand=undefined;
 
 if (typeof GM_registerMenuCommand == 'undefined') {
     this.GM_registerMenuCommand = (caption, commandFunc, accessKey) => {
