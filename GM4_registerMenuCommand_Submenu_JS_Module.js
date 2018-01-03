@@ -81,7 +81,7 @@ window.submenuModule=(function() { try { //a module, js pattern module, ownSubme
 	scriptName=script_name||"";
 	queue.push(coord_id);
 	queue.sort();   // In GM execution order.  Some may not call register();
-	console.log("Call EnsureJQ",this.jQuery," win:.jq:",window.jQuery);
+	console.log("Call EnsureJQ",!!this.jQuery," win:.jq:",!!window.jQuery);
 	$=ensurejQuery(); //@ require jquery, is not honoured in a library.
 	if (hotkey) altHotkey=hotkey.charCodeAt(0)-32;
 	createOwnSubmenu(hotkey, title_color, itsBackgroundColor); //html setup
