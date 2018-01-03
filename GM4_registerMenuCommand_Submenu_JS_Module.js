@@ -1,3 +1,5 @@
+/* GM4_registerMenuCommand_Submenu_JS_Module.js */
+
 // ==UserScript==
 // @exclude       *
 // @author        Sloan Fox
