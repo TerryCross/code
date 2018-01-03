@@ -51,6 +51,7 @@ if (typeof GM_registerMenuCommand=="function" && /is not supported[^]{0,100}$/.t
     GM_registerMenuCommand=undefined;
 
 if (typeof GM_registerMenuCommand == 'undefined') {
+    console.log("def GM_registerMenuCommand as body attr context menu");
     this.GM_registerMenuCommand = (caption, commandFunc, accessKey) => {
 	if (!document.body) {
 	    console.error('GM_registerMenuCommand got no body.');
