@@ -71,7 +71,7 @@
 // you may need to bracket the calls to submenuModule with try/catch.
 // If not loaded by Require in script header ensure module is loaded using the correct "this" pointer.
 
-var submenuModule=(function() { try { //a module, js pattern module, ownSubmenu() is a closure returning an interface object in scope of 'this'.  Side effect alters GM_registerMenuCommand.
+window.submenuModule=(function() { try { //a module, js pattern module, ownSubmenu() is a closure returning an interface object in scope of 'this'.  Side effect alters GM_registerMenuCommand.
     var sify=JSON.stringify, ownSubmenu, ownSubmenuList, xbutton, old_GM_registerMenuCommand, body, state=null;
     var coord_id=1, $, nlist=1, scriptName, altHotkey=77, thishere, list_orig_height, chromeButton, queue;
     var osmlisel="li.osm-button",lis, uw=unsafeWindow, cmd, ln="\u2501", menuwrap, shrink_factor, header;
