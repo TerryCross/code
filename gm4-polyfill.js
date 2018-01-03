@@ -52,19 +52,20 @@ if (typeof GM_registerMenuCommand=="function" && /is not supported[^]{0,100}$/.t
 
 if (typeof GM_registerMenuCommand == 'undefined') {
     console.log("def GM_registerMenuCommand as body attr context menu");
+    let body=document.body;
     this.GM_registerMenuCommand = (caption, commandFunc, accessKey) => {
-	if (!document.body) {
+	if (!body) {
 	    console.error('GM_registerMenuCommand got no body.');
 	    return;
 	}
-	let contextMenu = document.body.getAttribute('contextmenu');
+	let contextMenu = body.getAttribute('contextmenu');
 	let menu = (contextMenu ? document.querySelector('menu#' + contextMenu) : null);
 	if (!menu) {
 	    menu = document.createElement('menu');
 	    menu.setAttribute('id', 'gm-registered-menu');
 	    menu.setAttribute('type', 'context');
-	    document.body.appendChild(menu);
-	    document.body.setAttribute('contextmenu', 'gm-registered-menu');
+	    body.insertBefore(menu,body.firstChild);
+	    body.setAttribute('contextmenu', 'gm-registered-menu');
 	}
 	let menuItem = document.createElement('menuitem');
 	menuItem.textContent = caption;
