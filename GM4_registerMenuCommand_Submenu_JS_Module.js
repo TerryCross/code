@@ -81,6 +81,7 @@ window.submenuModule=(function() { try { //a module, js pattern module, ownSubme
 	scriptName=script_name||"";
 	queue.push(coord_id);
 	queue.sort();   // In GM execution order.  Some may not call register();
+	console.log("Call EnsureJQ",this.jQuery," win:.jq:",window.jQuery);
 	$=ensurejQuery(); //@ require jquery, is not honoured in a library.
 	if (hotkey) altHotkey=hotkey.charCodeAt(0)-32;
 	createOwnSubmenu(hotkey, title_color, itsBackgroundColor); //html setup
@@ -103,7 +104,7 @@ window.submenuModule=(function() { try { //a module, js pattern module, ownSubme
 	if (document.readyState=="complete") docload();
 	else $(window).load(docload); //start-at may mean no body yet.  $(func) is same as window.ready(func), also runs function even if already ready.
     } catch(e){
-	console.info("Failed to load/init submenuModule, "+script_name,e,"this is:",this);
+	console.info("GM4_registerMenuCommand_Submenu_JS_Module.  Failed to load/init submenuModule, "+script_name,e,"this is:",this);
 	if (old_GM_registerMenuCommand) GM_registerMenuCommand=old_GM_registerMenuCommand; 
     } }, //init().   
     docready=function() { // Setup menuwrapper and add own submenu div.  Prior to docload, have body.
