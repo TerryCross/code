@@ -405,6 +405,7 @@ window.submenuModule=(function() { try { //a module, js pattern module, ownSubme
     },
     ensurejQuery=function() {
 	if (this.jQuery||window.jQuery) return this.jQuery||window.jQuery;                     //Use of unsafeWindow.$ is plagued by permssions problems.
+	console.log("Go to eval",window.jQuery,this.jQuery,window.$,this.$);
 	if (!this.jqcode) {
 	    this.jqcode=httpGet("https://code.jquery.com/jquery-latest.js");
 	    if (GM.setValue) GM.setValue("osm_jqueryCode",jqcode);
