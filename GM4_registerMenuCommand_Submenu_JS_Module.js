@@ -404,7 +404,7 @@ window.submenuModule=(function() { try { //a module, js pattern module, ownSubme
 	header=ownSubmenu.find(".osm-header");
     },
     ensurejQuery=function() {
-	if (this.jQuery) return this.jQuery;                     //Use of unsafeWindow.$ is plagued by permssions problems.
+	if (this.jQuery||window.jQuery) return this.jQuery||window.jQuery;                     //Use of unsafeWindow.$ is plagued by permssions problems.
 	if (!this.jqcode) {
 	    this.jqcode=httpGet("https://code.jquery.com/jquery-latest.js");
 	    if (GM.setValue) GM.setValue("osm_jqueryCode",jqcode);
