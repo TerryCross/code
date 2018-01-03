@@ -68,9 +68,9 @@ if (typeof GM_registerMenuCommand == 'undefined') {
 	    body.setAttribute('contextmenu', 'gm-registered-menu');
 	}
 	let menuItem = document.createElement('menuitem');
-	menuItem.textContent = caption;
+	menuItem.setAttribute("label",caption);
 	menuItem.addEventListener('click', commandFunc, true);
-	menu.appendChild(menuItem);
+	menu.insertBefore(menuItem,menu.firstChild);
     };
 }
 
