@@ -55,7 +55,7 @@ if (typeof GM_registerMenuCommand == 'undefined') {
     this.GM_registerMenuCommand = (caption, commandFunc, accessKey) => {
 	let body=document.body;
 	if (!body) {
-	    console.error('gm4-polyfill.js, GM_registerMenuCommand got no body.');
+	    console.error('gm4-polyfill.js, GM_registerMenuCommand aint got no body.');
 	    return;
 	}
 	let contextMenu = body.getAttribute('contextmenu');
