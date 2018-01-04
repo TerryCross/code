@@ -5,7 +5,7 @@
 // @author        Sloan Fox
 // ==UserLibrary==
 // @pseudoHeader
-// @version     1.2.9
+// @version     1.3.0
 // @updateURL   https://openuserjs.org/meta/libs/slow!/GM4_registerMenuCommand_Submenu_JS_Module.meta.js
 // @name        GM4_registerMenuCommand Submenu JS Module
 // @require     http://code.jquery.com/jquery-latest.js 
