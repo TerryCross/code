@@ -1,4 +1,4 @@
-/* gm4-polyfill.js v0.1.2
+/* gm4-polyfill.js v0.1.3
 
   This helper script bridges compatibility between the Greasemonkey 4 APIs and
   existing/legacy APIs.  Say for example your user script includes
@@ -51,8 +51,8 @@ if (typeof GM_registerMenuCommand=="function" && /is not supported[^]{0,100}$/.t
     GM_registerMenuCommand=undefined;
 
 if (typeof GM_registerMenuCommand == 'undefined') {
-    console.log("def GM_registerMenuCommand as body attr context menu");
     this.GM_registerMenuCommand = (caption, commandFunc, accessKey) => {
+	let that=arguments.callee;
 	let body=document.body;
 	if (!body) {
 	    console.error('gm4-polyfill.js, GM_registerMenuCommand aint got no body.');
@@ -70,7 +70,8 @@ if (typeof GM_registerMenuCommand == 'undefined') {
 	let menuItem = document.createElement('menuitem');
 	menuItem.setAttribute("label",caption);
 	menuItem.addEventListener('click', commandFunc, true);
-	menu.insertBefore(menuItem,menu.firstChild);
+	that.firstChild=that.firstChild||menu.firstChild;
+	menu.insertBefore(menuItem,that.firstChild);
     }; // end this.GM_registerMenuCommand().
 }
 
