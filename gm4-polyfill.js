@@ -51,7 +51,7 @@ if (typeof GM_registerMenuCommand=="function" && /is not supported[^]{0,100}$/.t
     GM_registerMenuCommand=undefined;
 
 if (typeof GM_registerMenuCommand == 'undefined') {
-    this.GM_registerMenuCommand = (caption, commandFunc, accessKey) => {
+    this.GM_registerMenuCommand = function (caption, commandFunc, accessKey) {
 	let that=arguments.callee;
 	let body=document.body;
 	if (!body) {
@@ -84,8 +84,8 @@ Object.entries({
     }
 });
 
-
-Object.entries({
+var self=this;
+Object.entries({                     // Object.entries() returns a 2-d array of all the given object's name value pairs.
     'GM_addStyle': 'addStyle',
     'GM_info': 'info',
     'GM_deleteValue': 'deleteValue',
@@ -99,15 +99,12 @@ Object.entries({
     'GM_setValue': 'setValue',
     'GM_xmlhttpRequest': 'xmlHttpRequest'
 }).forEach(([oldKey, newKey]) => {
-    let old = this[oldKey];
+    let old = self[oldKey];
     if (old && (typeof GM[newKey] == 'undefined')) {
 	GM[newKey] = function() {
-	    return new Promise((resolve, reject) => {
-		try {
-		    resolve(old.apply(this, arguments));
-		} catch (e) {
-		    reject(e);
-		}
+	    return new Promise(function(resolve, reject) { try {
+		resolve(old.apply(self, arguments));
+	    } catch (e) { reject(e); }
 	    });
 	};
     }
