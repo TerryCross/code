@@ -83,7 +83,6 @@ window.submenuModule=(function() { try { //a module, js pattern module, ownSubme
 	scriptName=script_name||"";
 	queue.push(coord_id);
 	queue.sort();   // In GM execution order.  Some may not call register();
-	console.log("Call EnsureJQ",!!this.jQuery," win:.jq:",!!window.jQuery);
 	$=ensurejQuery(); //@ require jquery, is not honoured in a library.
 	if (hotkey) altHotkey=hotkey.charCodeAt(0)-32;
 	createOwnSubmenu(hotkey, title_color, itsBackgroundColor); //html setup
@@ -91,11 +90,9 @@ window.submenuModule=(function() { try { //a module, js pattern module, ownSubme
 	ownSubmenu.find(".osmXbutton").click(closeSubmenu); //handler
 	//ownSubmenu.draggable(); // remove due to dependency to jquery.ui
 	ownSubmenu.append(ownSubmenuList);
-	console.log(2.1);
 	old_GM_registerMenuCommand=GM_registerMenuCommand;  //function(){}; // GM4
 	if (window.chrome)     setUpChromeButton();
 	//else old_GM_registerMenuCommand=GM_registerMenuCommand;
-	console.log(2.2);
 	GM_registerMenuCommand=registerInOwnSubmenu;
 	interfaceObj.ineffect=true;
 	//$(document).on("coord_resize",coord_resize);
@@ -103,13 +100,10 @@ window.submenuModule=(function() { try { //a module, js pattern module, ownSubme
 	$(window).on("keydown",function(e) { if (e.altKey&&e.keyCode==altHotkey) {  openSubmenu(); return false;}}); // alt-m or hotkey shortcut
 	$(docready);
 	state="init";
-	console.log(2.5);
 	if (iframe) return;
 	$(document).on("coord_GM_menu", coord_GM_menu);
-	console.log(3,document.readyState,"$win.load func:",$(window).load);
 	if (document.readyState=="complete") docload();
-	else $(window).load(docload); //start-at may mean no body yet.  $(func) is same as window.ready(func), also runs function even if already ready.
-	console.log(3);
+	else $(docload); //start-at may mean no body yet.  $(func) is same as window.ready(func), also runs function even if already ready.
     } catch(e){
 	console.info("GM4_registerMenuCommand_Submenu_JS_Module.  Failed to load/init submenuModule, "+script_name,e,"this is:",this);
 	if (old_GM_registerMenuCommand) GM_registerMenuCommand=old_GM_registerMenuCommand; 
@@ -138,7 +132,6 @@ window.submenuModule=(function() { try { //a module, js pattern module, ownSubme
 	if (menuwrap.attr("osm-blankit")) { menuwrap.find(".menu-title, .osmXbutton, "+osmlisel).text("");blank_textContent=true; }
     },
     docload=function() {       //Problem in ordering original GM menu, if init not called from one script within 2 secs.
-	console.log("docload");
 	var tout=uw.osm_queue.length==uw.osm_max ? 0 : 2000;
 	setTimeout(function(msec){ //wait for other scripts to init for grouping.
 	    uw.osm_max=uw.osm_queue.length; //Don't wait for one that never init.s.
@@ -147,7 +140,6 @@ window.submenuModule=(function() { try { //a module, js pattern module, ownSubme
 	},tout); /// close inits after this time passed??
     },
     coord_GM_menu=function(e){  // Custom Event handler
-	console.log("coord_GM_menu");
 	if (e.originalEvent.detail) { if (interfaceObj.isOpen) closeSubmenu(); else openSubmenu(); return;} //Behaviour, instead, if in queue then either just init or is open.
 	if (!coord_GM_menu.done) coord_GM_menu.done=true; else return;
 	groupBracketing();
@@ -412,9 +404,7 @@ window.submenuModule=(function() { try { //a module, js pattern module, ownSubme
     },
     ensurejQuery=function() {
 	var jq=this.jQuery||window.jQuery;
-	console.log("Perhaps to eval",jq?jq.fn.jquery:"none");
 	if(jq) return jq;
-	console.log("Eval");
 	if (!this.jqcode) {
 	    //this.jqcode=httpGet("https://code.jquery.com/jquery-latest.js");
 	    this.jqcode=httpGet("https://code.jquery.com/jquery-3.2.1.js");
