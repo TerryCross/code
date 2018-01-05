@@ -84,7 +84,6 @@ Object.entries({
     }
 });
 
-var self=this;
 Object.entries({                     // Object.entries() returns a 2-d array of all the given object's name value pairs.
     'GM_addStyle': 'addStyle',
     'GM_info': 'info',
@@ -99,11 +98,11 @@ Object.entries({                     // Object.entries() returns a 2-d array of 
     'GM_setValue': 'setValue',
     'GM_xmlhttpRequest': 'xmlHttpRequest'
 }).forEach(([oldKey, newKey]) => {
-    let old = self[oldKey];
+    let old = this[oldKey];
     if (old && (typeof GM[newKey] == 'undefined')) {
-	GM[newKey] = function() {
+	GM[newKey] = function(...args) {
 	    return new Promise(function(resolve, reject) { try {
-		resolve(old.apply(self, arguments));
+		resolve(old.apply(this, args));
 	    } catch (e) { reject(e); }
 	    });
 	};
