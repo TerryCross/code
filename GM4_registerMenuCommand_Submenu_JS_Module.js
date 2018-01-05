@@ -136,6 +136,7 @@ window.submenuModule=(function() { try { //a module, js pattern module, ownSubme
 	if (menuwrap.attr("osm-blankit")) { menuwrap.find(".menu-title, .osmXbutton, "+osmlisel).text("");blank_textContent=true; }
     },
     docload=function() {       //Problem in ordering original GM menu, if init not called from one script within 2 secs.
+	console.log("docload");
 	var tout=uw.osm_queue.length==uw.osm_max ? 0 : 2000;
 	setTimeout(function(msec){ //wait for other scripts to init for grouping.
 	    uw.osm_max=uw.osm_queue.length; //Don't wait for one that never init.s.
@@ -144,6 +145,7 @@ window.submenuModule=(function() { try { //a module, js pattern module, ownSubme
 	},tout); /// close inits after this time passed??
     },
     coord_GM_menu=function(e){  // Custom Event handler
+	console.log("coord_GM_menu");
 	if (e.originalEvent.detail) { if (interfaceObj.isOpen) closeSubmenu(); else openSubmenu(); return;} //Behaviour, instead, if in queue then either just init or is open.
 	if (!coord_GM_menu.done) coord_GM_menu.done=true; else return;
 	groupBracketing();
