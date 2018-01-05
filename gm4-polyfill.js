@@ -50,31 +50,30 @@ if (typeof GM_addStyle == 'undefined') {
 if (typeof GM_registerMenuCommand=="function" && /is not supported[^]{0,100}$/.test(GM_registerMenuCommand.toString()))
     GM_registerMenuCommand=undefined;
 
-if (typeof GM_registerMenuCommand == 'undefined') {
-    this.GM_registerMenuCommand = function (caption, commandFunc, accessKey) {
-	let that=arguments.callee;
-	let body=document.body;
-	if (!body) {
-	    console.error('gm4-polyfill.js, GM_registerMenuCommand aint got no body.');
-	    return;
-	}
-	let contextMenu = body.getAttribute('contextmenu');
-	let menu = (contextMenu ? document.querySelector('menu#' + contextMenu) : null);
-	if (!menu) {
-	    menu = document.createElement('menu');
-	    menu.setAttribute('id', 'gm-registered-menu');
-	    menu.setAttribute('type', 'context');
-	    body.insertBefore(menu,body.firstChild);
-	    body.setAttribute('contextmenu', 'gm-registered-menu');
-	}
-	let menuItem = document.createElement('menuitem');
-	menuItem.setAttribute("label",caption);
-	menuItem.addEventListener('click', commandFunc, true);
-	that.firstChild=that.firstChild||menu.firstChild;
-	menu.insertBefore(menuItem,that.firstChild);
-    }; // end this.GM_registerMenuCommand().
-}
+GM.registerMenuCommand = function (caption, commandFunc, accessKey) {
+    let that=arguments.callee;
+    let body=document.body;
+    if (!body) {
+	console.error('gm4-polyfill.js, GM_registerMenuCommand aint got no body.');
+	return;
+    }
+    let contextMenu = body.getAttribute('contextmenu');
+    let menu = (contextMenu ? document.querySelector('menu#' + contextMenu) : null);
+    if (!menu) {
+	menu = document.createElement('menu');
+	menu.setAttribute('id', 'gm-registered-menu');
+	menu.setAttribute('type', 'context');
+	body.insertBefore(menu,body.firstChild);
+	body.setAttribute('contextmenu', 'gm-registered-menu');
+    }
+    let menuItem = document.createElement('menuitem');
+    menuItem.setAttribute("label",caption);
+    menuItem.addEventListener('click', commandFunc, true);
+    if(that.firstChild===undefined) that.firstChild=menu.firstChild;
+    menu.insertBefore(menuItem,that.firstChild);
+}; // end this.GM_registerMenuCommand().
 
+if (typeof GM_registerMenuCommand == 'undefined') this.GM_registerMenuCommand=GM.registerMenuCommand;
 
 Object.entries({
     'log': console.log
