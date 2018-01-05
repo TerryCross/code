@@ -91,9 +91,11 @@ window.submenuModule=(function() { try { //a module, js pattern module, ownSubme
 	ownSubmenu.find(".osmXbutton").click(closeSubmenu); //handler
 	//ownSubmenu.draggable(); // remove due to dependency to jquery.ui
 	ownSubmenu.append(ownSubmenuList);
+	console.log(2);
 	old_GM_registerMenuCommand=GM_registerMenuCommand;  //function(){}; // GM4
 	if (window.chrome)     setUpChromeButton();
 	//else old_GM_registerMenuCommand=GM_registerMenuCommand;
+	console.log(2);
 	GM_registerMenuCommand=registerInOwnSubmenu;
 	interfaceObj.ineffect=true;
 	//$(document).on("coord_resize",coord_resize);
@@ -101,6 +103,7 @@ window.submenuModule=(function() { try { //a module, js pattern module, ownSubme
 	$(window).on("keydown",function(e) { if (e.altKey&&e.keyCode==altHotkey) {  openSubmenu(); return false;}}); // alt-m or hotkey shortcut
 	$(docready);
 	state="init";
+	console.log(2);
 	if (iframe) return;
 	$(document).on("coord_GM_menu", coord_GM_menu);
 	if (document.readyState=="complete") docload();
