@@ -404,8 +404,9 @@ window.submenuModule=(function() { try { //a module, js pattern module, ownSubme
 	header=ownSubmenu.find(".osm-header");
     },
     ensurejQuery=function() {
-	if (this.jQuery||window.jQuery) return this.jQuery||window.jQuery;                     //Use of unsafeWindow.$ is plagued by permssions problems.
-	console.log("Go to eval",window.jQuery,this.jQuery,window.$,this.$);
+	var jq=this.jQuery||window.jQuery;
+	console.log("Go to eval",window.jQuery,this.jQuery,window.$,this.$,"Version:",(jq?jq.fn.jquery:"none"));
+	if(jq) return jq;
 	if (!this.jqcode) {
 	    //this.jqcode=httpGet("https://code.jquery.com/jquery-latest.js");
 	    this.jqcode=httpGet("https://code.jquery.com/jquery-3.2.1.js");
