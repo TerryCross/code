@@ -5,10 +5,10 @@
 // @author        Sloan Fox
 // ==UserLibrary==
 // @pseudoHeader
-// @version     1.3.0
+// @version     1.3.1
 // @updateURL   https://openuserjs.org/meta/libs/slow!/GM4_registerMenuCommand_Submenu_JS_Module.meta.js
 // @name        GM4_registerMenuCommand Submenu JS Module
-// @require     http://code.jquery.com/jquery-latest.js 
+// @require     https://code.jquery.com/jquery-3.2.1.js
 // @license     GPL-3.0
 // @copyright   2017, slow! (https://openuserjs.org/users/slow!)
 // @namespace   sfsOms
@@ -407,7 +407,8 @@ window.submenuModule=(function() { try { //a module, js pattern module, ownSubme
 	if (this.jQuery||window.jQuery) return this.jQuery||window.jQuery;                     //Use of unsafeWindow.$ is plagued by permssions problems.
 	console.log("Go to eval",window.jQuery,this.jQuery,window.$,this.$);
 	if (!this.jqcode) {
-	    this.jqcode=httpGet("https://code.jquery.com/jquery-latest.js");
+	    //this.jqcode=httpGet("https://code.jquery.com/jquery-latest.js");
+	    this.jqcode=httpGet("https://code.jquery.com/jquery-3.2.1.js");
 	    if (GM.setValue) GM.setValue("osm_jqueryCode",jqcode);
 	}
 	eval(this.jqcode);
