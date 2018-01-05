@@ -405,8 +405,9 @@ window.submenuModule=(function() { try { //a module, js pattern module, ownSubme
     },
     ensurejQuery=function() {
 	var jq=this.jQuery||window.jQuery;
-	console.log("Go to eval",jq?jq.fn.jquery:"none");
+	console.log("Perhaps to eval",jq?jq.fn.jquery:"none");
 	if(jq) return jq;
+	console.log("Eval");
 	if (!this.jqcode) {
 	    //this.jqcode=httpGet("https://code.jquery.com/jquery-latest.js");
 	    this.jqcode=httpGet("https://code.jquery.com/jquery-3.2.1.js");
