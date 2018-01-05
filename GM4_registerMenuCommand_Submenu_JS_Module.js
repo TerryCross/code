@@ -91,11 +91,11 @@ window.submenuModule=(function() { try { //a module, js pattern module, ownSubme
 	ownSubmenu.find(".osmXbutton").click(closeSubmenu); //handler
 	//ownSubmenu.draggable(); // remove due to dependency to jquery.ui
 	ownSubmenu.append(ownSubmenuList);
-	console.log(2);
+	console.log(2.1);
 	old_GM_registerMenuCommand=GM_registerMenuCommand;  //function(){}; // GM4
 	if (window.chrome)     setUpChromeButton();
 	//else old_GM_registerMenuCommand=GM_registerMenuCommand;
-	console.log(2);
+	console.log(2.2);
 	GM_registerMenuCommand=registerInOwnSubmenu;
 	interfaceObj.ineffect=true;
 	//$(document).on("coord_resize",coord_resize);
@@ -106,7 +106,7 @@ window.submenuModule=(function() { try { //a module, js pattern module, ownSubme
 	console.log(2.5);
 	if (iframe) return;
 	$(document).on("coord_GM_menu", coord_GM_menu);
-	console.log(3);
+	console.log(3,document.readyState,"$win.load func:",$(window).load);
 	if (document.readyState=="complete") docload();
 	else $(window).load(docload); //start-at may mean no body yet.  $(func) is same as window.ready(func), also runs function even if already ready.
 	console.log(3);
