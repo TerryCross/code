@@ -51,7 +51,7 @@ if (typeof GM_registerMenuCommand=="function" && /is not supported[^]{0,100}$/.t
     GM_registerMenuCommand=undefined;
 
 GM.registerMenuCommand = function (caption, commandFunc, accessKey) {
-    let that=arguments.callee;
+    let that=arguments.callee; that.gm4_polyfill=true;
     let body=document.body;
     if (!body) {
 	console.error('gm4-polyfill.js, GM_registerMenuCommand aint got no body.');
@@ -71,7 +71,8 @@ GM.registerMenuCommand = function (caption, commandFunc, accessKey) {
     menuItem.addEventListener('click', commandFunc, true);
     if(that.firstChild===undefined) that.firstChild=menu.firstChild;
     menu.insertBefore(menuItem,that.firstChild);
-}; // end this.GM_registerMenuCommand().
+    return "contextmenu";    // The real GM_registerMenuCommand returns undefined.
+};
 
 if (typeof GM_registerMenuCommand == 'undefined') this.GM_registerMenuCommand=GM.registerMenuCommand;
 
