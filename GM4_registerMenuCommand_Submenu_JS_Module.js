@@ -147,7 +147,7 @@ var submenuModule=(function() { try { //a module, js pattern module, ownSubmenu(
 	coord_GM_menu=function(e){  // Custom Event handler
 		var detail=e.originalEvent.detail;
 		
-		if(!isNaN(detail)) { if (detail!=coord_id) return; }// Only handle event directed by coord order.
+		if(Number(detail)) { if (detail!=coord_id) return; }// Only handle event directed by coord order.
 		else if (detail && detail.chromeButton) { if (interfaceObj.isOpen) closeSubmenu(); else {console.log("OPEN submenu detail"); openSubmenu();} return;} //Behaviour, instead, if in queue then either just init or is open.
 		
 		if (!coord_GM_menu.done) coord_GM_menu.done=true; else return;
