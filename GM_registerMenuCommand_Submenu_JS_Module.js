@@ -1,18 +1,23 @@
+/* GM4_registerMenuCommand_Submenu_JS_Module.js */
+
+// ==UserScript==
+// @exclude       *
+// @author        Sloan Fox
 // ==UserLibrary==
 // @pseudoHeader
 // @version     1.2.6
 // @updateURL   https://openuserjs.org/meta/libs/slow!/GM_registerMenuCommand_Submenu_JS_Module.meta.js
 // @name        GM_registerMenuCommand Submenu
 // @require     http://code.jquery.com/jquery-latest.js 
-// @licence     https://creativecommons.org/licenses/by-nc-sa/4.0/
+// @license     GPL-3.0
 // @namespace   sfsOms
 // @description Submenu in GM
-// @icon        http://bit.ly/1PNivBe
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_xmlhttpRequest
 // @exclude     *
 // ==/UserLibrary==
+// ==/UserScript==
 //
 // @updated  May 2016.  Bugfix for google image site, see createElement("style") below.  Also fix for iframes used as textareas x 2.
 // @updated  Feb 2016.  1.1.2 Works also on Google Chromium.  Adds positioning of menu-command within submenu.
