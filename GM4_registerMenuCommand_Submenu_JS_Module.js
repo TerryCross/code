@@ -93,7 +93,7 @@ var submenuModule=(function() { try { //a module, js pattern module, ownSubmenu(
 		ownSubmenu.find(".osmXbutton").click(closeSubmenu); //handler
 		//ownSubmenu.draggable(); // remove due to dependency to jquery.ui
 		ownSubmenu.append(ownSubmenuList);
-		if (window.chrome)     setUpChromeButton();
+		if (window.plat_chrome)     setUpChromeButton();
 		//else old_GM_registerMenuCommand=GM_registerMenuCommand;
 		interfaceObj.ineffect=true;
 		//$(document).on("coord_resize",coord_resize);
@@ -565,7 +565,8 @@ var submenuModule=(function() { try { //a module, js pattern module, ownSubmenu(
 	preInit();
 	var getCoordid=function(){return coord_id;}; 
 	String.prototype.trim = function (charset) { if (!charset) return this.replace(/^\s*|\s*$/g,""); else return this.replace( RegExp("^["+charset+"]*|["+charset+"]*$", "g" ) , "");}; //trim spaces or any set of characters.
-	if (window.chrome) uw=initUWonChrome();
+	if (/Chrome/.test(navigator.userAgent)) window.plat_chrome=true;
+	if (window.plat_chrome) uw=initUWonChrome();
 	else uw=unsafeWindow;
 	if (uw.osm_count) uw.osm_count++;
 	else { uw.osm_count=1; uw.osm_max=1; uw.osm_queue=[]; uw.osm_shrink_factor=[1]; }

@@ -1,6 +1,6 @@
 // ==UserLibrary==
 // @pseudoHeader
-// @version     1.2.5
+// @version     1.2.6
 // @updateURL   https://openuserjs.org/meta/libs/slow!/GM_registerMenuCommand_Submenu_JS_Module.meta.js
 // @name        GM_registerMenuCommand Submenu
 // @require     http://code.jquery.com/jquery-latest.js 
@@ -125,7 +125,7 @@ var submenuModule=(function() { //a module, js pattern module, ownSubmenu() is a
 	},tout); /// close inits after this time passed??
     },
     coord_GM_menu=function(e){  // Custom Event handler
-	if (e.originalEvent.detail) { if (interfaceObj.isOpen) closeSubmenu(); else openSubmenu(); return;} //Behaviour, instead, if in queue then either just init or is open.
+	if (e.originalEvent.detail && e.originalEvent.detail.chromeButton) { if (interfaceObj.isOpen) closeSubmenu(); else openSubmenu(); return;} //Behaviour, instead, if in queue then either just init or is open.
 	if (!coord_GM_menu.done) coord_GM_menu.done=true; else return;
 	groupBracketing();
 	var str=(scriptName||"Submenu")+".....", sp="\u2001",  vln="\u2503"; // 2500, 2502 for thin, //graphic-space 3000
