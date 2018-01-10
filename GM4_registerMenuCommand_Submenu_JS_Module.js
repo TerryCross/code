@@ -148,7 +148,7 @@ var submenuModule=(function() { try { //a module, js pattern module, ownSubmenu(
 		var detail=e.originalEvent.detail;
 		
 		if(!isNaN(detail)) { if (detail!=coord_id) return; }// Only handle event directed by coord order.
-		else if (detail) { if (interfaceObj.isOpen) closeSubmenu(); else openSubmenu(); return;} //Behaviour, instead, if in queue then either just init or is open.
+		else if (detail) { if (interfaceObj.isOpen) closeSubmenu(); else {console.log("OPEN submenu detail"); openSubmenu();} return;} //Behaviour, instead, if in queue then either just init or is open.
 		
 		if (!coord_GM_menu.done) coord_GM_menu.done=true; else return;
 		groupBracketing();
@@ -193,14 +193,14 @@ var submenuModule=(function() { try { //a module, js pattern module, ownSubmenu(
 			else { boxes.filter("#ownSubmenu"+uw.osm_queue[0]).focus(); }
 		}); //.show()
 		ownSubmenu.on("focus.osm",function(e){
-			//console.log("ownSubmenu.on ficus, ae",document.activeElement);
+			console.log("ownSubmenu.on ficus, ae",document.activeElement);
 			ownSubmenuList.focus();});
 		ownSubmenu.on("dblclick.osm",function(e){
 			if ($(".osm-header",ownSubmenu).text()=="")	closeSubmenu();
 			else toggleMenu();});
 		ownSubmenuList.on("focus.osm",function(e){ $(":first",this).focus();});
 		lis.on("focus.osm",function(e){
-			//console.log("lis.on ficus, ae",document.activeElement);
+			console.log("lis.on ficus, ae",document.activeElement);
 			var t=$(e.target);
 			window.status=t.text();
 			//lis.removeClass("osm-selected");
@@ -216,7 +216,7 @@ var submenuModule=(function() { try { //a module, js pattern module, ownSubmenu(
 			var t=$(e.target);
 			e.target.focus(); //needed on chromium.
 			if (t.is("li.osm-button") || (t.closest("div.osm-box").length==0 && t.closest("div#GM_menu_button").length==0) && ! /menuitem/i.test(t[0].tagName)) {
-				//console.log("click on target",t[0].tagName,"if osm-button or not child of osm & button");
+				console.log("click on target",t[0].tagName,"if osm-button or not child of osm & button");
 				closeSubmenu(e.clientX==0 && e.clientY==0);
 			} // close if body clicked but not bubbled from a menu item.
 		});

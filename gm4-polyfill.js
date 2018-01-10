@@ -55,7 +55,7 @@ GM.registerMenuCommand = function (caption, commandFunc, accessKey) {
 	let body=document.body;
 	if (!body) {
 		console.error('gm4-polyfill.js, GM_registerMenuCommand aint got no body.');
-		return;
+		return "failed";
 	}
 	let contextMenu = body.getAttribute('contextmenu');
 	let menu = (contextMenu ? document.querySelector('menu#' + contextMenu) : null);
