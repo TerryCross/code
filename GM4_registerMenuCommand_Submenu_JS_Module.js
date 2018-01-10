@@ -193,14 +193,14 @@ var submenuModule=(function() { try { //a module, js pattern module, ownSubmenu(
 			else { boxes.filter("#ownSubmenu"+uw.osm_queue[0]).focus(); }
 		}); //.show()
 		ownSubmenu.on("focus.osm",function(e){
-			console.log("ownSubmenu.on ficus, ae",document.activeElement);
+			//console.log("ownSubmenu.on ficus, ae",document.activeElement);
 			ownSubmenuList.focus();});
 		ownSubmenu.on("dblclick.osm",function(e){
 			if ($(".osm-header",ownSubmenu).text()=="")	closeSubmenu();
 			else toggleMenu();});
 		ownSubmenuList.on("focus.osm",function(e){ $(":first",this).focus();});
 		lis.on("focus.osm",function(e){
-			console.log("lis.on ficus, ae",document.activeElement);
+			//console.log("lis.on ficus, ae",document.activeElement);
 			var t=$(e.target);
 			window.status=t.text();
 			//lis.removeClass("osm-selected");
