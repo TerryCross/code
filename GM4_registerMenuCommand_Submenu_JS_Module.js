@@ -5,7 +5,7 @@
 // @author        Sloan Fox
 // ==UserLibrary==
 // @pseudoHeader
-// @version     1.3.2
+// @version     1.3.3
 // @updateURL   https://openuserjs.org/meta/libs/slow!/GM4_registerMenuCommand_Submenu_JS_Module.meta.js
 // @name        GM4_registerMenuCommand Submenu JS Module
 // @require     https://code.jquery.com/jquery-3.2.1.js
@@ -21,7 +21,7 @@
 // ==/UserScript==
 
 //
-// @updated  Dec 2017.  Adapt to GM4, use new name "GM4_registerMenuCommand Submenu", the 4 indicating its use in GM4 onward.
+// @updated  Jan 2018.  Adapt to GM4, use new name "GM4_registerMenuCommand Submenu", the 4 indicating its use in GM4 onward.
 // @updated  Dec 2017.  Use the submenuModule object to access document.activeElement that was set on webpage prior to menu click; use submenuModule.activeElement variable to access it.
 // @updated  Nov 2016.  Chrome adaptation, color settings now per userscript menu.
 // @updated  May 2016.  Bugfix for google image site, see createElement("style") below.  Also fix for iframes used as textareas x 2.
@@ -39,7 +39,7 @@
 // or
 //   // @require https://github.com/SloaneFox/code/raw/master/GM4_registerMenuCommand_Submenu_JS_Module.js
 //
-// This will create a global object called "submenuModule" when your script runs.
+// Within the js closure that includes this this file an object,  called "submenuModule" is created.
 // Secondly, put a call to submenuModule's register() function in your script's code, make sure that
 // this is early enough and is prior to the registering of any menu commands with GM_registerMenuCommand:
 //
@@ -84,31 +84,22 @@ var submenuModule=(function() { try { //a module, js pattern module, ownSubmenu(
 		GM_registerMenuCommand=registerInOwnSubmenu;
 		await preInit();
 		scriptName=script_name||"";
-		queue.push(coord_id);
-		queue.sort();   // In GM execution order.  Some may not call register();
-		$=ensurejQuery(); //@ require jquery, is not honoured in a library.
+		queue.push(coord_id);		queue.sort();     // In GM execution order.  Some may not call register();
+		$=ensurejQuery(); //console.log("GM4_rMC Jquery version:",$.fn.jquery);
 		if (hotkey) altHotkey=hotkey.charCodeAt(0)-32;
 		createOwnSubmenu(hotkey, title_color, itsBackgroundColor); //html setup
-		ownSubmenu.hide();
-		ownSubmenu.find(".osmXbutton").click(closeSubmenu); //handler
-		//ownSubmenu.draggable(); // remove due to dependency to jquery.ui
-		ownSubmenu.append(ownSubmenuList);
+		ownSubmenu.hide();		    ownSubmenu.find(".osmXbutton").click(closeSubmenu);		ownSubmenu.append(ownSubmenuList);
 		if (window.plat_chrome)     setUpChromeButton();
-		//else old_GM_registerMenuCommand=GM_registerMenuCommand;
-		interfaceObj.ineffect=true;
-		//$(document).on("coord_resize",coord_resize);
-		document.addEventListener("coord_resize",coord_resize);
+		interfaceObj.ineffect=true; document.addEventListener("coord_resize",coord_resize);
 		$(window).on("keydown",function(e) { if (e.altKey&&e.keyCode==altHotkey) {  openSubmenu(); return false;}}); // alt-m or hotkey shortcut
-		$(docready);
-		state="init";
-		if (iframe) return;
+		$(docready);	state="init";
+		if (iframe)     return;
 		$(document).on("coord_GM_menu", coord_GM_menu);
-		if (document.readyState=="complete") docload();
-		else $(docload); //start-at may mean no body yet.  $(func) is same as window.ready(func), also runs function even if already ready.
+		if (document.readyState=="complete") docload();	else $(docload); //start-at may mean no body yet.  $(func) is same as window.ready(func), also runs function even if already ready.
 		regmutex.unlock();
 	} catch(e){
 		console.info("GM4_registerMenuCommand_Submenu_JS_Module.  Failed to load/init submenuModule, "+script_name,e,"this is:",this);
-		if (old_GM_registerMenuCommand) GM_registerMenuCommand=old_GM_registerMenuCommand; 
+		if (old_GM_registerMenuCommand) GM_registerMenuCommand=old_GM_registerMenuCommand; // revert on failure
 	} }, //init().   
 	docready=function() { // Setup menuwrapper and add own submenu div.  Prior to docload, have body.
 		body=$("body");
@@ -117,9 +108,7 @@ var submenuModule=(function() { try { //a module, js pattern module, ownSubmenu(
 		if (!menuwrap.length) {
 			var point_of_attachment=body, gm_button=$("#GM_menu_button"), pos_css="left:15%;top:15%;";
 			if (gm_button.length) { point_of_attachment=gm_button; pos_css="right:30px;"; }
-			//point_of_attachment.prepend(menuwrap=$("<div id=osm-menuwrap style='position:fixed;"+pos_css+"z-index:2147483647 ;display:table;'></div>"));
 			point_of_attachment.append(menuwrap=$("<div id=osm-menuwrap style='position:fixed;"+pos_css+"z-index:2147483647 ;display:table;'></div>"));
-			//console.log(scriptName,", added menuwrapper. poa:",point_of_attachment,iframe);
 		}
 		menuwrap.append(ownSubmenu);
 		//console.log("Check on body ",body.children().length," is osm:",body.children().is("#osm-menuwrap"));
@@ -139,9 +128,7 @@ var submenuModule=(function() { try { //a module, js pattern module, ownSubmenu(
 			if (uw.osm_shutdoor) return;
 			uw.osm_shutdoor=true;
 			uw.osm_max=uw.osm_queue.length; //Don't wait for one that never init.s.
-			for (let i=1;i<=uw.osm_max;i++) {
-				dispatch("coord_GM_menu",i); // emits one event for each coor_id ir oder from 1 up.
-			}
+			for (let i=1;i<=uw.osm_max;i++) dispatch("coord_GM_menu",uw.osm_queue[i]); // emits one event for each coor_id ir oder from 1 up.
 		},tout); /// close inits after this time passed??
 	},
 	coord_GM_menu=function(e){  // Custom Event handler
@@ -176,16 +163,15 @@ var submenuModule=(function() { try { //a module, js pattern module, ownSubmenu(
 		ownSubmenuList.append(li);
 	},
 	openSubmenu=function() {
-		//console.log("openSubmenu.on ficus, ae",document.activeElement);
 		interfaceObj.activeElement=document.activeElement;
 		if (interfaceObj.isOpen) return; interfaceObj.isOpen=true;
 		var diagdist=Infinity;
 		if (uw.osm_queue.indexOf(coord_id)==-1) uw.osm_queue.push(coord_id);
 		lis=ownSubmenuList.find("li");
-		ownSubmenu.show(300, function(){ //slowly changes opacity. jQuery creates an undisplayed table during this for some reason.  If error in thread this may leave elements half open.
+		menuwrap.show();
+		ownSubmenu.show(300, function(){ // called on completion; slowly changes opacity. jQuery creates an undisplayed table during this for some reason.  If error in thread this may leave elements half open.
 			if (!list_orig_height) list_orig_height=ownSubmenuList.height();
 			coord_resize();
-			menuwrap.show();
 			if (coord_id!=uw.osm_queue.slice(-1)) return; //Last menu to open focuses menu at top left.
 			var boxes=$("div.osm-box").each(function() { var p=$(this);p.data("diagdist",p.position().left*10+p.position().top);});
 			uw.osm_queue.sort(function(a,b){ return boxes.filter("#ownSubmenu"+a).data("diagdist") - boxes.filter("#ownSubmenu"+b).data("diagdist"); });
@@ -193,7 +179,7 @@ var submenuModule=(function() { try { //a module, js pattern module, ownSubmenu(
 			else { boxes.filter("#ownSubmenu"+uw.osm_queue[0]).focus(); }
 		}); //.show()
 		ownSubmenu.on("focus.osm",function(e){
-			//console.log("ownSubmenu.on ficus, ae",document.activeElement);
+			..console.log("ownSubmenu.on ficus, ae",document.activeElement);
 			ownSubmenuList.focus();});
 		ownSubmenu.on("dblclick.osm",function(e){
 			if ($(".osm-header",ownSubmenu).text()=="")	closeSubmenu();
@@ -271,6 +257,7 @@ var submenuModule=(function() { try { //a module, js pattern module, ownSubmenu(
 		var portalh=Math.min(window.innerHeight,$(window).height())-10, available_height, available_width, portalw=Math.min(window.innerWidth,$(window).width()-lmarg);
 		available_height = portalh - ownSubmenu.position().top - shrink_factor*(header.height() + 22); //$.height ignores "box-sizing: border-box" which normally includes paddings & borders but not margins.
 		var new_h=Math.max(Math.min(75,list_orig_height), Math.min(available_height, list_orig_height)); //position relative to window not document, use: ownSubmenuList.offset().top - $(window).scrollTop(). viewport height.
+		console.dir(ownSubmenuList[0]);
 		if (new_h != ownSubmenuList.height()) {
 			ownSubmenuList.height(new_h);
 			var newsh=Math.min(portalh/menuwrap.height(), portalw/menuwrap.width());
@@ -334,7 +321,8 @@ var submenuModule=(function() { try { //a module, js pattern module, ownSubmenu(
 			}
 		}
 	},
-	positionAt=function(name, newpos) {
+	positionAt=async function(name, newpos) {
+		await regmutex.lock;
 		mvitem(name,name,newpos);
 	},
 	matchItem=function(name) {
@@ -350,11 +338,13 @@ var submenuModule=(function() { try { //a module, js pattern module, ownSubmenu(
 	},
 	unGroup=function() { uw.osm_menu_grouping=false; },
 	activeCoord_id=function(){ return $(document.activeElement).closest(".osm-box").data("coord_id");},
-	//Tree: <div id=osm-menuwrap><div id=ownSubmenu(coord_id) class=osm-box>
-	//                                <div class=osm-header><\b><\b><\b></div>
-	//                                <ul id=ownSubmenuList>
-	//                                    <li class=osm-button id=ownSubmenuList(coord_id)>
-	//                                    <li>...</>..<li>s
+	//Overview of shape of pseudo HTML Tree:
+	//                               <div id=osm-menuwrap>                                 // var menuwrap
+	//                                 <div id=ownSubmenu(coord_id) class=osm-box>         // var ownSubmenu
+	//                                   <div class=osm-header><\b><\b><\b></div>          // var header
+	//                                     <ul id=ownSubmenuList>                          // var ownSubmenuList
+	//                                       <li class=osm-button id=ownSubmenuList(coord_id)> // var osmlisel
+	//                                       <li>...</>..<li>s
 	createOwnSubmenu=function(hotkey, title_color, li_text_color) { // li_text_color is also menu frame background, color must be in string form, eg, '#ffffff'
 		xbutton="<b class=osmXbutton style='float:right;margin-top:-7px;color:black;margin-right:-4px;"
 			+"font-size:xx-small;'>&#x2715;</b>";         // #2715 is an 'x'
@@ -561,8 +551,6 @@ var submenuModule=(function() { try { //a module, js pattern module, ownSubmenu(
 	}; ////////////////////End of var comma module function def sequence.
 	////////////Semicolon ends comma separated variable definitions of the various module functions.
 	/////////////////////
-	//pre-init:
-	preInit();
 	var getCoordid=function(){return coord_id;}; 
 	String.prototype.trim = function (charset) { if (!charset) return this.replace(/^\s*|\s*$/g,""); else return this.replace( RegExp("^["+charset+"]*|["+charset+"]*$", "g" ) , "");}; //trim spaces or any set of characters.
 	if (/Chrome/.test(navigator.userAgent)) window.plat_chrome=true;
@@ -616,8 +604,8 @@ var submenuModule=(function() { try { //a module, js pattern module, ownSubmenu(
 				else if (! el.textContent) el.textContent=css;
 			} //injectCss()
 			
-		} //endif !getElementById
-	} catch(e) { console.log("Cannot get font, error: "+e+", line:"+e.lineNumber+".");} } //end if !getElementById
+		} //endif !doc.getElementById(squadafont)
+	} catch(e) { console.log("Cannot get font, error: "+e+", line:"+e.lineNumber+".");}} //preInit()
 } catch(e){console.log("Error in submenuModule",e);}} )(); //var submenuModule=(function(){.
 
 function logStack(fileToo) { // deepest first.
