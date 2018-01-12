@@ -179,7 +179,7 @@ var submenuModule=(function() { try { //a module, js pattern module, ownSubmenu(
 			else { boxes.filter("#ownSubmenu"+uw.osm_queue[0]).focus(); }
 		}); //.show()
 		ownSubmenu.on("focus.osm",function(e){
-			..console.log("ownSubmenu.on ficus, ae",document.activeElement);
+			//console.log("ownSubmenu.on ficus, ae",document.activeElement);
 			ownSubmenuList.focus();});
 		ownSubmenu.on("dblclick.osm",function(e){
 			if ($(".osm-header",ownSubmenu).text()=="")	closeSubmenu();
