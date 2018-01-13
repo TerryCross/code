@@ -4,7 +4,8 @@
 // @exclude       *
 // @author        Sloan Fox
 // ==UserLibrary==
-// @version     1.3.3
+// @pseudoHeader
+// @version     1.3.4
 // @updateURL   https://openuserjs.org/meta/libs/slow!/GM4_registerMenuCommand_Submenu_JS_Module.meta.js
 // @name        GM4_registerMenuCommand Submenu JS Module
 // @require     https://code.jquery.com/jquery-3.2.1.js
@@ -13,9 +14,11 @@
 // @copyright   2017, slow! (https://openuserjs.org/users/slow!)
 // @namespace   sfsOms
 // @description Submenu in GM
+// @grant       GM_getValue
+// @grant       GM_setValue
 // @grant       GM.getValue
 // @grant       GM.setValue
-// @grant       GM.xmlHttpRequest
+// @grant       GM4_registerMenuCommand
 // @exclude     *
 // ==/UserLibrary==
 // ==/UserScript==
@@ -37,7 +40,8 @@
 //
 //   // @require  https://raw.githubusercontent.com/SloaneFox/code/master/gm4-polyfill.js
 //   // @require  https://raw.githubusercontent.com/SloaneFox/code/master/GM4_registerMenuCommand_Submenu_JS_Module.js
-//   -- note this results in the creation of an object called "submenuModule" within the js closure scope.
+//   -- note this results in the creation of an object called "submenuModule" within the js closure scope.  @grant additions
+//      may also be required in the header of your script, the pseudo header only indicates which you must add to your script.
 //
 // Secondly, put a call to this new object, "submenuModule"'s register() function in your script's code, making sure that
 // this is early enough and is prior to the usual registering of any menu commands with GM_registerMenuCommand:
@@ -76,7 +80,7 @@
 // When run on older GM versions this context menu can now also be used by coding with:
 // 		var reg_args=["name",function];
 //		if(!GM_registerMenuCommand(...reg_args))  GM.registerMenuCommand(...reg_args);
-// This will insert the command twice, once in the usual GM commands menu and secondly in the webpage mouse context button.
+// This create two menu items, once in the usual GM commands menu (of there) and in the webpage's mouse context menu.
 
 var submenuModule=(function() { try { //a module, js pattern module, ownSubmenu() is a closure returning an interface object in scope of 'this'.  Side effect alters GM_registerMenuCommand.  Not window.submenuModule clash of multiusage.
 	var sify=JSON.stringify, ownSubmenu, ownSubmenuList, xbutton, body, state=null;
@@ -134,7 +138,7 @@ var submenuModule=(function() { try { //a module, js pattern module, ownSubmenu(
 			if (uw.osm_shutdoor) return;
 			uw.osm_shutdoor=true;
 			uw.osm_max=uw.osm_queue.length; //Don't wait for one that never init.s.
-			for (let i=1;i<=uw.osm_max;i++) dispatch("coord_GM_menu",uw.osm_queue[i]); // emits one event for each coor_id ir oder from 1 up.
+			for (let i=0;i<uw.osm_max;i++) dispatch("coord_GM_menu",uw.osm_queue[i]); // emits one event for each coor_id ir oder from 1 up.
 		},tout); /// close inits after this time passed??
 	},
 	coord_GM_menu=function(e){  // Custom Event handler
@@ -147,7 +151,7 @@ var submenuModule=(function() { try { //a module, js pattern module, ownSubmenu(
 		groupBracketing();
 		var str=(scriptName||"Submenu")+".....", sp="\u2001",  vln="\u2503"; // 2500, 2502 for thin, //graphic-space 3000
 		if (!uw.osm_menu_grouping) vln="███";                                // nchars("\u2588",3); //2b1b
-		old_GM_registerMenuCommand(vln+" "+str, openSubmenu);                //GM will not register commands from an iframe.               //\u2502, 03 also
+		if(!old_GM_registerMenuCommand(vln+" "+str, openSubmenu)) GM.registerMenuCommand(vln+" "+str, openSubmenu);                //GM will not register commands from an iframe.               //\u2502, 03 also
 		groupBracketing(true);
 		if (uw.osm_queue.length>=3)
 			menuwrap.css({top:10,left:lmarg});
@@ -282,11 +286,28 @@ var submenuModule=(function() { try { //a module, js pattern module, ownSubmenu(
 		return false;
 	},
 	groupBracketing=function(closing_bracket) {
-		if (!uw.osm_menu_grouping) return; // GM_registerMenuCommand has no effect in an iframe anyhow.
+				console.log(coord_id,"simple groupBracketing",closing_bracket,"id:",coord_id,"Q:",uw.osm_queue);
+		if (!uw.osm_menu_grouping) return; var args,opening_bracket=true; // GM_registerMenuCommand has no effect in an iframe anyhow.
 		if (!closing_bracket && coord_id==uw.osm_queue[0])  //Only menu at top of the queue opens gm command marker.
-			old_GM_registerMenuCommand("┏"+nchars(ln,17)+"┓" , function(){alert(coord_id+" "+location);}); //\u005f, low line.  \u2501, "━"
+			args=["┏"+nchars(ln,17)+"┓" , function(){alert(coord_id+" "+location);}];
+		else opening_bracket=false;
 		if (closing_bracket && coord_id==uw.osm_queue.slice(-1)) 
-			old_GM_registerMenuCommand("┗"+nchars(ln,17)+"┛", function(){}); //203e overline.
+			args=["┗"+nchars(ln,17)+"┛", function(){}];
+		else closing_bracket=false;
+		if(args) {
+			var menuitem=old_GM_registerMenuCommand(...args);           //\u005f, low line.  \u2501, "━"]
+			if(!menuitem) menuitem=GM.registerMenuCommand(...args);
+			menuitem=$(menuitem);
+			if(menuitem.length) {
+				console.log("menuitem",menuitem);;
+				if(opening_bracket) menuitem[0].id="sfs_GM4_menu_opener";
+				else if (closing_bracket) {
+					console.log("prepend to ",menuitem.parent());
+					console.log("all these",$("#sfs_GM4_menu_opener").add(menuitem.prevUntil("#sfs_GM4_menu_opener").addBack()));
+					menuitem.parent().prepend($("#sfs_GM4_menu_opener").add(menuitem.prevUntil("#sfs_GM4_menu_opener").addBack()));
+				}
+			}
+		}
 	},
 	toggleMenu=function(close) { //toglle maximization.
 		if (close && ! toggleMenu.tf) return;
