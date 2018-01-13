@@ -4,11 +4,11 @@
 // @exclude       *
 // @author        Sloan Fox
 // ==UserLibrary==
-// @pseudoHeader
 // @version     1.3.3
 // @updateURL   https://openuserjs.org/meta/libs/slow!/GM4_registerMenuCommand_Submenu_JS_Module.meta.js
 // @name        GM4_registerMenuCommand Submenu JS Module
 // @require     https://code.jquery.com/jquery-3.2.1.js
+// @require     https://raw.githubusercontent.com/SloaneFox/code/master/gm4-polyfill.js
 // @license     GPL-3.0
 // @copyright   2017, slow! (https://openuserjs.org/users/slow!)
 // @namespace   sfsOms
@@ -33,21 +33,19 @@
 // have been registered as usual by the use of GM_registerMenuCommand("name", function);
 //
 // This script is a 'library script,' for use only within a userscript, ie, a .user.js file.
-// Two things are needed for this library to function. Firstly, put an @require in header of your userscript:
+// Two things are needed for this library to function. Firstly, put two @requires in the header of your userscript:
 //
-//   // @require  https://openuserjs.org/src/libs/slow!/GM4_registerMenuCommand_Submenu_JS_Module.js
-// or
-//   // @require https://github.com/SloaneFox/code/raw/master/GM4_registerMenuCommand_Submenu_JS_Module.js
+//   // @require  https://raw.githubusercontent.com/SloaneFox/code/master/gm4-polyfill.js
+//   // @require  https://raw.githubusercontent.com/SloaneFox/code/master/GM4_registerMenuCommand_Submenu_JS_Module.js
+//   -- note this results in the creation of an object called "submenuModule" within the js closure scope.
 //
-// Within the js closure that includes this this file an object,  called "submenuModule" is created.
-// Secondly, put a call to submenuModule's register() function in your script's code, make sure that
-// this is early enough and is prior to the registering of any menu commands with GM_registerMenuCommand:
+// Secondly, put a call to this new object, "submenuModule"'s register() function in your script's code, making sure that
+// this is early enough and is prior to the usual registering of any menu commands with GM_registerMenuCommand:
 //
 //    submenuModule.register("my script's menu cmd name", [hotkey], [title-color], [title-bg-and-menu-color] );
 //
 // The second argument is optional, 'm' is the default for hotkey, ie, alt-m may open all submenus of all scripts using this module.
 // Unlike GM the shortcut also works from within iframes.  Optional color parameters must be in style similar to #ffeeff.
-//
 // The interface to the submenuModule also contains a function to remove elements from the menu,
 //
 //    submenuModule.unregister(name);       // name is a string and can be a regexp string.
@@ -71,6 +69,14 @@
 // If openuserjs.org where this lib script is stored is down or busy and GM needs to update this script
 // you may need to bracket the calls to submenuModule with try/catch.
 // If not loaded by Require in script header ensure module is loaded using the correct "this" pointer.
+//
+// GM version 4 has removed the GM_registerMenuCommand function.  This library retains it and you'll see
+// little need to update relevant code.  The user will see changes since the menu option under GM button 
+// is gone.  Initiating menu will now use mouse context menu (right mouse button usually) on webpage
+// When run on older GM versions this context menu can now also be used by coding with:
+// 		var reg_args=["name",function];
+//		if(!GM_registerMenuCommand(...reg_args))  GM.registerMenuCommand(...reg_args);
+// This will insert the command twice, once in the usual GM commands menu and secondly in the webpage mouse context button.
 
 var submenuModule=(function() { try { //a module, js pattern module, ownSubmenu() is a closure returning an interface object in scope of 'this'.  Side effect alters GM_registerMenuCommand.  Not window.submenuModule clash of multiusage.
 	var sify=JSON.stringify, ownSubmenu, ownSubmenuList, xbutton, body, state=null;
