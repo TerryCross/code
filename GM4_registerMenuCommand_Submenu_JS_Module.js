@@ -286,7 +286,6 @@ var submenuModule=(function() { try { //a module, js pattern module, ownSubmenu(
 		return false;
 	},
 	groupBracketing=function(closing_bracket) {
-				console.log(coord_id,"simple groupBracketing",closing_bracket,"id:",coord_id,"Q:",uw.osm_queue);
 		if (!uw.osm_menu_grouping) return; var args,opening_bracket=true; // GM_registerMenuCommand has no effect in an iframe anyhow.
 		if (!closing_bracket && coord_id==uw.osm_queue[0])  //Only menu at top of the queue opens gm command marker.
 			args=["┏"+nchars(ln,17)+"┓" , function(){alert(coord_id+" "+location);}];
@@ -299,11 +298,8 @@ var submenuModule=(function() { try { //a module, js pattern module, ownSubmenu(
 			if(!menuitem) menuitem=GM.registerMenuCommand(...args);
 			menuitem=$(menuitem);
 			if(menuitem.length) {
-				console.log("menuitem",menuitem);;
 				if(opening_bracket) menuitem[0].id="sfs_GM4_menu_opener";
 				else if (closing_bracket) {
-					console.log("prepend to ",menuitem.parent());
-					console.log("all these",$("#sfs_GM4_menu_opener").add(menuitem.prevUntil("#sfs_GM4_menu_opener").addBack()));
 					menuitem.parent().prepend($("#sfs_GM4_menu_opener").add(menuitem.prevUntil("#sfs_GM4_menu_opener").addBack()));
 				}
 			}
