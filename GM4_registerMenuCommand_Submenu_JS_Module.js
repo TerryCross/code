@@ -149,7 +149,7 @@ var submenuModule=(function() { try { //a module, js pattern module, ownSubmenu(
 		
 		if (!coord_GM_menu.done) coord_GM_menu.done=true; else return;
 		groupBracketing();
-		var str=(scriptName||"Submenu")+".....", sp="\u2001",  vln="\u2503"; // 2500, 2502 for thin, //graphic-space 3000
+		var str=(scriptName||"Submenu")+".....", sp="\u2001",  vln="\u2503"; // ┃ 2503, 2500, 2502 for thin, //graphic-space 3000
 		if (!uw.osm_menu_grouping) vln="███";                                // nchars("\u2588",3); //2b1b
 		if(!old_GM_registerMenuCommand(vln+" "+str, openSubmenu)) GM.registerMenuCommand(vln+" "+str, openSubmenu);                //GM will not register commands from an iframe.               //\u2502, 03 also
 		groupBracketing(true);
