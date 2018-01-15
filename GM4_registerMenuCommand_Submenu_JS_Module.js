@@ -142,7 +142,7 @@ var submenuModule=(function() { try { //a module, js pattern module, ownSubmenu(
 		},tout); /// close inits after this time passed??
 	},
 	coord_GM_menu=function(e){  // Custom Event handler
-		var detail=e.originalEvent.detail;
+		var detail=e.originalEvent.detail,menu;
 		
 		if(Number(detail)) { if (detail!=coord_id) return; }// Only handle event directed by coord order.
 		else if (detail && detail.chromeButton) { if (interfaceObj.isOpen) closeSubmenu(); else {console.log("OPEN submenu detail"); openSubmenu();} return;} //Behaviour, instead, if in queue then either just init or is open.
@@ -151,7 +151,10 @@ var submenuModule=(function() { try { //a module, js pattern module, ownSubmenu(
 		groupBracketing();
 		var str=(scriptName||"Submenu")+".....", sp="\u2001",  vln="\u2503"; // ┃ 2503, 2500, 2502 for thin, //graphic-space 3000
 		if (!uw.osm_menu_grouping) vln="███";                                // nchars("\u2588",3); //2b1b
-		if(!old_GM_registerMenuCommand(vln+" "+str, openSubmenu)) GM.registerMenuCommand(vln+" "+str, openSubmenu);                //GM will not register commands from an iframe.               //\u2502, 03 also
+		if(!old_GM_registerMenuCommand(vln+" "+str, openSubmenu)) {
+			menu=GM.registerMenuCommand(vln+" "+str, openSubmenu);                //GM will not register commands from an iframe.               //\u2502, 03 also
+			if (menu) $(menu).parent().prepend(menu);
+		}
 		groupBracketing(true);
 		if (uw.osm_queue.length>=3)
 			menuwrap.css({top:10,left:lmarg});
@@ -267,7 +270,6 @@ var submenuModule=(function() { try { //a module, js pattern module, ownSubmenu(
 		var portalh=Math.min(window.innerHeight,$(window).height())-10, available_height, available_width, portalw=Math.min(window.innerWidth,$(window).width()-lmarg);
 		available_height = portalh - ownSubmenu.position().top - shrink_factor*(header.height() + 22); //$.height ignores "box-sizing: border-box" which normally includes paddings & borders but not margins.
 		var new_h=Math.max(Math.min(75,list_orig_height), Math.min(available_height, list_orig_height)); //position relative to window not document, use: ownSubmenuList.offset().top - $(window).scrollTop(). viewport height.
-		console.dir(ownSubmenuList[0]);
 		if (new_h != ownSubmenuList.height()) {
 			ownSubmenuList.height(new_h);
 			var newsh=Math.min(portalh/menuwrap.height(), portalw/menuwrap.width());
