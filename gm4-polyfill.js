@@ -99,6 +99,7 @@ Object.entries({                     // Object.entries() returns a 2-d array of 
 	'GM_info': 'info',
 	'GM_deleteValue': 'deleteValue',
 	'GM_getResourceURL': 'getResourceUrl',
+	'GM_getResourceText': 'getResourceText',
 	'GM_getValue': 'getValue',
 	'GM_listValues': 'listValues',
 	'GM_notification': 'notification',
