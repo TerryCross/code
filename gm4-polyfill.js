@@ -31,18 +31,11 @@ if (typeof GM == 'undefined') {
 	GM = {};
 }
 
-if (typeof GM_getResourceText == 'undefined') {
-	this.GM_getResourceText = (aRes) => {
-		'use strict';
-		return GM.getResourceUrl(aRes)   // getResourceUrl resolves to a local url
-			.then(url => fetch(url))     // fetch resolves to a response object (fetch exists from FF52 & Chromium54)
-			.then(resp => resp.text())   // response resolves with contained content/text.
-			.catch(function(error) {
-				console.error('Request failed', error);
-				return null;
-			});
-	};
-}
+if (typeof GM_getResourceText == 'undefined') 
+	this.GM_getResourceText = async aResourceName =>
+	         (await fetch(await GM.getResourceUrl(aResourceName))).text(); 
+
+
 
 if (typeof GM_addStyle == 'undefined') {
 	this.GM_addStyle = (aCss) => {
