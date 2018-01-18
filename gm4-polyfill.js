@@ -1,4 +1,4 @@
-/* gm4-polyfill.js v0.1.3
+/* gm4-polyfill.js v0.1.4
 
    This helper script bridges compatibility between the Greasemonkey 4 APIs and
    existing/legacy APIs.  Say for example your user script includes
@@ -90,7 +90,6 @@ Object.entries({                     // Object.entries() returns a 2-d array of 
 	'GM_info': 'info',
 	'GM_deleteValue': 'deleteValue',
 	'GM_getResourceURL': 'getResourceUrl',
-	'GM_getResourceText': 'getResourceText',
 	'GM_getValue': 'getValue',
 	'GM_listValues': 'listValues',
 	'GM_notification': 'notification',
@@ -98,7 +97,8 @@ Object.entries({                     // Object.entries() returns a 2-d array of 
 	'GM_registerMenuCommand': 'registerMenuCommand',
 	'GM_setClipboard': 'setClipboard',
 	'GM_setValue': 'setValue',
-	'GM_xmlhttpRequest': 'xmlHttpRequest'
+	'GM_xmlhttpRequest': 'xmlHttpRequest',
+	'GM_getResourceText': 'getResourceText'
 }).forEach(([oldKey, newKey]) => {
 	let old = this[oldKey];
 	if (old && (typeof GM[newKey] == 'undefined')) {
@@ -107,8 +107,8 @@ Object.entries({                     // Object.entries() returns a 2-d array of 
 				resolve(old.apply(this, args));
 			} catch (e) { reject(e); }
 														 });
-		};
+		};//GM[newKey]=func
 	}
-});
+});//forEach()
 
 
