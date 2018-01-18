@@ -31,12 +31,6 @@ if (typeof GM == 'undefined') {
 	GM = {};
 }
 
-if (typeof GM_getResourceText == 'undefined') 
-	this.GM_getResourceText = async aResourceName =>
-	         (await fetch(await GM.getResourceUrl(aResourceName))).text(); 
-
-
-
 if (typeof GM_addStyle == 'undefined') {
 	this.GM_addStyle = (aCss) => {
 		'use strict';
@@ -51,6 +45,10 @@ if (typeof GM_addStyle == 'undefined') {
 		return null;
 	};
 }
+
+if (typeof GM_getResourceText == 'undefined')
+	this.GM_getResourceText = async aResourceName =>
+	( await fetch(await GM.getResourceUrl(aResourceName)) ).text(); 
 
 if (typeof GM_registerMenuCommand=="function" && /is not supported[^]{0,100}$/.test(GM_registerMenuCommand.toString()))
 	GM_registerMenuCommand=undefined;
@@ -112,3 +110,5 @@ Object.entries({                     // Object.entries() returns a 2-d array of 
 		};
 	}
 });
+
+
