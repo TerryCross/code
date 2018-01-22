@@ -24,7 +24,7 @@
    let x = await GM.getValue('x');
    })();
    
-   Modified due error rasied on first Object.entries code below becuase GM_info was undefined, raised in GM4 firefox 57.
+   Modified due to error rasied on first Object.entries code below because GM_info was undefined, raised in GM4 firefox 57.
 */
 
 if (typeof GM == 'undefined') {
