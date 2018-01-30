@@ -5,7 +5,7 @@
 // @author        Sloan Fox
 // ==UserLibrary==
 // @pseudoHeader
-// @version     1.3.4
+// @version     1.3.5
 // @updateURL   https://openuserjs.org/meta/libs/slow!/GM4_registerMenuCommand_Submenu_JS_Module.meta.js
 // @name        GM4_registerMenuCommand Submenu JS Module
 // @require     https://code.jquery.com/jquery-3.2.1.js
@@ -89,11 +89,11 @@ submenuModule=(function() { try { //a module, js pattern module, ownSubmenu() is
 	var iframe=window!=window.parent, lmarg=window.innerWidth*0.04, blank_textContent=false;    //77==m, 0.04==4%.
 	var init=async function(script_name, hotkey, title_color, itsBackgroundColor) //is submenuModule.register() 
 	{ try {
+		scriptName=script_name||"";
 		regmutex=new mutexlock(); // Lock is just to ensure init is complete before user commands are registered.
 		if(!window.old_GM_registerMenuCommand) window.old_GM_registerMenuCommand=GM_registerMenuCommand;
 		GM_registerMenuCommand=registerInOwnSubmenu;
 		await preInit();
-		scriptName=script_name||"";
 		queue.push(coord_id);		queue.sort();     // In GM execution order.  Some may not call register();
 		$=ensurejQuery(); //console.log("GM4_rMC Jquery version:",$.fn.jquery);
 		if (hotkey) altHotkey=hotkey.charCodeAt(0)-32;
@@ -103,7 +103,6 @@ submenuModule=(function() { try { //a module, js pattern module, ownSubmenu() is
 		interfaceObj.ineffect=true; document.addEventListener("coord_resize",coord_resize);
 		$(window).on("keydown",function(e) { if (e.altKey&&e.keyCode==altHotkey) {  openSubmenu(); return false;}}); // alt-m or hotkey shortcut
 		$(docready);	state="init";
-		if (iframe)     return;
 		$(document).on("coord_GM_menu", coord_GM_menu);
 		if (document.readyState=="complete") docload();	else $(docload); //start-at may mean no body yet.  $(func) is same as window.ready(func), also runs function even if already ready.
 		regmutex.unlock();
@@ -122,8 +121,9 @@ submenuModule=(function() { try { //a module, js pattern module, ownSubmenu() is
 		}
 		menuwrap.append(ownSubmenu);
 		//console.log("Check on body ",body.children().length," is osm:",body.children().is("#osm-menuwrap"));
+		
 		if  (iframe && (body.attr("contenteditable") == "true"  ||
-						(body.text() == "" || (body.children().length <= 3 && body.children().is("#osm-menuwrap")) ) ) )
+			(body.text() == "" || (body.children().length <= 3 && body.children().is("#osm-menuwrap")) ) ) )
 		{   //Pages commonly post all text content of such bodies (often in iframes), so blank the menu text, titles give text instead.
 			blank_textContent=true; //&& iframe
 			ownSubmenu.find(".menu-title, .osmXbutton, "+osmlisel).text("");
@@ -136,9 +136,10 @@ submenuModule=(function() { try { //a module, js pattern module, ownSubmenu() is
 		var tout=uw.osm_queue.length==uw.osm_max ? 0 : 2000;
 		setTimeout(function(msec){ //wait for other scripts to init for grouping.
 			if (uw.osm_shutdoor) return;
+			makeDraggable($(".osm-box"));
 			uw.osm_shutdoor=true;
 			uw.osm_max=uw.osm_queue.length; //Don't wait for one that never init.s.
-			for (let i=0;i<uw.osm_max;i++) dispatch("coord_GM_menu",uw.osm_queue[i]); // emits one event for each coor_id ir oder from 1 up.
+			for (let i=0;i<uw.osm_max;i++) dispatch("coord_GM_menu",uw.osm_queue[i]); // emits one event for each coord_id ir oder from 1 up.
 		},tout); /// close inits after this time passed??
 	},
 	coord_GM_menu=function(e){  // Custom Event handler
@@ -151,10 +152,8 @@ submenuModule=(function() { try { //a module, js pattern module, ownSubmenu() is
 		groupBracketing();
 		var str=(scriptName||"Submenu")+".....", sp="\u2001",  vln="\u2503"; // ┃ 2503, 2500, 2502 for thin, //graphic-space 3000
 		if (!uw.osm_menu_grouping) vln="███";                                // nchars("\u2588",3); //2b1b
-		if(!old_GM_registerMenuCommand(vln+" "+str, openSubmenu)) {
-			menu=GM.registerMenuCommand(vln+" "+str, openSubmenu);                //GM will not register commands from an iframe.               //\u2502, 03 also
-			if (menu) $(menu).parent().prepend(menu);
-		}
+		if(!old_GM_registerMenuCommand(vln+" "+str, openSubmenu))  // Register in both GM menu and contextmenu.
+			GM.registerMenuCommand(vln+" "+str, openSubmenu);                //GM will not register commands from an iframe.               //\u2502, 03 also
 		groupBracketing(true);
 		if (uw.osm_queue.length>=3)
 			menuwrap.css({top:10,left:lmarg});
@@ -363,13 +362,18 @@ submenuModule=(function() { try { //a module, js pattern module, ownSubmenu() is
 	},
 	unGroup=function() { uw.osm_menu_grouping=false; },
 	activeCoord_id=function(){ return $(document.activeElement).closest(".osm-box").data("coord_id");},
-	//Overview of shape of pseudo HTML Tree:
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//Overview of layout shape of pseudo HTML Tree:
 	//                               <div id=osm-menuwrap>                                 // var menuwrap
 	//                                 <div id=ownSubmenu(coord_id) class=osm-box>         // var ownSubmenu
-	//                                   <div class=osm-header><\b><\b><\b></div>          // var header
-	//                                     <ul id=ownSubmenuList>                          // var ownSubmenuList
+	//                                   <div class=osm-header>                                    // var header
+	//	                                        <\b> <\b>  <\b>    
+	//                                   <ul id=ownSubmenuList>                          // var ownSubmenuList
 	//                                       <li class=osm-button id=ownSubmenuList(coord_id)> // var osmlisel
-	//                                       <li>...</>..<li>s
+	//                                       <li>...</>..<li>s                            ////////////////////////
+	//////////////////////////////////////////////////////////////////////////////////////
+	
 	createOwnSubmenu=function(hotkey, title_color, li_text_color) { // li_text_color is also menu frame background, color must be in string form, eg, '#ffffff'
 		xbutton="<b class=osmXbutton style='float:right;margin-top:-7px;color:black;margin-right:-4px;"
 			+"font-size:xx-small;'>&#x2715;</b>";         // #2715 is an 'x'
@@ -390,12 +394,12 @@ submenuModule=(function() { try { //a module, js pattern module, ownSubmenu() is
 		li_bg_color=modColor(title_color+" ^ 0xa1a3e1");
 		
 		//console.log("Colors: title_color:",title_color,"li_text_color:", li_text_color,"computed: li_bg_color:",li_bg_color,"shadow_color:",shadow_color," selected_color",selected_color,"selected_bg_color",selected_bg_color);
-		ownSubmenu=$("<div id=ownSubmenu"+coord_id+" class=osm-box data-coord_id="+coord_id
+		ownSubmenu=$("<div id=ownSubmenu"+coord_id+" draggable=true class=osm-box data-coord_id="+coord_id
 					 +" script-name='"+scriptName+coord_id+"' tabindex='' "
 					 + "style='z-index:2147483647;"
 					 //+"background-color: "+(backgroundColor||"#ffffee;")+"; color:"+(color||"#3f005e")+";"
 					 + "background-color: "+li_text_color+"; color:"+title_color+";"
-					 + "text-align:center;padding:10px;"
+					 + "text-align:center;padding:10px; resize:both; overflow:auto;cursor:move;"
 					 + "border: solid 2px "+shadow_color+";"             // #88885e;"
 					 + "border-radius: 10px; "
 					 + "box-shadow: 10px 10px 5px "+shadow_color+";"     // box-sizing: border-box;"
@@ -438,6 +442,36 @@ submenuModule=(function() { try { //a module, js pattern module, ownSubmenu() is
 		eval(this.jqcode);
 		return jQuery.noConflict(true);
 	},
+	makeDraggable=function(el){
+		if( !el.length || el.data("dragged")) return;
+		el.data("dragged",true);
+		var that=arguments.callee;
+		el.attr("draggable","true");
+		el.on("dragstart",handleDrag); //function(e){
+		if(!that.addedListeners) {
+			that.addedListeners=true;
+			$(document).on("dragover drop",handleDrag);
+		}
+		function handleDrag(e) {
+			e=e.originalEvent;
+			switch(e.type) {
+			case "dragstart":
+				var offset=$(e.target).offset();
+				that.offset_diff={top: e.clientY - offset.top, left:e.clientX - offset.left};
+				that.target=e.target;
+				e.dataTransfer.setData("text/plain",null);
+				break;
+			case "dragover": if(that.target) return false; // allow drop to occur at this spot.
+			case "drop":
+				if (!that.target) return;
+				$(that.target).offset({ top: e.clientY - that.offset_diff.top,
+										left: e.clientX - that.offset_diff.left});
+				that.target=null;
+				return false;
+			}
+		}
+	},
+
 	httpGet=function(theUrl, CB) {
 		var xmlHttp=new XMLHttpRequest();
 		xmlHttp.onload=CB;
