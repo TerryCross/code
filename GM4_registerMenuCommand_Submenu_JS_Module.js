@@ -5,7 +5,7 @@
 // @author        Sloan Fox
 // ==UserLibrary==
 // @pseudoHeader
-// @version     1.3.5
+// @version     1.3.6
 // @updateURL   https://openuserjs.org/meta/libs/slow!/GM4_registerMenuCommand_Submenu_JS_Module.meta.js
 // @name        GM4_registerMenuCommand Submenu JS Module
 // @require     https://code.jquery.com/jquery-3.2.1.js
@@ -136,7 +136,8 @@ submenuModule=(function() { try { //a module, js pattern module, ownSubmenu() is
 		var tout=uw.osm_queue.length==uw.osm_max ? 0 : 2000;
 		setTimeout(function(msec){ //wait for other scripts to init for grouping.
 			if (uw.osm_shutdoor) return;
-			makeDraggable($(".osm-box"));
+			handleIframeSize(); // NB, only one client handles this and below.
+ 			makeDraggable($(".osm-box"));
 			uw.osm_shutdoor=true;
 			uw.osm_max=uw.osm_queue.length; //Don't wait for one that never init.s.
 			for (let i=0;i<uw.osm_max;i++) dispatch("coord_GM_menu",uw.osm_queue[i]); // emits one event for each coord_id ir oder from 1 up.
@@ -182,8 +183,11 @@ submenuModule=(function() { try { //a module, js pattern module, ownSubmenu() is
 		lis=ownSubmenuList.find("li");
 		menuwrap.show();
 		ownSubmenu.show(300, function(){ // called on completion; slowly changes opacity. jQuery creates an undisplayed table during this for some reason.  If error in thread this may leave elements half open.
+			var size=[menuwrap.width()|0,menuwrap.height()|0];
+			//console.log(scriptName,"On openSubmenu after menu show, size WxH:",size,"mwrap:",menuwrap[0]);
+			userResizeIframe(size);
 			if (!list_orig_height) list_orig_height=ownSubmenuList.height();
-			coord_resize();
+			setTimeout(coord_resize,50); //dispatch("coord_resize"); //			coord_resize();
 			if (coord_id!=uw.osm_queue.slice(-1)) return; //Last menu to open focuses menu at top left.
 			var boxes=$("div.osm-box").each(function() { var p=$(this);p.data("diagdist",p.position().left*10+p.position().top);});
 			uw.osm_queue.sort(function(a,b){ return boxes.filter("#ownSubmenu"+a).data("diagdist") - boxes.filter("#ownSubmenu"+b).data("diagdist"); });
@@ -214,7 +218,7 @@ submenuModule=(function() { try { //a module, js pattern module, ownSubmenu() is
 			var t=$(e.target);
 			e.target.focus(); //needed on chromium.
 			if (t.is("li.osm-button") || (t.closest("div.osm-box").length==0 && t.closest("div#GM_menu_button").length==0) && ! /menuitem/i.test(t[0].tagName)) {
-				console.log("click on target",t[0].tagName,"if osm-button or not child of osm & button");
+				console.log("body click on target",t[0].tagName,"if osm-button or not child of osm & button");
 				closeSubmenu(e.clientX==0 && e.clientY==0);
 			} // close if body clicked but not bubbled from a menu item.
 		});
@@ -244,6 +248,7 @@ submenuModule=(function() { try { //a module, js pattern module, ownSubmenu() is
 		return false; //calls preventDefault(), and stopPropagation(), which only stops parent handlers not ones directly on this level.
 	}, //keyhandler()
 	closeSubmenu=function(now) {
+		userRevertIframeSize();
 		interfaceObj.isOpen=false;
 		toggleMenu("close"); //in case it's maximized
 		uw.osm_queue.splice(uw.osm_queue.indexOf(coord_id),1); openSubmenu.push=true;
@@ -264,7 +269,7 @@ submenuModule=(function() { try { //a module, js pattern module, ownSubmenu() is
 	},
 	coord_resize=function(e,ex,ex2) { 
 		if ( ! interfaceObj.isOpen) return;
-		//console.log("RECEIVE coord_resize", scriptName,ex,ex2, "Event:",e,( e ? ["Details",e.detail,e.originalEvent] : "no e"));
+		//console.log("coord_resize()", scriptName,ex,ex2, "Event:",e,( e ? ["Details",e.detail,e.originalEvent] : "no e"));
 		if (e && e.detail) { closeSubmenu(); return; }
 		var portalh=Math.min(window.innerHeight,$(window).height())-10, available_height, available_width, portalw=Math.min(window.innerWidth,$(window).width()-lmarg);
 		available_height = portalh - ownSubmenu.position().top - shrink_factor*(header.height() + 22); //$.height ignores "box-sizing: border-box" which normally includes paddings & borders but not margins.
@@ -375,8 +380,6 @@ submenuModule=(function() { try { //a module, js pattern module, ownSubmenu() is
 	//////////////////////////////////////////////////////////////////////////////////////
 	
 	createOwnSubmenu=function(hotkey, title_color, li_text_color) { // li_text_color is also menu frame background, color must be in string form, eg, '#ffffff'
-		xbutton="<b class=osmXbutton style='float:right;margin-top:-7px;color:black;margin-right:-4px;"
-			+"font-size:xx-small;'>&#x2715;</b>";         // #2715 is an 'x'
 		//if (val.startsWith("rgb")) val="#"+val.replace(/[^\d,]/g,"").split(/,/).map(x=>Number(x).toString(16)).join("");
 		
 		var style_id= (title_color || li_text_color) ? "#ownSubmenu"+coord_id 	 : "";
@@ -392,6 +395,8 @@ submenuModule=(function() { try { //a module, js pattern module, ownSubmenu() is
 			li_bg_color,                    //=modColor(title_color+"+0x5fa361"),
 			shadow_color=modColor(li_text_color+"^ 0xffffff",null,0.3);         //("0x"+li_text_color.substr(1) - 0x777790).toString(16);
 		li_bg_color=modColor(title_color+" ^ 0xa1a3e1");
+		xbutton="<b class=osmXbutton style='float:right;margin-top:-7px;color:"+title_color+";margin-right:-4px;"
+			+"font-size:xx-small;'>&#x2715;</b>";         // #2715 is an 'x'
 		
 		//console.log("Colors: title_color:",title_color,"li_text_color:", li_text_color,"computed: li_bg_color:",li_bg_color,"shadow_color:",shadow_color," selected_color",selected_color,"selected_bg_color",selected_bg_color);
 		ownSubmenu=$("<div id=ownSubmenu"+coord_id+" draggable=true class=osm-box data-coord_id="+coord_id
@@ -409,7 +414,7 @@ submenuModule=(function() { try { //a module, js pattern module, ownSubmenu() is
 					 + "padding: 10px;"                            //max-width:40%"
 					 + "cursor:default;"
 					 //		     +"height: 60%;"
-					 +"'><div class=osm-header title='Double click to maximize (toggle), Esc to remove (focus with a click here first).' style='box-sizing: border-box;cursor:default; min-height: 5px;'>"
+					 +"'><div class=osm-header title='Double click to maximize (toggle), Esc to remove (focus with a click here first).  "+location+".' style='box-sizing: border-box;cursor:default; min-height: 5px;'>"
 					 + xbutton
 					 + "<b class=menu-title style='font-weight:bold; line-height:1; " // "color: #3f005e; "
 					 + "font-family: \"Squada One\",\"Helvetica Neue\",Helvetica,Arial,sans-serif; "
@@ -442,12 +447,12 @@ submenuModule=(function() { try { //a module, js pattern module, ownSubmenu() is
 		eval(this.jqcode);
 		return jQuery.noConflict(true);
 	},
-	makeDraggable=function(el){
-		if( !el.length || el.data("dragged")) return;
-		el.data("dragged",true);
-		var that=arguments.callee;
-		el.attr("draggable","true");
-		el.on("dragstart",handleDrag); //function(e){
+	makeDraggable=function(jel){
+		if( !jel.length || jel.data("dragged")) return;
+		jel.data("dragged",true);
+		var that=makeDraggable;
+		jel.attr("draggable","true");
+		jel.on("dragstart",handleDrag); //function(e){
 		if(!that.addedListeners) {
 			that.addedListeners=true;
 			$(document).on("dragover drop",handleDrag);
@@ -456,7 +461,7 @@ submenuModule=(function() { try { //a module, js pattern module, ownSubmenu() is
 			e=e.originalEvent;
 			switch(e.type) {
 			case "dragstart":
-				var offset=$(e.target).offset();
+				var offset=$(e.target).offset();         // Point relative to box on which clicked.
 				that.offset_diff={top: e.clientY - offset.top, left:e.clientX - offset.left};
 				that.target=e.target;
 				e.dataTransfer.setData("text/plain",null);
@@ -545,6 +550,60 @@ submenuModule=(function() { try { //a module, js pattern module, ownSubmenu() is
 		//console.log("DISPATCH", scriptName, ", subcmd:",subcmd, "Event:",event);
 		document.dispatchEvent(event);
 	},
+
+	
+	handleIframeSize=function(){
+		window.addEventListener("message", postMessageHandler,false);
+	},
+	userResizeIframe=function(size){
+		if(!iframe) return;
+		window.parent.postMessage( { type:"sfs-iframe-resize", size:size },"*");
+	},
+	userRevertIframeSize=function(){
+		if(!iframe) return;
+		window.parent.postMessage( { type:"sfs-iframe-resize", revert:true },"*");
+	},
+
+	resizeIframe=function(iframeEl,target_size,revert) {
+		iframeEl=$(iframeEl);
+		var ursize=iframeEl.data("ursize")||[], topslice;
+		
+		if (!revert) {
+			ursize.push([iframeEl.width(),iframeEl.height()]);
+			target_size[0]*=1.5;target_size[1]*=1.5;
+		}
+		if(revert) 	target_size=ursize.slice(-1)[0];
+		topslice=ursize.slice(-1)[0];
+		console.log(revert ? "Revert" : "Resize Fx1.5" ,"to target size: ",target_size,"ursize", ursize,iframeEl);
+		
+		if (topslice[0]<=target_size[0]) {iframeEl.width(target_size[0]|0);console.log("set width of iframe to:",target_size[0],"so now w:",iframeEl.width());}
+		if (topslice[1]<=target_size[1]) iframeEl.height(target_size[1]|0);
+		
+		if(revert) ursize.pop();
+		iframeEl.data("ursize",ursize);
+	},
+	
+	postMessageHandler=function(e){ try{
+		//console.log("Handle a PostMessage",{e:e}); // no perm to access .toJson   //,"\nJSON:"+JSON.stringify(e.source)+"END.");
+		if ( ! e.data.type || e.data.type!="sfs-iframe-resize") return;
+		$("iframe").each(function(i,el){
+			//console.log("contentWindow",el.contentWindow);
+			if (el.contentWindow==e.source) { // cant convert e.source to string for here but can compare it ==, corss error from remote sites.
+				//console.log("==");				//$(el).resizable();
+				resizeIframe(el,e.data.size,e.data.revert);
+			}
+		});
+		if (iframe) {
+			window.parent.postMessage({type:"sfs-iframe-resize",size:e.data.size,revert:e.data.revert},"*");
+			//console.log("Post to parent from iframe, sent up",e);
+			return;
+		}
+		//var iframeEl=$("iframe").filter(function(){ return this.contentWindow==e.source; });
+		//handleClick({target:iframeEl[0],ctrlKey:true},"iframe_click");
+	}catch(e){console.log("Error in postMessageHandler",e);}},
+
+
+	
 	initUWonChrome=function() {
 		function unsafeWindowObj() { //a singleton object.
 			var ss=sessionStorage;
@@ -625,7 +684,9 @@ submenuModule=(function() { try { //a module, js pattern module, ownSubmenu() is
 	/// Submenu Module Interface functions and properties:
 	///
 	var interfaceObj={ register:init, stop:revert, unregister:rmitem, open:openSubmenu, state:state,
-					   close:closeSubmenu, unGroup:unGroup, ineffect:false, toString:toString, isOpen:false, changeName:mvitem, positionAt:positionAt };
+					   close:closeSubmenu, unGroup:unGroup, ineffect:false, toString:toString, isOpen:false,
+					   changeName:mvitem, positionAt:positionAt,
+					   resizeIframe: userResizeIframe, revertIframeSize:userRevertIframeSize };
 	return interfaceObj;
 	
 	function mutexlock() { this.lock=new Promise(r=>this.unlock=r);};// eg, mx=new mutexlock;...await mx.lock; (async...) mx.unlock(); // initial state is locked, once unlocked it cant be locked again.
