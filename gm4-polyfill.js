@@ -100,7 +100,7 @@ Object.entries({                     // Object.entries() returns a 2-d array of 
 	'GM_setValue': 'setValue',
 	'GM_xmlhttpRequest': 'xmlHttpRequest',
 	'GM_getResourceText': 'getResourceText'
-}).forEach(([oldKey, newKey]) => {
+}).forEach(([oldKey, newKey]) => {                               // Enables eg, "await GM.getValue" to run ok on pre GM4. 
 	let old = this[oldKey];
 	if (old && (typeof GM[newKey] == 'undefined')) {
 		GM[newKey] = function(...args) {

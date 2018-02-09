@@ -82,7 +82,7 @@
 //		if(!GM_registerMenuCommand(...reg_args))  GM.registerMenuCommand(...reg_args);
 // This create two menu items, once in the usual GM commands menu (of there) and in the webpage's mouse context menu.
 
-submenuModule=(function() { try { //a module, js pattern module, ownSubmenu() is a closure returning an interface object in scope of 'this'.  Side effect alters GM_registerMenuCommand.  Not window.submenuModule clash of multiusage.
+var submenuModule=(function() { try { //a module, js pattern module, ownSubmenu() is a closure returning an interface object in scope of 'this'.  Side effect alters GM_registerMenuCommand.  Not window.submenuModule clash of multiusage.
 	var sify=JSON.stringify, ownSubmenu, ownSubmenuList, xbutton, body, state=null;
 	var coord_id=1, $, nlist=1, scriptName, altHotkey=77, thishere, list_orig_height, chromeButton, queue;
 	var regmutex, osmlisel="li.osm-button",lis, uw=unsafeWindow, cmd, ln="\u2501", menuwrap, shrink_factor, header;
@@ -123,7 +123,7 @@ submenuModule=(function() { try { //a module, js pattern module, ownSubmenu() is
 		//console.log("Check on body ",body.children().length," is osm:",body.children().is("#osm-menuwrap"));
 		
 		if  (iframe && (body.attr("contenteditable") == "true"  ||
-			(body.text() == "" || (body.children().length <= 3 && body.children().is("#osm-menuwrap")) ) ) )
+						(body.text() == "" || (body.children().length <= 3 && body.children().is("#osm-menuwrap")) ) ) )
 		{   //Pages commonly post all text content of such bodies (often in iframes), so blank the menu text, titles give text instead.
 			blank_textContent=true; //&& iframe
 			ownSubmenu.find(".menu-title, .osmXbutton, "+osmlisel).text("");
@@ -136,8 +136,9 @@ submenuModule=(function() { try { //a module, js pattern module, ownSubmenu() is
 		var tout=uw.osm_queue.length==uw.osm_max ? 0 : 2000;
 		setTimeout(function(msec){ //wait for other scripts to init for grouping.
 			if (uw.osm_shutdoor) return;
+			console.log(scriptName,"shut door.");
 			handleIframeSize(); // NB, only one client handles this and below.
- 			makeDraggable($(".osm-box"));
+			makeDraggable($(".osm-box"));
 			uw.osm_shutdoor=true;
 			uw.osm_max=uw.osm_queue.length; //Don't wait for one that never init.s.
 			for (let i=0;i<uw.osm_max;i++) dispatch("coord_GM_menu",uw.osm_queue[i]); // emits one event for each coord_id ir oder from 1 up.
@@ -339,18 +340,20 @@ submenuModule=(function() { try { //a module, js pattern module, ownSubmenu() is
 		var match=matchItem(name);
 		match.remove();
 	},
-	mvitem=function(oldname,newname,positionAt) {
-		var match=matchItem(oldname);
-		if (oldname!=newname) { match.text(newname); match.prop("title",newname); }
+	mvitem=function(oldname,newname,positionAt) {  // oldname is regexp.
+		var foundli=matchItem(oldname);
+		oldname=foundli.text();
+		if(typeof newname != "string") newname=oldname.replace(...newname);
+		if (oldname!=newname) { foundli.text(newname); foundli.prop("title",newname); } // renames it.
 		if (positionAt!=="" && !isNaN(positionAt)) {
 			var liatpos=ownSubmenuList.find("li").eq(positionAt);
 			if (liatpos.length) {
-				liatpos.before(match);
-				match.attr("tabindex",positionAt);
-			}
-		}
+				liatpos.before(foundli);
+				foundli.attr("tabindex",positionAt);
+			} ownSubmenuList.append(foundli); //move to end.
+		} //else stay in position.
 	},
-	positionAt=async function(name, newpos) {
+	positionAt=async function(name, newpos) { //name is regexp
 		await regmutex.lock;
 		mvitem(name,name,newpos);
 	},
@@ -551,48 +554,60 @@ submenuModule=(function() { try { //a module, js pattern module, ownSubmenu() is
 		document.dispatchEvent(event);
 	},
 
-	
 	handleIframeSize=function(){
 		window.addEventListener("message", postMessageHandler,false);
 	},
-	userResizeIframe=function(size){
+		userResizeIframe=function(size){
+    console.log("userResizeIframe",iframe);
 		if(!iframe) return;
-		window.parent.postMessage( { type:"sfs-iframe-resize", size:size },"*");
+		window.parent.postMessage( { type:"sfs-iframe-resize", size:size,full_origin:location.href },"*");
 	},
 	userRevertIframeSize=function(){
 		if(!iframe) return;
-		window.parent.postMessage( { type:"sfs-iframe-resize", revert:true },"*");
+		window.parent.postMessage( { type:"sfs-iframe-resize", revert:true,full_origin:location.href },"*");
 	},
-
 	resizeIframe=function(iframeEl,target_size,revert) {
-		iframeEl=$(iframeEl);
-		var ursize=iframeEl.data("ursize")||[], topslice;
+		var ursize=JSON.parse(iframeEl[0].dataset.ursize||"[]"), topslice, target_css={position:"relative",zIndex:999999};
 		
 		if (!revert) {
-			ursize.push([iframeEl.width(),iframeEl.height()]);
+			ursize.push( [ iframeEl.width(), iframeEl.height(), iframeEl.css(["position","zIndex"]) ] );
 			target_size[0]*=1.5;target_size[1]*=1.5;
 		}
-		if(revert) 	target_size=ursize.slice(-1)[0];
-		topslice=ursize.slice(-1)[0];
+		
+		topslice=ursize.slice(-1)[0]; // slice returns an array.
+		
+		if(revert) 	{  
+			//target_size=ursize.slice(-1)[0]; 
+			target_size=topslice;
+			target_css=topslice[2];
+		}
 		console.log(revert ? "Revert" : "Resize Fx1.5" ,"to target size: ",target_size,"ursize", ursize,iframeEl);
 		
-		if (topslice[0]<=target_size[0]) {iframeEl.width(target_size[0]|0);console.log("set width of iframe to:",target_size[0],"so now w:",iframeEl.width());}
-		if (topslice[1]<=target_size[1]) iframeEl.height(target_size[1]|0);
+		//
+		if (topslice[0]<target_size[0]||revert) {iframeEl.width(target_size[0]|0);console.log("set width of iframe to:",target_size[0],"so now w:",iframeEl.width());}
+		if (topslice[1]<target_size[1]||revert) iframeEl.height(target_size[1]|0);
+		iframeEl.css(target_css);
 		
 		if(revert) ursize.pop();
-		iframeEl.data("ursize",ursize);
+		iframeEl[0].dataset.ursize=sify(ursize);
 	},
 	
 	postMessageHandler=function(e){ try{
-		//console.log("Handle a PostMessage",{e:e}); // no perm to access .toJson   //,"\nJSON:"+JSON.stringify(e.source)+"END.");
+		//console.log("rmc.  Handle a PostMessage",{e:e},$("iframe, embed").length,"DATA",e.data,"END"); // no perm to access .toJson   //,"\nJSON:"+JSON.stringify(e.source)+"END.");
 		if ( ! e.data.type || e.data.type!="sfs-iframe-resize") return;
-		$("iframe").each(function(i,el){
-			//console.log("contentWindow",el.contentWindow);
-			if (el.contentWindow==e.source) { // cant convert e.source to string for here but can compare it ==, corss error from remote sites.
-				//console.log("==");				//$(el).resizable();
-				resizeIframe(el,e.data.size,e.data.revert);
+		var sources=[],foundEl;
+		var bestmatch=-1,pmatch;
+		$("iframe, embed").each(function(i,el){
+			pmatch=strdiff(e.data.full_origin.replace(/https?:\/\//,""),el.src.replace(/https?:\/\//,""));
+			console.log("pstrdiff match",pmatch," at index ",i, e.data.full_origin, el.src);
+			if(pmatch==bestmatch && foundEl) foundEl.add(el);
+			if(pmatch>bestmatch) { 
+				bestmatch=pmatch;
+				foundEl=$(el);
 			}
 		});
+		//console.log("==");				//$(el).resizable();
+		resizeIframe(foundEl,e.data.size,e.data.revert);
 		if (iframe) {
 			window.parent.postMessage({type:"sfs-iframe-resize",size:e.data.size,revert:e.data.revert},"*");
 			//console.log("Post to parent from iframe, sent up",e);
@@ -600,9 +615,8 @@ submenuModule=(function() { try { //a module, js pattern module, ownSubmenu() is
 		}
 		//var iframeEl=$("iframe").filter(function(){ return this.contentWindow==e.source; });
 		//handleClick({target:iframeEl[0],ctrlKey:true},"iframe_click");
-	}catch(e){console.log("Error in postMessageHandler",e);}},
-
-
+		function strdiff(s1,s2) { var i;for (i=0; i<s1.length&&i<s2.length;i++) if(s1[i]!=s2[i]) return i-1; return i-1;}
+	}catch(e){console.log("rmc.  Error in postMessageHandler",e.lineNumber,e);}},
 	
 	initUWonChrome=function() {
 		function unsafeWindowObj() { //a singleton object.
