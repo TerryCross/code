@@ -1,4 +1,4 @@
-function logError(msg,e) { log("Error in SVAB,",msg,e.lineNumber+log.lineoffset); }
+function logError(msg,e) { log("Error in SVAB,",msg,e.lineNumber+log.lineoffset,{Error:e}); }
 function typeofObj(unknown_obj){ return ({}).toString.call(unknown_obj).substr(8).slice(0,-1); }
 
 function objInfo(obj) {
