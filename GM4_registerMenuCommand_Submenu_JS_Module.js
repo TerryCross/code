@@ -24,7 +24,7 @@
 // ==/UserScript==
 
 //
-// @updated  Jan 2018.  Adapt to GM4, use new name "GM4_registerMenuCommand Submenu", the 4 indicating its use in GM4 onward.
+// @updated  Feb 2018.  Adapt to GM4, use new name "GM4_registerMenuCommand Submenu", the 4 indicating its use in GM4 onward.
 // @updated  Dec 2017.  Use the submenuModule object to access document.activeElement that was set on webpage prior to menu click; use submenuModule.activeElement variable to access it.
 // @updated  Nov 2016.  Chrome adaptation, color settings now per userscript menu.
 // @updated  May 2016.  Bugfix for google image site, see createElement("style") below.  Also fix for iframes used as textareas x 2.

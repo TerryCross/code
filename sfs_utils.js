@@ -1,3 +1,4 @@
+/* sfs_utils.js v0.1.3 */
 function logError(msg,e) { log("Error in SVAB,",msg,(e.lineNumber?e.lineNumber+log.lineoffset:""),{Error:e}); }
 function typeofObj(unknown_obj){ return ({}).toString.call(unknown_obj).substr(8).slice(0,-1); }
 
