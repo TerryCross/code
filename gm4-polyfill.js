@@ -73,7 +73,7 @@ GM.registerMenuCommand = function (caption, commandFunc, accessKey) {
 	menuItem.setAttribute("label",caption);
 	menuItem.addEventListener('click', commandFunc, true);
 	menu.appendChild(menuItem);
-	return menuItem;    // The real GM_registerMenuCommand returns undefined.
+	return menuItem;    // The real GM_registerMenuCommand returns undefined.  Here user can change eg, label attribute of returned menuItem.
 };
 
 if (typeof GM_registerMenuCommand == 'undefined') this.GM_registerMenuCommand=GM.registerMenuCommand;
