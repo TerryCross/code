@@ -11,8 +11,8 @@ function objInfo(obj) {
 	case "String":
 	case "Number": return obj;
 	default: 		
-		var n=$(obj);
-		var node=n[0];
+		var node=obj;
+		if(node.jquery) node=node[0];
 		if (!node) return "<empty>";
 		return (node.tagName||node.nodeName)+" "+(node.id?"#"+node.id:"")
 			+(node.className?node.className:"").replace(/\b(?=\w)/g,".");
