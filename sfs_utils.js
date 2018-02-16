@@ -7,6 +7,8 @@ function objInfo(obj) {
 		
 	case "Event": return "Event:"+obj.type+" "+objInfo(obj.target);
 	case "Function": return obj.toString().substr(0,200);
+	case "String":
+	case "Number": return obj;
 	default: 		
 		var n=$(obj);
 		var node=n[0];
