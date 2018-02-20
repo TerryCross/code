@@ -42,17 +42,22 @@ function log() { // Prints lineno of logging not this lineno.   //if (!Plat_Chro
 	}
 };
 
-// call cmdreply to get js console at that point.   Pass reg in to register cmd console as a menu command.
+// Call cmdreply to get js console at that point.   Pass reg in to register cmd console as a menu command.
 // If cant register cmd, invoke immediately.
 
-function cmdrepl(reg) {try{
-	if(reg && typeof GM_registerMenuCommand!="undefined" && document.body) {
-		GM_registerMenuCommand("JS repl",cmdrepl);
+function cmdrepl(e) { // called from mene, e is set.
+	if(!e) {          //if (typeof GM_registerMenuCommand!="undefined" && document.body)
+		setTimeout(function(){GM_registerMenuCommand("JS repl",cmdrepl);},2000);
 		return;
 	}
-	var res="Command:",reply=localStorage.reply;
+	var sname= typeof GM!="undefined" ?  GM.info.script.name : "";
+	var res=e.message||sname+", enter command:",reply=localStorage.reply||"cmd";
 	while(reply) {
-  		reply=prompt(res,reply);
-		localStorage.reply=reply;
-  		if(reply) res="Result:"+eval(reply);
-	}} catch(e) {console.log("cmd err",e);}}
+		reply=prompt(res,reply);
+		if(!reply) break;
+		localStorage.reply=reply;                   
+		try{ res=eval(reply);console.dir(reply,"==>",res);res="==>"+res; } catch(e) {console.log("cmd err",e); cmdrepl(e);}
+	}
+}
+
+
