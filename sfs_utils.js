@@ -42,3 +42,17 @@ function log() { // Prints lineno of logging not this lineno.   //if (!Plat_Chro
 	}
 };
 
+// call cmdreply to get js console at that point.   Pass reg in to register cmd console as a menu command.
+// If cant register cmd, invoke immediately.
+
+function cmdrepl(reg) {try{
+	if(reg && typeof GM_registerMenuCommand!="undefined" && document.body) {
+		GM_registerMenuCommand("JS repl",cmdrepl);
+		return;
+	}
+	var res="Command:",reply=localStorage.reply;
+	while(reply) {
+  		reply=prompt(res,reply);
+		localStorage.reply=reply;
+  		if(reply) res="Result:"+eval(reply);
+	}} catch(e) {console.log("cmd err",e);}}
