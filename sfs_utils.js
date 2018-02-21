@@ -1,5 +1,5 @@
 /* sfs_utils.js v0.1.3 */
-function logError(msg,e) { log("Error in SVAB,",msg,(e.lineNumber?e.lineNumber+log.lineoffset:""),{Error:e}); }
+function logError(msg,e) { log("Error in SVAB,",msg,(e.lineNumber?e.lineNumber-log.lineoffset:""),{Error:e}); }
 function typeofObj(unknown_obj){ return ({}).toString.call(unknown_obj).substr(8).slice(0,-1); }
 
 function objInfo(obj) {
@@ -20,18 +20,12 @@ function objInfo(obj) {
 }
 
 function log() { // Prints lineno of logging not this lineno.   //if (!Plat_Chrome) old_GM_log(t);};
-	if (log.lineoffset==undefined) { // cos ff58 has linon at 360 + script lineno.
-		var v=navigator.userAgent.indexOf("Firefox/");
-		if (v!=-1) v=parseInt(navigator.userAgent.substr(v+8));
-		if (v==58) v=-360; else v=0;
-		log.lineoffset=v;
-	}
-	var args=Array.from(arguments), lineno=parseInt(logStack(0,1))+log.lineoffset, pnewline,
+	var args=Array.from(arguments), lineno=parseInt(logStack(0,1))-log.lineoffset, pnewline,
 		locator="[ " + lineno+ " "+( window!=parent? (window.name? window.name:"-") +" @"+location+" "+document.readyState:"") + "]\t";
 	args.unshift(locator);
 	console.log.apply(null, args);
 	// In general it is console.log("%c a msg and another %c meggss","float:right","float:left;",anobj,"text","etc");
-	
+
 	function logStack(fileToo, lineno_of_callee) { // deepest first.
 		var res="", e=new Error;
 		var s=e.stack.split("\n");                        //if (fileToo) res="Stack of callers:\n\t\t"; //+s[1].split("@")[0]+"():\n\t\t"
@@ -41,6 +35,14 @@ function log() { // Prints lineno of logging not this lineno.   //if (!Plat_Chro
 		return !fileToo ? res : {Stack:s[0]+"\n"+res}; 
 	}
 };
+if (log.lineoffset==undefined) { // cos ff58 has linon at 360 + script lineno.
+	var v=navigator.userAgent.indexOf("Firefox/");
+	if (v!=-1) v=parseInt(navigator.userAgent.substr(v+8));
+	if (v==58) v=-360; else v=0;
+	log.lineoffset=v;
+}
+
+function Elineno(e) { return e.lineNumber.lineoffset; }
 
 // Call cmdreply to get js console at that point.   Pass reg in to register cmd console as a menu command.
 // If cant register cmd, invoke immediately.
