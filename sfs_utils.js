@@ -45,9 +45,9 @@ function log() { // Prints lineno of logging not this lineno.   //if (!Plat_Chro
 // Call cmdreply to get js console at that point.   Pass reg in to register cmd console as a menu command.
 // If cant register cmd, invoke immediately.
 
-function cmdrepl(e) { // called from mene, e is set.
+function cmdrepl(e) { // called from menu, e is set.
 	if(!e) {          //if (typeof GM_registerMenuCommand!="undefined" && document.body)
-		setTimeout(function(){GM_registerMenuCommand("JS repl",cmdrepl);},2000);
+		setTimeout(function(){ GM_registerMenuCommand("JS repl",cmdrepl);},2000);
 		return;
 	}
 	var sname= typeof GM!="undefined" ?  GM.info.script.name : "";

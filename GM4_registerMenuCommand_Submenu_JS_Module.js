@@ -43,12 +43,12 @@
 //   -- note this results in the creation of an object called "submenuModule" within the js closure scope.  @grant additions
 //      may also be required in the header of your script, the pseudo header only indicates which you must add to your script.
 //
-// Secondly, put a call to this new object, "submenuModule"'s register() function in your script's code, making sure that
+// Secondly, you must then put a call to this new object, "submenuModule"'s register() function in your script's code, making sure that
 // this is early enough and is prior to the usual registering of any menu commands with GM_registerMenuCommand:
 //
 //    submenuModule.register("my script's menu cmd name", [hotkey], [title-color], [title-bg-and-menu-color] );
 //
-// The second argument is optional, 'm' is the default for hotkey, ie, alt-m may open all submenus of all scripts using this module.
+// The second argument is optional, 'm' is the default for hotkey.
 // Unlike GM the shortcut also works from within iframes.  Optional color parameters must be in style similar to #ffeeff.
 // The interface to the submenuModule also contains a function to remove elements from the menu,
 //
@@ -80,9 +80,12 @@
 // When run on older GM versions this context menu can now also be used by coding with:
 // 		var reg_args=["name",function];
 //		if(!GM_registerMenuCommand(...reg_args))  GM.registerMenuCommand(...reg_args);
-// This create two menu items, once in the usual GM commands menu (of there) and in the webpage's mouse context menu.
+// This creates two menu items, once in the usual GM commands menu and in the webpage's mouse context menu.
 
-var submenuModule=(function() { try { //a module, js pattern module, ownSubmenu() is a closure returning an interface object in scope of 'this'.  Side effect alters GM_registerMenuCommand.  Not window.submenuModule clash of multiusage.
+if(!window.old_GM_reg) window.old_GM_reg=GM_registerMenuCommand||this.GM_registerMenuCommand;
+var GM_registerMenuCommand;   //Uses closure to ensure a different function for each simulataneous userscript caller of this function.
+
+var submenuModule=(function() { try { //a module, js pattern module, returns interfaceObj.  ownSubmenu() is a closure returning an interface object in scope of 'this'.  Side effect alters GM_registerMenuCommand.  Not window.submenuModule clash of multiusage.
 	var sify=JSON.stringify, ownSubmenu, ownSubmenuList, xbutton, body, state=null;
 	var coord_id=1, $, nlist=1, scriptName, altHotkey=77, thishere, list_orig_height, chromeButton, queue;
 	var regmutex, osmlisel="li.osm-button",lis, uw=unsafeWindow, cmd, ln="\u2501", menuwrap, shrink_factor, header;
@@ -91,7 +94,6 @@ var submenuModule=(function() { try { //a module, js pattern module, ownSubmenu(
 	{ try {
 		scriptName=script_name||"";
 		regmutex=new mutexlock(); // Lock is just to ensure init is complete before user commands are registered.
-		if(!window.old_GM_registerMenuCommand) window.old_GM_registerMenuCommand=GM_registerMenuCommand;
 		GM_registerMenuCommand=registerInOwnSubmenu;
 		await preInit();
 		queue.push(coord_id);		queue.sort();     // In GM execution order.  Some may not call register();
@@ -108,7 +110,7 @@ var submenuModule=(function() { try { //a module, js pattern module, ownSubmenu(
 		regmutex.unlock();
 	} catch(e){
 		console.info("GM4_registerMenuCommand_Submenu_JS_Module.  Failed to load/init submenuModule, "+script_name,e,"this is:",this);
-		if (old_GM_registerMenuCommand) GM_registerMenuCommand=old_GM_registerMenuCommand; // revert on failure
+		if (old_GM_reg) GM_registerMenuCommand=old_GM_reg; // revert on failure
 	} }, //init().   
 	docready=function() { // Setup menuwrapper and add own submenu div.  Prior to docload, have body.
 		body=$("body");
@@ -154,7 +156,7 @@ var submenuModule=(function() { try { //a module, js pattern module, ownSubmenu(
 		groupBracketing();
 		var str=(scriptName||"Submenu")+".....", sp="\u2001",  vln="\u2503"; // ┃ 2503, 2500, 2502 for thin, //graphic-space 3000
 		if (!uw.osm_menu_grouping) vln="███";                                // nchars("\u2588",3); //2b1b
-		if(!old_GM_registerMenuCommand(vln+" "+str, openSubmenu))  // Register in both GM menu and contextmenu.
+		if(!old_GM_reg(vln+" "+str, openSubmenu))  // Register in both GM menu and contextmenu.
 			GM.registerMenuCommand(vln+" "+str, openSubmenu);                //GM will not register commands from an iframe.               //\u2502, 03 also
 		groupBracketing(true);
 		if (uw.osm_queue.length>=3)
@@ -301,7 +303,7 @@ var submenuModule=(function() { try { //a module, js pattern module, ownSubmenu(
 			args=["┗"+nchars(ln,17)+"┛", function(){}];
 		else closing_bracket=false;
 		if(args) {
-			var menuitem=old_GM_registerMenuCommand(...args);           //\u005f, low line.  \u2501, "━"]
+			var menuitem=old_GM_reg(...args);           //\u005f, low line.  \u2501, "━"]
 			if(!menuitem) menuitem=GM.registerMenuCommand(...args);
 			menuitem=$(menuitem);
 			if(menuitem.length) {
@@ -364,7 +366,7 @@ var submenuModule=(function() { try { //a module, js pattern module, ownSubmenu(
 		});
 	},
 	revert=function(){
-		GM_registerMenuCommand=old_GM_registerMenuCommand;
+		GM_registerMenuCommand=old_GM_reg;
 		interfaceObj.ineffect=false;
 		//TD, closeSubmenu and register all command functions with GM_
 	},

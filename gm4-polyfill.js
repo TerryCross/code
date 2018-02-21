@@ -1,6 +1,6 @@
 /* gm4-polyfill.js v0.1.5
 
-   This helper script bridges compatibility between the Greasemonkey 4 APIs and
+   This helper script bridges backwardly compatibility between the Greasemonkey 4 APIs and
    existing/legacy APIs.  Say for example your user script includes
    
    // @grant GM_getValue
@@ -10,9 +10,13 @@
    user script engine).  Add:
    
    // @grant GM.getValue
-   // @require https://greasemonkey.github.io/gm4-polyfill/gm4-polyfill.js
+   // @require     https://raw.githubusercontent.com/SloaneFox/code/master/gm4-polyfill.js
    
-   And switch to the new (GM-dot) APIs, which return promises.  If your script
+   Eg, this will define GM.getValue in older GM versions, so updated code will be backward compatible
+   to older GM versions.  It will not define GM_getValue in newer GM versions.
+   Missing functions from the new GM api are added, hence GM.registerMenuCommand and GM.addStyle are defined.
+
+   Include above and recode userscript to the new (GM-dot) APIs, which return promises.  If your script
    is running in an engine that does not provide the new asynchronous APIs, this
    helper will add them, based on the old APIs.
    
@@ -20,10 +24,11 @@
    `async` function to be compatible with any user script engine besides
    Greasemonkey 4.
    
-   (async () => {
-   let x = await GM.getValue('x');
-   })();
-   
+   var gValue;
+   async function init_globals() { gValue = await GM.getValue('x'); }
+   async main() { await init_globals(); }
+   addEventListener("load",main);
+
    Modified due to error rasied on first Object.entries code below because GM_info was undefined, raised in GM4 firefox 57.
 */
 
@@ -45,21 +50,18 @@ if (typeof GM_addStyle == 'undefined') {
 		return null;
 	};
 }
+GM.addStyle=this.GM_addStyle;
 
 if (typeof GM_getResourceText == 'undefined')
 	this.GM_getResourceText = async aResourceName =>
 	( await fetch(await GM.getResourceUrl(aResourceName)) ).text(); 
-
 
 if (typeof GM_registerMenuCommand=="function" && /is not supported[^]{0,100}$/.test(GM_registerMenuCommand.toString()))
 	GM_registerMenuCommand=undefined;
 
 GM.registerMenuCommand = function (caption, commandFunc, accessKey) {
 	let body=document.body;
-	if (!body) {
-		console.error('gm4-polyfill.js, GM_registerMenuCommand aint got no body.');
-		return "failed";
-	}
+	if (!body) throw "GM registerMenuCommand aint got no body in document, yet.";
 	let contextMenu = body.getAttribute('contextmenu');
 	let menu = (contextMenu ? document.querySelector('menu#' + contextMenu) : null);
 	if (!menu) {
@@ -86,7 +88,7 @@ Object.entries({
 	}
 });
 
-Object.entries({                     // Object.entries() returns a 2-d array of all the given object's name value pairs.
+Object.entries({          // Object.entries() returns a 2-d array of all the given object's name value pairs.
 	'GM_addStyle': 'addStyle',
 	'GM_info': 'info',
 	'GM_deleteValue': 'deleteValue',
@@ -100,7 +102,7 @@ Object.entries({                     // Object.entries() returns a 2-d array of 
 	'GM_setValue': 'setValue',
 	'GM_xmlhttpRequest': 'xmlHttpRequest',
 	'GM_getResourceText': 'getResourceText'
-}).forEach(([oldKey, newKey]) => {                               // Enables eg, "await GM.getValue" to run ok on pre GM4. 
+}).forEach(([oldKey, newKey]) => {         // Enables eg, "await GM.getValue" to run ok on pre GM4. But not vice versa, ie, it defines no GM_getValue in newer GM.
 	let old = this[oldKey];
 	if (old && (typeof GM[newKey] == 'undefined')) {
 		GM[newKey] = function(...args) {
