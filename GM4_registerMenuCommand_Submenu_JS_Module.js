@@ -1,5 +1,4 @@
 /* GM4_registerMenuCommand_Submenu_JS_Module.js */
-
 // ==UserScript==
 // @exclude       *
 // @author        Sloan Fox
@@ -85,7 +84,8 @@
 if(!window.old_GM_reg) window.old_GM_reg=GM_registerMenuCommand||this.GM_registerMenuCommand;
 var GM_registerMenuCommand;   //Uses closure to ensure a different function for each simulataneous userscript caller of this function.
 
-var submenuModule=(function() { try { //a module, js pattern module, returns interfaceObj.  ownSubmenu() is a closure returning an interface object in scope of 'this'.  Side effect alters GM_registerMenuCommand.  Not window.submenuModule clash of multiusage.
+var submenuModule=(function() { try {  // a module, js pattern module, returns interfaceObj.  ownSubmenu() is a closure returning
+	// an interface object in scope of 'this'.  Side effect alters GM_registerMenuCommand.  Not window.submenuModule clash of multiusage.
 	var sify=JSON.stringify, ownSubmenu, ownSubmenuList, xbutton, body, state=null;
 	var coord_id=1, $, nlist=1, scriptName, altHotkey=77, thishere, list_orig_height, chromeButton, queue;
 	var regmutex, osmlisel="li.osm-button",lis, uw=unsafeWindow, cmd, ln="\u2501", menuwrap, shrink_factor, header;
@@ -221,7 +221,7 @@ var submenuModule=(function() { try { //a module, js pattern module, returns int
 			var t=$(e.target);
 			e.target.focus(); //needed on chromium.
 			if (t.is("li.osm-button") || (t.closest("div.osm-box").length==0 && t.closest("div#GM_menu_button").length==0) && ! /menuitem/i.test(t[0].tagName)) {
-				console.log("body click on target",t[0].tagName,"if osm-button or not child of osm & button");
+				//console.log("body click on target",t[0].tagName,"if osm-button or not child of osm & button");
 				closeSubmenu(e.clientX==0 && e.clientY==0);
 			} // close if body clicked but not bubbled from a menu item.
 		});
@@ -559,8 +559,7 @@ var submenuModule=(function() { try { //a module, js pattern module, returns int
 	handleIframeSize=function(){
 		window.addEventListener("message", postMessageHandler,false);
 	},
-		userResizeIframe=function(size){
-    console.log("userResizeIframe",iframe);
+	userResizeIframe=function(size){
 		if(!iframe) return;
 		window.parent.postMessage( { type:"sfs-iframe-resize", size:size,full_origin:location.href },"*");
 	},
