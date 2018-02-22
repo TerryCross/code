@@ -1,4 +1,4 @@
-/* sfs_utils.js v0.1.3 */
+/* sfs_utils.js v0.1.4 */
 function logError(msg,e) { log("Error in SVAB,",msg,(e.lineNumber?e.lineNumber-log.lineoffset:""),{Error:e}); }
 function typeofObj(unknown_obj){ return ({}).toString.call(unknown_obj).substr(8).slice(0,-1); }
 
@@ -21,7 +21,7 @@ function objInfo(obj) {
 
 function log() { // Prints lineno of logging not this lineno.   //if (!Plat_Chrome) old_GM_log(t);};
 	var args=Array.from(arguments), lineno=parseInt(logStack(0,1))-log.lineoffset, pnewline,
-		locator="[ " + lineno+ " "+( window!=parent? (window.name? window.name:"-") +" @"+location+" "+document.readyState:"") + "]\t";
+		locator="[ "+lineno +":"+ sname+ " "+( window!=parent? (window.name? window.name:"-") +" @"+location+" "+document.readyState:"") + "]\t";
 	args.unshift(locator);
 	console.log.apply(null, args);
 	// In general it is console.log("%c a msg and another %c meggss","float:right","float:left;",anobj,"text","etc");
@@ -38,27 +38,31 @@ function log() { // Prints lineno of logging not this lineno.   //if (!Plat_Chro
 if (log.lineoffset==undefined) { // cos ff58 has linon at 360 + script lineno.
 	var v=navigator.userAgent.indexOf("Firefox/");
 	if (v!=-1) v=parseInt(navigator.userAgent.substr(v+8));
-	if (v==58) v=-360; else v=0;
+	if (v==58) v=360; else v=0;
 	log.lineoffset=v;
 }
 
-function Elineno(e) { return e.lineNumber.lineoffset; }
+function Elineno(e) { return e.lineNumber-log.lineoffset; }
 
 // Call cmdreply to get js console at that point.   Pass reg in to register cmd console as a menu command.
 // If cant register cmd, invoke immediately.
 
+var sname= typeof GM != "undefined" ?  GM.info.script.name : "";
+
 function cmdrepl(e) { // called from menu, e is set.
-	if(!e) {          //if (typeof GM_registerMenuCommand!="undefined" && document.body)
-		setTimeout(function(){ GM_registerMenuCommand("JS repl",cmdrepl);},2000);
+	if(!cmdrepl.regdone) {          //if (typeof GM_registerMenuCommand!="undefined" && document.body)
+		cmdrepl.regdone=true;
+		setTimeout(function(){ 
+			if(!GM_registerMenuCommand("JS repl",cmdrepl)) GM.registerMenuCommand("JS repl",cmdrepl);
+		},2000);
 		return;
 	}
-	var sname= typeof GM!="undefined" ?  GM.info.script.name : "";
 	var res=e.message||sname+", enter command:",reply=localStorage.reply||"cmd";
 	while(reply) {
 		reply=prompt(res,reply);
 		if(!reply) break;
 		localStorage.reply=reply;                   
-		try{ res=eval(reply);console.dir(reply,"==>",res);res="==>"+res; } catch(e) {console.log("cmd err",e); cmdrepl(e);}
+		try{ res=eval(reply); console.log(reply,"==>",res);res="==>"+res; } catch(e) {console.log("cmd err",e); cmdrepl(e);}
 	}
 }
 
