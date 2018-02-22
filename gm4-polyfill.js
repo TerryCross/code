@@ -81,7 +81,8 @@ GM.registerMenuCommand = function (caption, commandFunc, accessKey) {
 if (typeof GM_registerMenuCommand == 'undefined') this.GM_registerMenuCommand=GM.registerMenuCommand;
 
 Object.entries({
-	'log': console.log
+	'log': console.log,
+	'info': GM_info
 }).forEach(([newKey, old]) => {
 	if (old && (typeof GM[newKey] == 'undefined')) {
 		GM[newKey] = old;
@@ -90,7 +91,6 @@ Object.entries({
 
 Object.entries({          // Object.entries() returns a 2-d array of all the given object's name value pairs.
 	'GM_addStyle': 'addStyle',
-	'GM_info': 'info',
 	'GM_deleteValue': 'deleteValue',
 	'GM_getResourceURL': 'getResourceUrl',
 	'GM_getValue': 'getValue',
