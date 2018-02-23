@@ -32,7 +32,7 @@
 */
 
 if (typeof GM == 'undefined') {
-	var GM = {};  // Defined in closure given when loaded/injected.
+	const GM = {};  // Defined in closure given when loaded/injected.
 }
 
 if (typeof GM_addStyle == 'undefined') {
