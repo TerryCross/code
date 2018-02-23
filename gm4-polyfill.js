@@ -1,4 +1,4 @@
-/* gm4-polyfill.js v0.1.5
+/* gm4-polyfill.js v1.0.1
 
    This helper script bridges backwardly compatibility between the Greasemonkey 4 APIs and
    existing/legacy APIs.  Say for example your user script includes
@@ -29,11 +29,10 @@
    async main() { await init_globals(); }
    addEventListener("load",main);
 
-   Modified due to error rasied on first Object.entries code below because GM_info was undefined, raised in GM4 firefox 57.
 */
 
 if (typeof GM == 'undefined') {
-	GM = {};
+	var GM = {};  // Defined in closure given when loaded/injected.
 }
 
 if (typeof GM_addStyle == 'undefined') {
@@ -61,7 +60,7 @@ if (typeof GM_registerMenuCommand=="function" && /is not supported[^]{0,100}$/.t
 
 GM.registerMenuCommand = function (caption, commandFunc, accessKey) {
 	let body=document.body;
-	if (!body) throw "GM registerMenuCommand aint got no body in document, yet.";
+	if (!body) throw "GM registerMenuCommand aint got no body in document, call again later.";
 	let contextMenu = body.getAttribute('contextmenu');
 	let menu = (contextMenu ? document.querySelector('menu#' + contextMenu) : null);
 	if (!menu) {
@@ -81,8 +80,8 @@ GM.registerMenuCommand = function (caption, commandFunc, accessKey) {
 if (typeof GM_registerMenuCommand == 'undefined') this.GM_registerMenuCommand=GM.registerMenuCommand;
 
 Object.entries({
-	'log': console.log,
-	'info': GM_info
+	'log': console.log.bind(console),
+	'info': typeof GM_info == "undefined" ? null : GM_info 
 }).forEach(([newKey, old]) => {
 	if (old && (typeof GM[newKey] == 'undefined')) {
 		GM[newKey] = old;

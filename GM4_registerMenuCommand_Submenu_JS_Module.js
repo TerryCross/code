@@ -567,7 +567,7 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 		if(!iframe) return;
 		window.parent.postMessage( { type:"sfs-iframe-resize", revert:true,full_origin:location.href },"*");
 	},
-	resizeIframe=function(iframeEl,target_size,revert) {
+	resizeIframe=function(iframeEl,target_size,revert) { // called from event handler of sfs-iframe-resize event in parent.
 		var ursize=JSON.parse(iframeEl[0].dataset.ursize||"[]"), topslice, target_css={position:"relative",zIndex:999999};
 		
 		if (!revert) {
