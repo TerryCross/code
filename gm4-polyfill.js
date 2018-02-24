@@ -27,12 +27,12 @@
    var gValue;
    async function init_globals() { gValue = await GM.getValue('x'); }
    async main() { await init_globals(); }
-   addEventListener("load",main);
+   addEventListener("load",main);gm4-
 
 */
 
 if (typeof GM == 'undefined') {
-	var GM = {};  // Defined in closure given when loaded/injected.
+	eval("var GM = {};");  // Defined in the closure given when loaded/injected prevents intra-script clobbering.  Eval needed due to GM's declaration as a const in scope wrapper .
 } 
 if (typeof GM_addStyle == 'undefined') {
 	this.GM_addStyle = (aCss) => {
