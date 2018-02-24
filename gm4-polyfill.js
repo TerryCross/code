@@ -1,4 +1,4 @@
-/* gm4-polyfill.js v1.0.1
+/* gm4-polyfill.js v1.0.2
 
    This helper script bridges backwardly compatibility between the Greasemonkey 4 APIs and
    existing/legacy APIs.  Say for example your user script includes
