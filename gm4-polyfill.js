@@ -31,9 +31,9 @@
 
 */
 
-if (typeof GM == 'undefined') {
+if (typeof GM == 'undefined') 
 	eval("var GM = {};");  // Defined in the closure given when loaded/injected prevents intra-script clobbering.  Eval needed due to GM's declaration as a const in scope wrapper .
-} 
+
 if (typeof GM_addStyle == 'undefined') {
 	this.GM_addStyle = (aCss) => {
 		'use strict';
