@@ -32,10 +32,8 @@
 */
 
 if (typeof GM == 'undefined') {
-	this.GM = {};  // Defined in closure given when loaded/injected.
-	console.log("I defined GM",GM);
-} else console.log("GM already defined,",GM);
-console.log("GM is ",GM);
+	var GM = {};  // Defined in closure given when loaded/injected.
+} 
 if (typeof GM_addStyle == 'undefined') {
 	this.GM_addStyle = (aCss) => {
 		'use strict';
@@ -50,7 +48,7 @@ if (typeof GM_addStyle == 'undefined') {
 		return null;
 	};
 }
-console.log("Now set GM.addstyle",typeof GM);
+
 GM.addStyle=this.GM_addStyle;
 
 if (typeof GM_getResourceText == 'undefined')
