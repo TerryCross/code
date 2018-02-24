@@ -1,18 +1,14 @@
-/* GM4_registerMenuCommand_Submenu_JS_Module.js */
-// ==UserScript==
-// @exclude       *
-// @author        Sloan Fox
+/* gm-popup-menus-1.3.6.js */
 // ==UserLibrary==
 // @pseudoHeader
 // @version     1.3.6
-// @updateURL   https://openuserjs.org/meta/libs/slow!/GM4_registerMenuCommand_Submenu_JS_Module.meta.js
-// @name        GM4_registerMenuCommand Submenu JS Module
+// @name        GM Popup Menus
 // @require     https://code.jquery.com/jquery-3.2.1.js
 // @require     https://raw.githubusercontent.com/SloaneFox/code/master/gm4-polyfill.js
 // @license     GPL-3.0
 // @copyright   2017, slow! (https://openuserjs.org/users/slow!)
 // @namespace   sfsOms
-// @description Submenu in GM
+// @description Library for use in userscripts to overrid GM_registerMenuCommand to provide jquery dialog popup submenus.
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM.getValue
@@ -20,7 +16,6 @@
 // @grant       GM4_registerMenuCommand
 // @exclude     *
 // ==/UserLibrary==
-// ==/UserScript==
 
 //
 // @updated  Feb 2018.  Adapt to GM4, use new name "GM4_registerMenuCommand Submenu", the 4 indicating its use in GM4 onward.
