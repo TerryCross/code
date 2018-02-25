@@ -562,28 +562,30 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 		if(!iframe) return;
 		window.parent.postMessage( { type:"sfs-iframe-resize", revert:true,full_origin:location.href },"*");
 	},
-	resizeIframe=function(iframeEl,target_size,revert) { // called from event handler of sfs-iframe-resize event in parent.
+	resizeIframe=function(iframeEl,target_size,revert) { // target_size array is of form, [width,height]
 		var ursize=JSON.parse(iframeEl[0].dataset.ursize||"[]"), topslice, target_css={position:"relative",zIndex:999999};
-		
 		if (!revert) {
-			ursize.push( [ iframeEl.width(), iframeEl.height(), iframeEl.css(["position","zIndex"]) ] );
+			ursize.push( [ iframeEl.width(), iframeEl.height(), iframeEl.css(["position","zIndex"]) ] ); // .css returns an name-val object
 			target_size[0]*=1.5;target_size[1]*=1.5;
+			let badpelsi=iframeEl.parents().map((i,pel)=>{ 
+				pel=$(pel); 
+				if(pel.css("overflow")=="hidden" && (pel.width()<target_size[0] || pel.height()<target_size[1])) {
+					pel.css("overflow","visible");		return i; }});
+			ursize[ursize.length-1].push(badpelsi.toArray());
 		}
-		
 		topslice=ursize.slice(-1)[0]; // slice returns an array.
-		
 		if(revert) 	{  
-			//target_size=ursize.slice(-1)[0]; 
 			target_size=topslice;
 			target_css=topslice[2];
+			if(ursize.length==1) topslice[3].forEach(i=>iframeEl.parents().eq(i).css("overflow","hidden"));
 		}
 		console.log(revert ? "Revert" : "Resize Fx1.5" ,"to target size: ",target_size,"ursize", ursize,iframeEl);
 		
-		//
+		//Change
 		if (topslice[0]<target_size[0]||revert) {iframeEl.width(target_size[0]|0);console.log("set width of iframe to:",target_size[0],"so now w:",iframeEl.width());}
 		if (topslice[1]<target_size[1]||revert) iframeEl.height(target_size[1]|0);
 		iframeEl.css(target_css);
-		
+
 		if(revert) ursize.pop();
 		iframeEl[0].dataset.ursize=sify(ursize);
 	},
