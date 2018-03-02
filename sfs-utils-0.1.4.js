@@ -1,5 +1,12 @@
 /* sfs_utils.js v0.1.4 */
-function logError(msg,e) { log("Error in SVAB,",msg,(e.lineNumber?e.lineNumber-log.lineoffset:""),{Error:e}); }
+
+// ==UserLibrary==
+// @pseudoHeader
+// @name        SFS Utils
+// @version     0.1.4
+// ==/UserLibrary==
+
+function logError(msg,e) { log("Error,",msg,Elineno(e),{Error:e}); }
 function typeofObj(unknown_obj){ return ({}).toString.call(unknown_obj).substr(8).slice(0,-1); }
 
 function objInfo(obj) {
