@@ -54,7 +54,7 @@ function Elineno(e) { return e.lineNumber-log.lineoffset; }
 // Call cmdreply to get js console at that point.   Pass reg in to register cmd console as a menu command.
 // If cant register cmd, invoke immediately.
 
-var sname= typeof GM != "undefined" ?  GM.info.script.name : "";
+var sname= typeof GM != "undefined" ?  GM.info && GM.info.script.name : "";
 
 function cmdrepl(e) { // called from menu, e is set.
 	if(!cmdrepl.regdone) {          //if (typeof GM_registerMenuCommand!="undefined" && document.body)
