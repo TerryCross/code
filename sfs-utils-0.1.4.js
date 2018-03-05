@@ -30,7 +30,7 @@ function log() { // Prints lineno of logging not this lineno.   //if (!Plat_Chro
 	var args=Array.from(arguments), lineno=parseInt(logStack(0,1))-log.lineoffset, pnewline,
 		locator="[ "+lineno +":"+ sname+ " "+( window!=parent? (window.name? window.name:"-") +" @"+location+" "+document.readyState:"") + "]\t";
 	args.unshift(locator);
-	console.log.apply(null, args);
+	console.log.apply(console, args);
 	// In general it is console.log("%c a msg and another %c meggss","float:right","float:left;",anobj,"text","etc");
 
 	function logStack(fileToo, lineno_of_callee) { // deepest first.
@@ -56,19 +56,21 @@ function Elineno(e) { return e.lineNumber-log.lineoffset; }
 
 var sname= typeof GM != "undefined" ?  GM.info && GM.info.script.name : "";
 
-function cmdrepl(e) { // called from menu, e is set.
-	if(!cmdrepl.regdone) {          //if (typeof GM_registerMenuCommand!="undefined" && document.body)
+function cmdrepl(e={},immediate) {               // When called from GM menu e is set to event.
+	if(!immediate && !cmdrepl.regdone) {          // if (typeof GM_registerMenuCommand!="undefined" && document.body)
 		cmdrepl.regdone=true;
 		setTimeout(function(){ 
 			if(!GM_registerMenuCommand("JS repl",cmdrepl)) GM.registerMenuCommand("JS repl",cmdrepl);
 		},2000);
 		return;
 	}
-	var res=e.message||sname+", enter command:",reply=localStorage.reply||"cmd";
+	ls={}; 
+	try { let tmp=localStorage.reply; ls=localStorage; } catch(e){}
+	var res=e.message||sname+", enter command:",reply=ls.reply||"cmd";
 	while(reply) {
 		reply=prompt(res,reply);
 		if(!reply) break;
-		localStorage.reply=reply;                   
+		ls.reply=reply;                   
 		try{ res=eval(reply); console.log(reply,"==>",res);res="==>"+res; } catch(e) {console.log("cmd err",e); cmdrepl(e);}
 	}
 }

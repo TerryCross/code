@@ -1,7 +1,8 @@
-/* gm-popup-menus-1.3.6.js */
+/* gm-popup-menus-1.3.7.js */
+
 // ==UserLibrary==
 // @pseudoHeader
-// @version     1.3.6
+// @version     1.3.7
 // @name        GM Popup Menus
 // @require     https://code.jquery.com/jquery-3.2.1.js
 // @require     https://raw.githubusercontent.com/SloaneFox/code/master/gm4-polyfill.js
@@ -139,6 +140,7 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 			uw.osm_shutdoor=true;
 			uw.osm_max=uw.osm_queue.length; //Don't wait for one that never init.s.
 			for (let i=0;i<uw.osm_max;i++) dispatch("coord_GM_menu",uw.osm_queue[i]); // emits one event for each coord_id ir oder from 1 up.
+			uw.osm_count=0; //resets storage on next load.
 		},tout); /// close inits after this time passed??
 	},
 	coord_GM_menu=function(e){  // Custom Event handler
@@ -512,7 +514,9 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 	setUpChromeButton=function() {
 		chromeButton=true;
 		var div=$("#GM_menu_button");
-		var right_pos=GM.getValue ? GM.getValue("GMmenuLeftRight", true) : localStorage.GMmenuLeftRight;
+		var right_pos;
+		if(GM.getValue) right_pos=GM.getValue("GMmenuLeftRight", true);
+		else try { right_pos=localStorage.GMmenuLeftRight;} catch(e){}
 		var par = document.body ? document.body : document.documentElement, 
 			full_name="GreaseMonkey \u27a4 User Script Commands \u00bb", short_name="GM\u00bb";
 		if (div.length==0) {
@@ -579,7 +583,7 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 			target_css=topslice[2];
 			if(ursize.length==1) topslice[3].forEach(i=>iframeEl.parents().eq(i).css("overflow","hidden"));
 		}
-		console.log(revert ? "Revert" : "Resize Fx1.5" ,"to target size: ",target_size,"ursize", ursize,iframeEl);
+		//console.log(revert ? "Revert" : "Resize Fx1.5" ,"to target size: ",target_size,"ursize", ursize,iframeEl);
 		
 		//Change
 		if (topslice[0]<target_size[0]||revert) {iframeEl.width(target_size[0]|0);console.log("set width of iframe to:",target_size[0],"so now w:",iframeEl.width());}
@@ -597,7 +601,7 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 		var bestmatch=-1,pmatch;
 		$("iframe, embed").each(function(i,el){
 			pmatch=strdiff(e.data.full_origin.replace(/https?:\/\//,""),el.src.replace(/https?:\/\//,""));
-			console.log("pstrdiff match",pmatch," at index ",i, e.data.full_origin, el.src);
+			//console.log("pstrdiff match",pmatch," at index ",i, e.data.full_origin, el.src);
 			if(pmatch==bestmatch && foundEl) foundEl.add(el);
 			if(pmatch>bestmatch) { 
 				bestmatch=pmatch;
@@ -618,20 +622,19 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 	
 	initUWonChrome=function() {
 		function unsafeWindowObj() { //a singleton object.
-			var ss=sessionStorage;
-			var usw="StandinForUnsafeWindow";
+			try{var ss=sessionStorage;}catch(e){ss=window.tempVaringmpm={};}          			//console.log("initUWonChrome new usw",ss,localStorage);
+			var usw="StandinForUnsafeWindow";			//try { console.log("Try local:",localStorage.usw);}catch(e){console.log("No access to LS");}
 			var singleton=this, readphase;
-			this.underlying_obj={};
-			if (!ss[usw]) ss[usw]="{}";
-			this.read=function() {
+			this.underlying_obj={}; //try{
+			if (!ss[usw]) ss[usw]="{}";//} catch(e){console.log("Cannot access sessionStorage",window!=parent,e);}
+			this.read=function() { // Read in changes announce by DOM event or at init;
 				readphase=true;
-				var robj=JSON.parse(ss[usw]);
-				var roll=""; for (var i in robj) { roll+=i+" "; }
+				var robj=JSON.parse(ss[usw]);		  //var roll=""; for (var i in robj) { roll+=i+" "; }
 				for (var i in robj) this[i]=robj[i];  //eg,this[osm_count], invokes setters below.
 				readphase=false;
 				return this;
 			};
-			this.share=function(){
+			this.share=function(){   //Announce changes by event to other storers of usw.
 				if (readphase) return;
 				ss[usw]=JSON.stringify(this.underlying_obj);
 				dispatch("Storage-changed",{from_id:coord_id,newval:this.underlying_obj});
@@ -655,12 +658,12 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 						}; //end obj def.
 				}); //forEach().
 			}; //proxify().
+			document.addEventListener("Storage-changed",storeHasChanged,false);
 			function storeHasChanged(e){
 				if (e.detail && e.detail.from_id==coord_id) return;
 				singleton.read();
 			}
-			document.addEventListener("Storage-changed",storeHasChanged,false);
-		}; //unsafeWindowObj().
+		}; //End unsafeWindowObj().
 		
 		unsafeWindowObj.prototype = {
 			get osm_count() { return this.underlying_obj.osm_count;	},
@@ -678,9 +681,13 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 		}; //end prototype.
 		function toType(obj) { return ({}).toString.call(obj).match(/\s([a-zA-Z]+)/)[1]; }
 		return (new unsafeWindowObj()).read();
-	}; ////////////////////End of var comma module function def sequence.
+
+	};//End initUWonChrome()
+
+	////////////////////End of var comma module function def sequence.
 	////////////Semicolon ends comma separated variable definitions of the various module functions.
 	/////////////////////
+
 	var getCoordid=function(){return coord_id;}; 
 	String.prototype.trim = function (charset) { if (!charset) return this.replace(/^\s*|\s*$/g,""); else return this.replace( RegExp("^["+charset+"]*|["+charset+"]*$", "g" ) , "");}; //trim spaces or any set of characters.
 	if (/Chrome/.test(navigator.userAgent)) window.plat_chrome=true;
@@ -708,7 +715,7 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 		if (! document.getElementById("squadafont")) {
 			var css=GM.getValue ? await GM.getValue("squada","") : "";
 			if (!css) {
-				console.log(coord_id,".  Get Squadafont from fonts.googleapis.com, for page/iframe at "+location);
+				console.log(coord_id,".  Miss! Get Squadafont from fonts.googleapis.com, for page/iframe at "+location);
 				httpGet("https://fonts.googleapis.com/css?family=Squada+One",function(e){
 					css=e.target.responseText;
 					var xmlHttp=new XMLHttpRequest(), suburl=css.match(/\s*url\s*\((.*?)\)/)[1];
@@ -738,7 +745,7 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 			
 		} //endif !doc.getElementById(squadafont)
 	} catch(e) { console.log("Cannot get font, error: "+e+", line:"+e.lineNumber+".");}} //preInit()
-} catch(e){console.log("Error in submenuModule",e);}} )(); //var submenuModule=(function(){.
+} catch(e){console.log("Error in submenuModule",e);}} )(); // End var submenuModule=(function(){.
 
 function logStack(fileToo) { // deepest first.
 	var res="", e=new Error;
