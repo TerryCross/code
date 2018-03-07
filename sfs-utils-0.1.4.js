@@ -1,4 +1,4 @@
-/* sfs_utils.js v0.1.4 */
+/* sfs-utils.js v0.1.4 */
 
 // ==UserLibrary==
 // @pseudoHeader
@@ -56,11 +56,12 @@ function Elineno(e) { return e.lineNumber-log.lineoffset; }
 
 var sname= typeof GM != "undefined" ?  GM.info && GM.info.script.name : "";
 
-function cmdrepl(e={},immediate) {               // When called from GM menu e is set to event.
+async function cmdrepl(e={},immediate) {               // When called from GM menu e is set to event.
 	if(!immediate && !cmdrepl.regdone) {          // if (typeof GM_registerMenuCommand!="undefined" && document.body)
 		cmdrepl.regdone=true;
 		setTimeout(function(){ 
-			if(!GM_registerMenuCommand("JS repl",cmdrepl)) GM.registerMenuCommand("JS repl",cmdrepl);
+			//console.log("in sfs_utils GM.","abc"+GM_registerMenuCommand);
+			GM_registerMenuCommand("JS repl",cmdrepl); GM.registerMenuCommand("JS repl",cmdrepl); // reg in both 
 		},2000);
 		return;
 	}
@@ -71,7 +72,7 @@ function cmdrepl(e={},immediate) {               // When called from GM menu e i
 		reply=prompt(res,reply);
 		if(!reply) break;
 		ls.reply=reply;                   
-		try{ res=eval(reply); console.log(reply,"==>",res);res="==>"+res; } catch(e) {console.log("cmd err",e); cmdrepl(e);}
+		try{ res=await eval(reply); console.log(reply,"==>",res);res="==>"+res; } catch(e) {console.log("cmd err",e); cmdrepl(e);}
 	}
 }
 

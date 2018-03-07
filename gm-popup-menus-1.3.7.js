@@ -442,7 +442,6 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 		var jq=this.jQuery||window.jQuery;
 		if(jq) return jq;
 		if (!this.jqcode) {
-			//this.jqcode=httpGet("https://code.jquery.com/jquery-latest.js");
 			this.jqcode=httpGet("https://code.jquery.com/jquery-3.2.1.js");
 			if (GM.setValue) GM.setValue("osm_jqueryCode",jqcode);
 		}
