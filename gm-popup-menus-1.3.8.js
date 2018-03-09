@@ -99,7 +99,7 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 		ownSubmenu.hide();		    ownSubmenu.find(".osmXbutton").click(closeSubmenu);		ownSubmenu.append(ownSubmenuList);
 		if (window.plat_chrome)     setUpChromeButton();
 		interfaceObj.ineffect=true; document.addEventListener("coord_resize",coord_resize);
-		$(window).on("keydown",function(e) { console.log("win keydown",e.key);if (e.altKey&&e.keyCode==altHotkey) {  openSubmenu(); return false;}}); // alt-m or hotkey shortcut
+		$(window).on("keydown",function(e) { console.log("win keydown",e.key);if (e.altKey&&e.keyCode==altHotkey) {  openSubmenu(); return false;}}); // alt-m or hotkey shortcut !!
 		$(docready);	state="init";
 		$(document).on("coord_GM_menu", coord_GM_menu);
 		if (document.readyState=="complete") docload();	else $(docload); //start-at may mean no body yet.  $(func) is same as window.ready(func), also runs function even if already ready.
@@ -598,7 +598,7 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 		if ( ! e.data.type || e.data.type!="sfs-iframe-resize") return;
 		var sources=[],foundEl;
 		var bestmatch=-1,pmatch;
-		$("iframe, embed").each(function(i,el){
+		$("iframe, embed").each(function(i,el){ // embed has no .contentWindow
 			pmatch=strdiff(e.data.full_origin.replace(/https?:\/\//,""),el.src.replace(/https?:\/\//,""));
 			//console.log("pstrdiff match",pmatch," at index ",i, e.data.full_origin, el.src);
 			if(pmatch==bestmatch && foundEl) foundEl.add(el);

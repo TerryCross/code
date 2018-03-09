@@ -28,7 +28,7 @@ function objInfo(obj) {
 
 function log() { // Prints lineno of logging not this lineno.   //if (!Plat_Chrome) old_GM_log(t);};
 	var args=Array.from(arguments), lineno=parseInt(logStack(0,1))-log.lineoffset, pnewline,
-		locator="[ "+lineno +":"+ sname+ " "+( window!=parent? (window.name? window.name:"-") +" @"+location+" "+document.readyState:"") + "]\t";
+		locator="[ "+lineno +":"+ sname+ " "+( window!=parent? ("wname:"+window.name? window.name:"-") +" @"+location+", rstate: "+document.readyState:"") + " ]\t";
 	args.unshift(locator);
 	console.log.apply(console, args);
 	// In general it is console.log("%c a msg and another %c meggss","float:right","float:left;",anobj,"text","etc");
