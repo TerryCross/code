@@ -62,7 +62,7 @@ if (log.lineoffset==undefined) { // cos ff58 has linon at 360 + script lineno.
 
 var sname= typeof GM != "undefined" ?  GM.info && GM.info.script.name : "";
 
-async function cmdrepl(e={},immediate,environ) {               // When called from GM menu e is set to event.
+async function cmdrepl(e={},immediate,...args) {               // When called from GM menu e is set to event.
 	if(!immediate && !cmdrepl.regdone) {          // if (typeof GM_registerMenuCommand!="undefined" && document.body)
 		cmdrepl.regdone=true;
 		setTimeout(function(){ 
