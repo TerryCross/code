@@ -99,7 +99,7 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 		ownSubmenu.hide();		    ownSubmenu.find(".osmXbutton").click(closeSubmenu);		ownSubmenu.append(ownSubmenuList);
 		if (window.plat_chrome)     setUpChromeButton();
 		interfaceObj.ineffect=true; document.addEventListener("coord_resize",coord_resize);
-		$(window).on("keydown",function(e) { console.log("win keydown",e.key);if (e.altKey&&e.keyCode==altHotkey) {  openSubmenu(); return false;}}); // alt-m or hotkey shortcut !!
+		$(window).on("keydown",function(e) { if (e.altKey&&e.keyCode==altHotkey) {  openSubmenu(); return false;}}); // alt-m or hotkey shortcut !!
 		$(docready);	state="init";
 		$(document).on("coord_GM_menu", coord_GM_menu);
 		if (document.readyState=="complete") docload();	else $(docload); //start-at may mean no body yet.  $(func) is same as window.ready(func), also runs function even if already ready.

@@ -6,8 +6,15 @@
 // @version     0.1.4
 // ==/UserLibrary==
 
+// See below for functions:
+//    function log(arguments);  // prints correct line number under GM4, due to scope wrapper the given one is incorrect.
+//    function cmdrepl(e,immediate_flag);  //  Launch a js console from any place in the code &/or register one from a menu.
+//    var sname;   // Set to GM info's script.name.
+//
+
 function logError(msg,e) { log("Error,",msg,Elineno(e),{Error:e}); }
 function typeofObj(unknown_obj){ return ({}).toString.call(unknown_obj).substr(8).slice(0,-1); }
+function Elineno(e) { return e.lineNumber-log.lineoffset; }
 
 function objInfo(obj) {
 
@@ -49,14 +56,13 @@ if (log.lineoffset==undefined) { // cos ff58 has linon at 360 + script lineno.
 	log.lineoffset=v;
 }
 
-function Elineno(e) { return e.lineNumber-log.lineoffset; }
 
 // Call cmdreply to get js console at that point.   Pass reg in to register cmd console as a menu command.
 // If cant register cmd, invoke immediately.
 
 var sname= typeof GM != "undefined" ?  GM.info && GM.info.script.name : "";
 
-async function cmdrepl(e={},immediate) {               // When called from GM menu e is set to event.
+async function cmdrepl(e={},immediate,environ) {               // When called from GM menu e is set to event.
 	if(!immediate && !cmdrepl.regdone) {          // if (typeof GM_registerMenuCommand!="undefined" && document.body)
 		cmdrepl.regdone=true;
 		setTimeout(function(){ 
