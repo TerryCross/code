@@ -1,14 +1,21 @@
-/* sfs-utils.js v0.1.4 */
+/* sfs-utils.js v0.1.5 */
 
 // ==UserLibrary==
 // @pseudoHeader
 // @name        SFS Utils
-// @version     0.1.4
+// @version     0.1.5
 // ==/UserLibrary==
+
+// Script must have a version of: 
+//
+//           // @require     https://raw.githubusercontent.com/SloaneFox/code/master/gm4-polyfill-1.0.1.js
+//
+// in header to use this module userscript.  Also for use of cmdrepl console function below grant of GM register command is required.
 
 // See below for functions:
 //    function log(arguments);  // prints correct line number under GM4, due to scope wrapper the given one is incorrect.
 //    function cmdrepl(e,immediate_flag);  //  Launch a js console from any place in the code &/or register one from a menu.
+//    function logNewNodes();    // Logs to console any new nodes (uses a mutation observer).
 //    var sname;   // Set to GM info's script.name.
 //
 
@@ -49,18 +56,32 @@ function log() { // Prints lineno of logging not this lineno.   //if (!Plat_Chro
 		return !fileToo ? res : {Stack:s[0]+"\n"+res}; 
 	}
 };
+
 if (log.lineoffset==undefined) { // cos ff58 has linon at 360 + script lineno.
-	var v=navigator.userAgent.indexOf("Firefox/");
-	if (v!=-1) v=parseInt(navigator.userAgent.substr(v+8));
-	if (v==58) v=360; else v=0;
-	log.lineoffset=v;
+	var ver=0,offset=0,ver_pos=navigator.userAgent.indexOf("Firefox/");
+	if (ver_pos!=-1) v=parseInt(navigator.userAgent.substr(ver_pos+8));
+	if (v>=58 && v<60) offset=360; 
+	if (v>=60)         offset=492;
+	log.lineoffset=offset;
 }
 
+function logNewNodes() {
+	new MutationObserver((mutations, observer) => {try{
+		for (m of mutations) for (n of m.addedNodes) {
+			console.log("Node added",n.nodeName,(n.nodeType!=3 ? n : n.textContent.substr(0,40)+"..."));
+			if(n.nodeName=="IFRAME") { 
+				$(n).removeAttr("sandbox"); 
+				n.addEventListener('load', function (e) {console.log("Loaded IFRAME",location,n,"this:",this);});
+			}
+		}
+	}catch(e){console.error("logNewNodes error",e.lineNumber,e);}})
+		.observe(document.documentElement, {childList: true,subtree:true});
+}
 
 // Call cmdreply to get js console at that point.   Pass reg in to register cmd console as a menu command.
 // If cant register cmd, invoke immediately.
 
-var sname= typeof GM != "undefined" ?  GM.info && GM.info.script.name : "";
+var sname= typeof GM != "undefined" ?  GM.info && GM.info.script.name : "noscript name";
 
 async function cmdrepl(e={},immediate,...args) {               // When called from GM menu e is set to event.
 	if(!immediate && !cmdrepl.regdone) {          // if (typeof GM_registerMenuCommand!="undefined" && document.body)
