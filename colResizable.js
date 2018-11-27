@@ -32,7 +32,7 @@
 	//shortcuts
 	var I = parseInt;
 	var M = Math;
-	var ie =$.browser.msie;
+	var ie =false; //$.browser.msie;
 	var S;
 	try{S = sessionStorage;}catch(e){}	//Firefox crashes when executed as local file system
 	
