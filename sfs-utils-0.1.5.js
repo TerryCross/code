@@ -59,9 +59,11 @@ function log() { // Prints lineno of logging not this lineno.   //if (!Plat_Chro
 
 if (log.lineoffset==undefined) { // cos ff58 has linon at 360 + script lineno.
 	var ver=0,offset=0,ver_pos=navigator.userAgent.indexOf("Firefox/");
-	if (ver_pos!=-1) v=parseInt(navigator.userAgent.substr(ver_pos+8));
-	if (v>=58 && v<60) offset=360; 
-	if (v>=60)         offset=492;
+	if (ver_pos!=-1) {
+		let v=parseInt(navigator.userAgent.substr(ver_pos+8));
+		if (v>=58 && v<60) offset=360; 
+		if (v>=60)         offset=492;
+	}
 	log.lineoffset=offset;
 }
 
