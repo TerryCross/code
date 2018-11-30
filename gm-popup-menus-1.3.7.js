@@ -134,7 +134,7 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 		var tout=uw.osm_queue.length==uw.osm_max ? 0 : 2000;
 		setTimeout(function(msec){ //wait for other scripts to init for grouping.
 			if (uw.osm_shutdoor) return;
-			console.log(scriptName,coord_id,"shut door on queue:",uw.osm_queue,"max:",uw.osm_max,window!=parent);
+			//console.log(scriptName,coord_id,"shut door on queue:",uw.osm_queue,"max:",uw.osm_max,window!=parent);
 			handleIframeSize(); // NB, only one client handles this and below.
 			makeDraggable($(".osm-box"));
 			uw.osm_shutdoor=true;
