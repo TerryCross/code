@@ -69,8 +69,6 @@
 //
 // Other functions/properties in the submenuModule interface are: stop(), open(), close(), ineffect (boolean).
 //
-// If openuserjs.org where this lib script is stored is down or busy and GM needs to update this script
-// you may need to bracket the calls to submenuModule with try/catch.
 // If not loaded by Require in script header ensure module is loaded using the correct "this" pointer.
 //
 // GM version 4 has removed the GM_registerMenuCommand function.  This library retains it and you'll see
@@ -147,7 +145,7 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 			uw.osm_count=0; //resets storage on next load.
 		},tout); /// close inits after this time passed??
 	},
-	coord_GM_menu=function(e){  // Custom Event handler
+	coord_GM_menu=function(e){try{  // Custom Event handler
 		var detail=e.originalEvent.detail,menu;
 		
 		if(Number(detail)) { if (detail!=coord_id) return; }// Only handle event directed by coord order.
@@ -161,9 +159,10 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 			GM.registerMenuCommand(vln+" "+str, openSubmenu);                //GM will not register commands from an iframe.               //\u2502, 03 also
 		groupBracketing(true);
 		if (uw.osm_queue.length>=3)
-			menuwrap.css({top:10,left:lmarg});
+			$("#osm-menuwrap").css({top:10,left:lmarg});
 		//queue.splice(queue.indexOf(coord_id),1); //removes from queue, must be there first!
-	},
+	}catch(e){console.log("coord GM menu error",e);}},
+
 	registerInOwnSubmenu=async function(name,func,accessKey) {
 		await regmutex.lock;
 		if (/^\s*function\s*\(\s*\)\s*{\s*}/.test(func.toString())) return;
