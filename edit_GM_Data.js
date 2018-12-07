@@ -71,7 +71,7 @@ function addEdit_GM_DataCommand(scriptname) {  // call after submenuModule for d
 			alert("Saved data.");
 			//var merged_map=new Map([...namevalues_before,...namevalues_after]);
 			//console.log("Merged MAP:",merged_map);
-		}catch(e){logError("Button error",e);}});
+		}catch(e){console.error("Button error",e);}});
 
 		div[0].scrollIntoView();
 		//div.css("transform","translateZ(0)");
@@ -81,7 +81,7 @@ function addEdit_GM_DataCommand(scriptname) {  // call after submenuModule for d
 			fontSize:"medium", maxWidth: "intrinsic", width: "-moz-max-content"
 		});
 
-	}catch(e){logError("Error in addEdit_GM_DataCommand,",e);}}); // end GM_registerMenuCommand()
+	}catch(e){console.error("Error in addEdit_GM_DataCommand,",e);}}); // end GM_registerMenuCommand()
 
 	function parse(str){ try { return JSON.parse(str); } catch(e){} };	
 	function ordinal(n) { var sfx = ["th","st","nd","rd"];var val = n%100;return n + (sfx[(val-20)%10] || sfx[val] || sfx[0]);}
@@ -97,5 +97,4 @@ function addEdit_GM_DataCommand(scriptname) {  // call after submenuModule for d
 		ar.reduce((prev_curr,curr,curr_i)=>{ if(curr_i%2) res_ar.push([prev_curr,curr]);return curr;  });
 		return res_ar;
 	}
-	
 } //end addEdit_GM_DataCommand()
