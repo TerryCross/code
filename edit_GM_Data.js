@@ -6,7 +6,7 @@ function addEdit_GM_DataCommand(scriptname) {  // call after submenuModule for d
 	// Use by calling this function passing in the user script name, this will add to the GM command menu, page 
 	// context menu "Edit data stored for this script, [scriptname]".
 
-	that=addEditGMDataCommand;
+	that=addEdit_GM_DataCommand;
 	GM.registerMenuCommand("Edit data stored for this script, "+scriptname,async function(){try{
 		var wrapper=$("#aedc-wrapper");
 		if(wrapper.length) wrapper.remove(); // old one left there.
@@ -81,7 +81,7 @@ function addEdit_GM_DataCommand(scriptname) {  // call after submenuModule for d
 			fontSize:"medium", maxWidth: "intrinsic", width: "-moz-max-content"
 		});
 
-	}catch(e){logError("Error in addEditGMDataCommand,",e);}}); // end GM_registerMenuCommand()
+	}catch(e){logError("Error in addEdit_GM_DataCommand,",e);}}); // end GM_registerMenuCommand()
 
 	function parse(str){ try { return JSON.parse(str); } catch(e){} };	
 	function ordinal(n) { var sfx = ["th","st","nd","rd"];var val = n%100;return n + (sfx[(val-20)%10] || sfx[val] || sfx[0]);}
@@ -98,4 +98,4 @@ function addEdit_GM_DataCommand(scriptname) {  // call after submenuModule for d
 		return res_ar;
 	}
 	
-} //end addEditGMDataCommand()
+} //end addEdit_GM_DataCommand()
