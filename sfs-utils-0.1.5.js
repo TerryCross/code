@@ -19,7 +19,7 @@
 //    var sname;   // Set to GM info's script.name.
 //
 
-function logError(msg,e) { console.error("Error,",msg,".  On line:",Elineno(e),"lineno offset:",-log.lineoffset,{Error:e}); }
+function logError(msg,e) { console.error("Error,",msg,".  On offset line:",Elineno(e),"lineno offset:",-log.lineoffset,{Error:e}); }
 function typeofObj(unknown_obj){ return ({}).toString.call(unknown_obj).substr(8).slice(0,-1); }
 function Elineno(e) { return e.lineNumber-log.lineoffset; }
 

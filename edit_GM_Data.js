@@ -43,7 +43,7 @@ function addEdit_GM_DataCommand(scriptname) {
 		div.wrap("<div id=aedc-wrapper>");
 		wrapper=$("#aedc-wrapper");
 
-		addClickButtonTo(wrapper,"Save edited Name/Value pairs......",async e=>{try{
+		var button=addClickButtonTo(wrapper,"Save edited Name/Value pairs......",async e=>{try{
 			console.log("Len of name value class divs",$(".aedcName,.aedcValue",div).length);
 			var reply=confirm("Save data, cancel to remove.");
 			if(!reply) { $(e.target).parent().remove(); return; }
@@ -75,6 +75,7 @@ function addEdit_GM_DataCommand(scriptname) {
 		}catch(e){console.error("Button error",e);}},"Click here to save.","prepend"); //end invoke of addClickButtonTo
 
 		div[0].scrollIntoView();
+		button.scrollIntoView();
 		//div.css("transform","translateZ(0)");
 		wrapper.css({
 			zIndex:2147483647, position: "absolute", 
@@ -105,6 +106,7 @@ function addEdit_GM_DataCommand(scriptname) {
 		if(!prepend) elem.append(bdiv); else elem.prepend(bdiv);
 		
 		bdiv.click(function (e) { e.preventDefault();cb(e);	});       //.dblclick(function(e){elem.remove();});
+		return bdiv;
 	}
 	
 	function pairup_array(ar) { // converts 1d to 2d, eg, [1,2,3,4] ==> [[1,2],[3,4]]
