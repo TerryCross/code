@@ -18,18 +18,17 @@ function addEdit_GM_DataCommand(scriptname) {
 
 		for (let name of allNames) {
 			namevalues_before.set(name,await GM.getValue(name)); 
-			console.log("set map name:",name," to: ",namevalues_before.get(name));
+			//console.log("set map name:",name," to: ",namevalues_before.get(name));
 		}
 		// await allNames.forEach(async name=> { 
 		// 	namevalues_before.set(name,await GM.getValue(name)); 
 		// 	console.log("set map name:",name," to: ",namevalues_before.get(name));
 		// });
 		
-		console.log("Have MAP size:",namevalues_before.size,namevalues_before, "len",namevalues_before.length);
+		//console.log("Have MAP size:",namevalues_before.size,namevalues_before, "len",namevalues_before.length);
 
 		var built_text=await allNames.reduce(async (acc_namevalues,curr_name,i)=>{
 			var value=await GM.getValue(curr_name);
-			//console.log("Value in store:",value);
 			return (await acc_namevalues)+`<b>${ordinal(i+1)} Name:</b><br><div class=aedcName>${curr_name}</div><br>
 	<b>Value:</b><br><div class=aedcValue>${value}</div><br>`;
 		},"");
@@ -69,9 +68,9 @@ function addEdit_GM_DataCommand(scriptname) {
 			}
 			// End the 4 cases.
 			// 
+			var merged_map=new Map([...namevalues_before,...namevalues_after]);
+			console.log("Merged MAP:",merged_map);
 			alert("Saved data.");
-			//var merged_map=new Map([...namevalues_before,...namevalues_after]);
-			//console.log("Merged MAP:",merged_map);
 		}catch(e){console.error("Button error",e);}},"Click here to save.","prepend"); //end invoke of addClickButtonTo
 
 		div[0].scrollIntoView();
