@@ -71,10 +71,10 @@ function addEdit_GM_DataCommand(scriptname) {
 			var merged_map=new Map([...namevalues_before,...namevalues_after]);
 			console.log("Merged MAP:",merged_map);
 			alert("Saved data.");
-		}catch(e){console.error("Button error",e);}},"Click here to save.","prepend"); //end invoke of addClickButtonTo
+		}catch(e){console.error("Button error",e);}},"Click here to save or to remove/quit.","prepend"); //end invoke of addClickButtonTo
 
 		div[0].scrollIntoView();
-		button.scrollIntoView();
+		button[0].scrollIntoView();
 		//div.css("transform","translateZ(0)");
 		wrapper.css({
 			zIndex:2147483647, position: "absolute", 
