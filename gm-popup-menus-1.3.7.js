@@ -105,7 +105,7 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 		if (document.readyState=="complete") docload();	else $(docload); //start-at may mean no body yet.  $(func) is same as window.ready(func), also runs function even if already ready.
 		regmutex.unlock();
 	} catch(e){
-		console.info("GM4_registerMenuCommand_Submenu_JS_Module.  Failed to load/init submenuModule, "+script_name,e,"this is:",this);
+		console.info("gm-popup-menus failed to load/init submenuModule, "+script_name,e,"this is:",this);
 		if (old_GM_reg) GM_registerMenuCommand=old_GM_reg; // revert on failure
 	} }, //init().   
 	docready=function() { // Setup menuwrapper and add own submenu div.  Prior to docload, have body.

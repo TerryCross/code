@@ -38,7 +38,8 @@
 // Two things are needed for this library to function. Firstly, put two @requires in the header of your userscript:
 //
 //   // @require  https://raw.githubusercontent.com/SloaneFox/code/master/gm4-polyfill.js
-//   // @require  https://raw.githubusercontent.com/SloaneFox/code/master/GM4_registerMenuCommand_Submenu_JS_Module.js
+//   // @require  https://raw.githubusercontent.com/SloaneFox/code/master/gm-popup-menus-1.3.7.js
+//
 //   -- note this results in the creation of an object called "submenuModule" within the js closure scope.  @grant additions
 //      may also be required in the header of your script, the pseudo header only indicates which you must add to your script.
 //
@@ -107,7 +108,7 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 		if (document.readyState=="complete") docload();	else $(docload); //start-at may mean no body yet.  $(func) is same as window.ready(func), also runs function even if already ready.
 		regmutex.unlock();
 	} catch(e){
-		console.info("GM4_registerMenuCommand_Submenu_JS_Module.  Failed to load/init submenuModule, "+script_name,e,"this is:",this);
+		console.info("gm-popup-menus failed to load/init submenuModule, \n"+script_name,e,"this is:",this);
 		if (old_GM_reg) GM_registerMenuCommand=old_GM_reg; // revert on failure
 	} }, //init().   
 	docready=function() { // Setup menuwrapper and add own submenu div.  Prior to docload, have body.
