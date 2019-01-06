@@ -14,7 +14,7 @@
 
 // See below for functions:
 //    function log(arguments);  // prints correct line number under GM4, due to scope wrapper the given one is incorrect.
-//    function cmdrepl(e,immediate_flag);  //  Launch a js console from any place in the code &/or register one from a menu.
+//    function cmdrepl(e,immediate_flag);  //  Launch a js console from any place in the code &/or register one from a menu.  Set immediate to launch console directly, without it it registers a menu item to launch a cmd console. 
 //    function logNewNodes();    // Logs to console any new nodes (uses a mutation observer).
 //    var sname;   // Set to GM info's script.name.
 //
@@ -63,6 +63,7 @@ if (log.lineoffset==undefined) { // cos ff58 has linon at 360 + script lineno.
 		let v=parseInt(navigator.userAgent.substr(ver_pos+8));
 		if (v>=58 && v<60) offset=360; 
 		if (v>=60)         offset=492;
+		if (v>=63)         offset=504;
 	}
 	log.lineoffset=offset;
 }
