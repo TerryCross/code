@@ -343,7 +343,7 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 		}
 		toggleMenu.tf?toggleMenu.tf=0:toggleMenu.tf=1;
 	}, 
-	getName=function() { return scriptName;};
+	getName=function() { return scriptName;},
 	rmitem=function(name) {
 		var match=matchItem(name);
 		match.remove();
