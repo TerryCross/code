@@ -17,7 +17,7 @@
 //    function cmdrepl(e,immediate_flag);  //  Launch a js console from any place in the code &/or register one from a menu.  Set immediate to launch console directly, without it it registers a menu item to launch a cmd console. 
 //    function logNewNodes();    // Logs to console any new nodes (uses a mutation observer).
 //    var sname;   // Set to GM info's script.name.
-//
+//    function GMDataEditor(scriptname); // Adds menu command to edit GM storage of given userscript.
 
 function logError(msg,e) { console.error("Error,",msg,".  On offset line:",Elineno(e),"lineno offset:",-log.lineoffset,{Error:e}); }
 function typeofObj(unknown_obj){ return ({}).toString.call(unknown_obj).substr(8).slice(0,-1); }
@@ -107,14 +107,14 @@ async function cmdrepl(e={},immediate,...args) {               // When called fr
 }
 
 
-function addEdit_GM_DataCommand(scriptname) {  
+function GMDataEditor(scriptname) {  
 
 	// Scripts using this need header item: // @grant for each of the value commands: listValues, getValue, setValue, deleteValue, 
 	// Use by calling this function passing in the user script name, this will add to the GM command menu, page 
 	// context menu, "Edit data stored for this script, [scriptname]".
 	// Jquery is also required by this script, so include it as a userscript header require.
 
-	that=addEdit_GM_DataCommand;
+	that=GMDataEditor;
 	GM.registerMenuCommand("Edit data stored for this script, "+scriptname,async function(){try{
 		var wrapper=$("#aedc-wrapper");
 		if(wrapper.length) wrapper.remove(); // old one left there.
@@ -189,7 +189,7 @@ function addEdit_GM_DataCommand(scriptname) {
 			fontSize:"medium", maxWidth: "intrinsic", width: "-moz-max-content"
 		});
 
-	}catch(e){console.error("Error in addEdit_GM_DataCommand,",e);}}); // end GM_registerMenuCommand()
+	}catch(e){console.error("Error in GMDataEditor,",e);}}); // end GM_registerMenuCommand()
 
 	function parse(str){ try { return JSON.parse(str); } catch(e){} };	
 	function ordinal(n) { var sfx = ["th","st","nd","rd"];var val = n%100;return n + (sfx[(val-20)%10] || sfx[val] || sfx[0]);}
@@ -220,4 +220,4 @@ function addEdit_GM_DataCommand(scriptname) {
 		ar.reduce((prev_curr,curr,curr_i)=>{ if(curr_i%2) res_ar.push([prev_curr,curr]);return curr;  });
 		return res_ar;
 	}
-} //end addEdit_GM_DataCommand()
+} //end GMDataEditor()
