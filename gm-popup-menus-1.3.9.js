@@ -79,7 +79,10 @@
 // 		var reg_args=["name",function];
 //		if(!GM_registerMenuCommand(...reg_args))  GM.registerMenuCommand(...reg_args);
 // This creates two menu items, once in the usual GM commands menu and in the webpage's mouse context menu.
-
+//
+// Alternately can use async function, submenuModule.mkMenuItem(name,function,accessKey) to avoid use of
+// GM_registerMenuCommand etc.
+// 
 if(!window.old_GM_reg) window.old_GM_reg=GM_registerMenuCommand||this.GM_registerMenuCommand;
 var GM_registerMenuCommand;   //Uses closure to ensure a different function for each simulataneous userscript caller of this function.
 
@@ -687,7 +690,7 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 		function toType(obj) { return ({}).toString.call(obj).match(/\s([a-zA-Z]+)/)[1]; }
 		return (new unsafeWindowObj()).read();
 
-	};//End initUWonChrome()
+	};// } End initUWonChrome(), semicolon ends var declarations that began "var init="
 
 	////////////////////End of var comma module function def sequence.
 	////////////Semicolon ends comma separated variable definitions of the various module functions.
@@ -710,8 +713,9 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 	var interfaceObj={ register:init, stop:revert, unregister:rmitem, open:openSubmenu, state:state,
 					   close:closeSubmenu, unGroup:unGroup, ineffect:false, toString:toString, isOpen:false,
 					   changeName:mvitem, positionAt:positionAt,
-					   resizeIframe: userResizeIframe, revertIframeSize:userRevertIframeSize };
-	return interfaceObj;
+					   resizeIframe: userResizeIframe, revertIframeSize:userRevertIframeSize, 
+					   mkMenuItem:registerInOwnSubmenu, scriptName };
+	return interfaceObj; // interfaceObj becomes the value of the closure variable "submenuModule" in user space.
 	
 	function mutexlock() { this.lock=new Promise(r=>this.unlock=r);};// eg, mx=new mutexlock;...await mx.lock; (async...) mx.unlock(); // initial state is locked, once unlocked it cant be locked again.
 	
@@ -750,7 +754,10 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 			
 		} //endif !doc.getElementById(squadafont)
 	} catch(e) { console.log("Cannot get font, error: "+e+", line:"+e.lineNumber+".");}} //preInit()
-} catch(e){console.log("Error in submenuModule",e);}} )(); // End var submenuModule=(function(){.
+} catch(e){console.log("Error in submenuModule",e);}} )(); // Self invoked ")()"
+//
+// End self-invoking function setting var submenuModule=(function(){.  
+//
 
 function logStack(fileToo) { // deepest first.
 	var res="", e=new Error;
