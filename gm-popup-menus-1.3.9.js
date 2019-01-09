@@ -343,6 +343,7 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 		}
 		toggleMenu.tf?toggleMenu.tf=0:toggleMenu.tf=1;
 	}, 
+	getName=function() { return scriptName;};
 	rmitem=function(name) {
 		var match=matchItem(name);
 		match.remove();
@@ -714,7 +715,7 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 					   close:closeSubmenu, unGroup:unGroup, ineffect:false, toString:toString, isOpen:false,
 					   changeName:mvitem, positionAt:positionAt,
 					   resizeIframe: userResizeIframe, revertIframeSize:userRevertIframeSize, 
-					   mkMenuItem:registerInOwnSubmenu, scriptName };
+					   mkMenuItem:registerInOwnSubmenu, scriptName:getName };
 	return interfaceObj; // interfaceObj becomes the value of the closure variable "submenuModule" in user space.
 	
 	function mutexlock() { this.lock=new Promise(r=>this.unlock=r);};// eg, mx=new mutexlock;...await mx.lock; (async...) mx.unlock(); // initial state is locked, once unlocked it cant be locked again.
