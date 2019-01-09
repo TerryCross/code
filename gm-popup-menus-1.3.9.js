@@ -94,7 +94,7 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 	var iframe=window!=window.parent, lmarg=window.innerWidth*0.04, blank_textContent=false;    //77==m, 0.04==4%.
 	var init=async function(script_name, hotkey, title_color, itsBackgroundColor, dont_focus) //is submenuModule.register() 
 	{ try {
-		scriptName=script_name||""; nofocus=dont_focus;
+		scriptName=script_name||""; nofocus=dont_focus; state="preinit";
 		regmutex=new mutexlock(); // Lock is just to ensure init is complete before user commands are registered.
 		GM_registerMenuCommand=registerInOwnSubmenu;
 		await preInit();

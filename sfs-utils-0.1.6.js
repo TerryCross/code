@@ -114,7 +114,7 @@ function GMDataEditor(scriptname) {
 	// context menu, "Edit data stored for this script, [scriptname]".
 	// Jquery is also required by this script, so include it as a userscript header require.
 
-	if(typeof submenuModule != "undefined") GM_registerMenuCommand("Edit data stored for this script, "+scriptname,openEditor);
+	if(typeof submenuModule != "undefined" && submenuModule.state!=null) GM_registerMenuCommand("Edit data stored for this script, "+scriptname,openEditor);
 	else GM.registerMenuCommand("Edit data stored for this script, "+scriptname,openEditor);
 
 	async function openEditor(){try{
