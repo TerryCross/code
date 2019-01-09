@@ -9,7 +9,7 @@
 // @license     GPL-3.0
 // @copyright   2017, slow! (https://openuserjs.org/users/slow!)
 // @namespace   sfsOms
-// @description Library for use in userscripts to overrid GM_registerMenuCommand to provide jquery dialog popup submenus.
+// @description Library for use in userscripts to override GM_registerMenuCommand to provide jquery dialog popup submenus.
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM.getValue

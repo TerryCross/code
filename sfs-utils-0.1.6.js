@@ -114,8 +114,10 @@ function GMDataEditor(scriptname) {
 	// context menu, "Edit data stored for this script, [scriptname]".
 	// Jquery is also required by this script, so include it as a userscript header require.
 
-	that=GMDataEditor;
-	GM.registerMenuCommand("Edit data stored for this script, "+scriptname,async function(){try{
+	if(typeof submenuModule != "undefined") GM_registerMenuCommand("Edit data stored for this script, "+scriptname,openEditor);
+	else GM.registerMenuCommand("Edit data stored for this script, "+scriptname,openEditor);
+
+	async function openEditor(){try{
 		var wrapper=$("#aedc-wrapper");
 		if(wrapper.length) wrapper.remove(); // old one left there.
 
@@ -189,7 +191,7 @@ function GMDataEditor(scriptname) {
 			fontSize:"medium", maxWidth: "intrinsic", width: "-moz-max-content"
 		});
 
-	}catch(e){console.error("Error in GMDataEditor,",e);}}); // end GM_registerMenuCommand()
+	}catch(e){console.error("Error in GMDataEditor,",e);}}; // end openEditor()
 
 	function parse(str){ try { return JSON.parse(str); } catch(e){} };	
 	function ordinal(n) { var sfx = ["th","st","nd","rd"];var val = n%100;return n + (sfx[(val-20)%10] || sfx[val] || sfx[0]);}
