@@ -46,7 +46,7 @@
 // Secondly, you must then put a call to this new object, "submenuModule"'s register() function in your script's code, making sure that
 // this is early enough and is prior to the usual registering of any menu commands with GM_registerMenuCommand:
 //
-//    submenuModule.register("my script's menu cmd name", [hotkey], [title-color], [title-bg-and-menu-color], [dont focus menu] );
+//    submenuModule.register("my script's menu cmd name", [hotkey], [title-color], [title-bg-and-menu-text-color], [dont focus menu] );
 //
 // The second argument is optional, 'm' is the default for hotkey.
 // Unlike GM the shortcut also works from within iframes.  Optional color parameters must be in style similar to #ffeeff.
@@ -105,7 +105,7 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 		ownSubmenu.hide();		    ownSubmenu.find(".osmXbutton").click(closeSubmenu);		ownSubmenu.append(ownSubmenuList);
 		if (window.plat_chrome)     setUpChromeButton();
 		interfaceObj.ineffect=true; document.addEventListener("coord_resize",coord_resize);
-		$(window).on("keydown",function(e) { if (e.altKey&&e.keyCode==altHotkey) {  openSubmenu(); return false;}}); // alt-m or hotkey shortcut !!
+		$(window).on("keydown",function(e) { if (e.altKey&&e.keyCode==altHotkey) {  openSubmenu(e); return false;}}); // alt-m or hotkey shortcut !!
 		$(docready);	state="init";
 		$(document).on("coord_GM_menu", coord_GM_menu);
 		if (document.readyState=="complete") docload();	else $(docload); //start-at may mean no body yet.  $(func) is same as window.ready(func), also runs function even if already ready.
@@ -139,7 +139,12 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 	docload=function() {       //Problem in ordering original GM menu, if init not called from one script within 2 secs.
 		var tout=uw.osm_queue.length==uw.osm_max ? 0 : 2000;
 		setTimeout(function(msec){ //wait for other scripts to init for grouping.
-			if (uw.osm_shutdoor) return;
+			if (uw.osm_shutdoor) {
+ 				var str=(scriptName||"Submenu")+".....", sp="\u2001",  vln="\u2503";
+ 				if(!old_GM_reg("███"+" "+str, openSubmenu))  // Register in both GM menu and contextmenu.
+ 					GM.registerMenuCommand("███"+" "+str, openSubmenu);   
+ 				return;
+			}
 			//console.log(scriptName,coord_id,"shut door on queue:",uw.osm_queue,"max:",uw.osm_max,window!=parent);
 			handleIframeSize(); // NB, only one client handles this and below.
 			makeDraggable($(".osm-box"));
@@ -494,7 +499,7 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 		xmlHttp.send(null);
 		return xmlHttp.responseText;
 	},
-	modColor=function(hexstr,limit_minmax,darken_factor) { // return color1 <operator> color2 <operator> colorN, or return hex number if only one color.
+	modColor=function(hexstr,limit_minmax,darken_factor) { // args: color1 <operator> color2 <operator> colorN.  Add or other operator of the two colors is returned as #hex 6 digit color.
 		var rgb_ar, res, part_res, character_class_hexdigit="[\\da-fA-F]", re=RegExp(( "("+character_class_hexdigit+"{2})" ).repeat(3),"g"),
 			str_split_to_rgb=()=>(hexstr=hexstr.replace(/#/g,"0x"), rgb_ar=[1,2,3].map(x=>hexstr.replace(re,"$"+x))) ;
 		str_split_to_rgb();
@@ -711,11 +716,11 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 	///
 	/// Submenu Module Interface functions and properties:
 	///
-	var interfaceObj={ register:init, stop:revert, unregister:rmitem, open:openSubmenu, state:state,
+	var interfaceObj={ register:init, stop:revert, unregister:rmitem, open:openSubmenu, getState:x=>state,
 					   close:closeSubmenu, unGroup:unGroup, ineffect:false, toString:toString, isOpen:false,
 					   changeName:mvitem, positionAt:positionAt,
 					   resizeIframe: userResizeIframe, revertIframeSize:userRevertIframeSize, 
-					   mkMenuItem:registerInOwnSubmenu, scriptName:getName };
+					   mkMenuItem:registerInOwnSubmenu, getName:x=>scriptName };
 	return interfaceObj; // interfaceObj becomes the value of the closure variable "submenuModule" in user space.
 	
 	function mutexlock() { this.lock=new Promise(r=>this.unlock=r);};// eg, mx=new mutexlock;...await mx.lock; (async...) mx.unlock(); // initial state is locked, once unlocked it cant be locked again.
@@ -755,7 +760,7 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 			
 		} //endif !doc.getElementById(squadafont)
 	} catch(e) { console.log("Cannot get font, error: "+e+", line:"+e.lineNumber+".");}} //preInit()
-} catch(e){console.log("Error in submenuModule",e);}} )(); // Self invoked ")()"
+} catch(e){console.log("Error in submenuModule",e);}} )(); // Self invoked ")()" an IIFE.
 //
 // End self-invoking function setting var submenuModule=(function(){.  
 //
