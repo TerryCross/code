@@ -270,7 +270,6 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 			dispatch("coord_resize");}); //document.dispatchEvent(new Event("coord_resize")); });
 		ownSubmenu.off(".osm");
 		ownSubmenuList.off(".osm");
-		body.off(".osm");
 		lis=ownSubmenuList.find("li");
 		lis.off(".osm");
 		lis.removeClass("osm-selected osm-not-selected");
@@ -278,6 +277,8 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 		$("#ownSubmenu"+uw.osm_queue[0]).focus();
 		uw.osm_last_focus=lastf;
 		if (uw.osm_queue.length==0) uw.osm_allclosed=true;
+		if(activeCoord_id()==coord_id) // last one open.
+			body.off(".osm");
 		return false;
 	},
 	coord_resize=function(e,ex,ex2) { 
