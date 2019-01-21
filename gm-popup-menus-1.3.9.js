@@ -277,7 +277,8 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 		$("#ownSubmenu"+uw.osm_queue[0]).focus();
 		uw.osm_last_focus=lastf;
 		if (uw.osm_queue.length==0) uw.osm_allclosed=true;
-		if(activeCoord_id()==coord_id) // last one open.
+		//if(activeCoord_id()==coord_id) // last one open.
+		if( ! selectByStyle("div.osm-box","display","none","!=").length)
 			body.off(".osm");
 		return false;
 	},
@@ -384,7 +385,10 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 	},
 	unGroup=function() { uw.osm_menu_grouping=false; },
 	activeCoord_id=function(){ return $(document.activeElement).closest(".osm-box").data("coord_id");},
-
+	selectByStyle=function(jqsel,style,value,operator="==") { return $(jqsel).filter( function() { 
+		var calcedval="'"+$(this).css(style)+"'", evilstr=calcedval+operator+"'"+value+"'";
+		return eval(evilstr);
+	});};
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//Overview of layout shape of pseudo HTML Tree:
 	//                               <div id=osm-menuwrap>                                 // var menuwrap
