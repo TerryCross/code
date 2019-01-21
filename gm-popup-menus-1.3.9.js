@@ -188,7 +188,7 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 		ownSubmenuList.append(li);
 	},
 	openSubmenu=function(e) {
-		if (e.preventDefault) { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); } 
+		//if (e.preventDefault) { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); } 
 		interfaceObj.activeElement=document.activeElement;
 		if (interfaceObj.isOpen) return; interfaceObj.isOpen=true;
 		var diagdist=Infinity;
