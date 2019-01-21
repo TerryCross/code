@@ -388,7 +388,7 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 	selectByStyle=function(jqsel,style,value,operator="==") { return $(jqsel).filter( function() { 
 		var calcedval="'"+$(this).css(style)+"'", evilstr=calcedval+operator+"'"+value+"'";
 		return eval(evilstr);
-	});};
+	});},
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//Overview of layout shape of pseudo HTML Tree:
 	//                               <div id=osm-menuwrap>                                 // var menuwrap
