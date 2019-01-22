@@ -140,6 +140,7 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 		var tout=uw.osm_queue.length==uw.osm_max ? 0 : 2000;
 		setTimeout(function(msec){ //wait for other scripts to init for grouping.
 			if (uw.osm_shutdoor) {
+				if(coord_GM_menu.done) return;
  				var str=(scriptName||"Submenu")+".....", sp="\u2001",  vln="\u2503";
  				if(!old_GM_reg("███"+" "+str, openSubmenu))  // Register in both GM menu and contextmenu.
  					GM.registerMenuCommand("███"+" "+str, openSubmenu);   
@@ -154,7 +155,7 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 			uw.osm_count=0; //resets storage on next load.
 		},tout); /// close inits after this time passed??
 	},
-	coord_GM_menu=function(e){try{  // Custom Event handler
+	coord_GM_menu=function(e){try{  // Custom Event handler dispatched in func near above.
 		var detail=e.originalEvent.detail,menu;
 		
 		if(Number(detail)) { if (detail!=coord_id) return; }// Only handle event directed by coord order.
