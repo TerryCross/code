@@ -46,7 +46,7 @@
 // Secondly, you must then put a call to this new object, "submenuModule"'s register() function in your script's code, making sure that
 // this is early enough and is prior to the usual registering of any menu commands with GM_registerMenuCommand:
 //
-//    submenuModule.register("my script's menu cmd name", [hotkey], [title-color], [title-bg-and-menu-text-color], [dont focus menu] );
+//    await submenuModule.register("my script's menu cmd name", [hotkey], [title-color], [title-bg-and-menu-text-color], [dont focus menu] );
 //
 // The second argument is optional, 'm' is the default for hotkey.
 // Unlike GM the shortcut also works from within iframes.  Optional color parameters must be in style similar to #ffeeff.
@@ -83,7 +83,16 @@
 // Alternately can use async function, submenuModule.mkMenuItem(name,function,accessKey) to avoid use of
 // GM_registerMenuCommand etc.
 // 
+//
+//
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
 if(!window.old_GM_reg) window.old_GM_reg=GM_registerMenuCommand||this.GM_registerMenuCommand;
+var old_GM_reg=window.old_GM_reg; // sometime window object changes before load called here.
 var GM_registerMenuCommand;   //Uses closure to ensure a different function for each simulataneous userscript caller of this function.
 
 var submenuModule=(function() { try {  // a module, js pattern module, returns interfaceObj.  ownSubmenu() is a closure returning
