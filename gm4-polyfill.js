@@ -14,7 +14,6 @@
    
    Eg, this will define GM.getValue in older GM versions, so updated code will be backward compatible
    to older GM versions.  It will not define GM_getValue in newer GM versions.
-   Missing functions from the new GM api are added, hence GM.registerMenuCommand and GM.addStyle are defined.
 
    Include above and recode userscript to the new (GM-dot) APIs, which return promises.  If your script
    is running in an engine that does not provide the new asynchronous APIs, this

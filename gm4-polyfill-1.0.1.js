@@ -20,7 +20,8 @@
    
    Eg, this will define GM.getValue in older GM versions, so updated code will be backward compatible
    to older GM versions.  It will not define GM_getValue in newer GM versions.
-   Missing functions from the new GM api are added, hence GM.registerMenuCommand and GM.addStyle are defined.
+   Missing functions from the new GM api are added, hence GM.registerMenuCommand() & GM.addStyle() are defined, as
+   is GM_addStyle(), they append given style string to <head?.
 
    Include above and recode userscript to the new (GM-dot) APIs, which return promises.  If your script
    is running in an engine that does not provide the new asynchronous APIs, this
@@ -42,12 +43,13 @@ if (typeof GM == 'undefined')
 
 
 if (typeof GM_addStyle == 'undefined') {
-	this.GM_addStyle = (aCss) => {
+	this.GM_addStyle = (aCss,id) => {
 		'use strict';
 		let head = document.getElementsByTagName('head')[0];
 		if (head) {
 			let style = document.createElement('style');
 			style.setAttribute('type', 'text/css');
+			if(id) style.setAttribute('id', id);
 			style.textContent = aCss;
 			head.appendChild(style);
 			return style;
