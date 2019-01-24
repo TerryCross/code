@@ -90,7 +90,7 @@
 
 
 
-
+ 
 if(!window.old_GM_reg) window.old_GM_reg=GM_registerMenuCommand||this.GM_registerMenuCommand;
 var old_GM_reg=window.old_GM_reg; // sometime window object changes before load called here.
 var GM_registerMenuCommand;   //Uses closure to ensure a different function for each simulataneous userscript caller of this function.
