@@ -19,7 +19,7 @@
 //    var sname;   // Set to GM info's script.name.
 //    function GMDataEditor(scriptname); // Adds menu command to edit GM storage of given userscript.
 
-function logError(msg,e) { console.error("Error,",msg,".  After offset is on line:",Elineno(e),", offset used:",-sfs_ut_offset,{Error:e}); }
+function logError(msg,e,...extras) { console.error("Error,",msg,".  After offset is on line:",Elineno(e),", offset used:",-sfs_ut_offset,"Error msg:",e.message,"Stack:\n",e.stack, extras); }
 function typeofObj(unknown_obj){ return ({}).toString.call(unknown_obj).substr(8).slice(0,-1); }
 function Elineno(e) { return e.lineNumber-sfs_ut_offset; }
 
