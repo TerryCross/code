@@ -18,12 +18,16 @@
 // @exclude     *
 // ==/UserLibrary==
 
+// @updated  Jan 2019.  Unusual sandbox/window object deletion between doc start and load.  
 // @updated  Nov 2018.  Chrome bugs.
 // @updated  Feb 2018.  Adapt to GM4, use new name "GM4_registerMenuCommand Submenu", the 4 indicating its use in GM4 onward.
 // @updated  Dec 2017.  Use the submenuModule object to access document.activeElement that was set on webpage prior to menu click; use submenuModule.activeElement variable to access it.
 // @updated  Nov 2016.  Chrome adaptation, color settings now per userscript menu.
 // @updated  May 2016.  Bugfix for google image site, see createElement("style") below.  Also fix for iframes used as textareas x 2.
 // @updated  Feb 2016.  1.1.2 Works also on Google Chromium.  Adds positioning of menu-command within submenu.
+//
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Function: With this script all GM-menu-commands are given a separate submenu under
 // Tools-->Greasemonkey-->User Scripts Commands...--><your script's menu name>...
@@ -92,8 +96,8 @@
 
  
 if(!window.old_GM_reg) window.old_GM_reg=GM_registerMenuCommand||this.GM_registerMenuCommand;
-var old_GM_reg=window.old_GM_reg; // sometime window object changes before load called here.
-var GM_registerMenuCommand;   //Uses closure to ensure a different function for each simulataneous userscript caller of this function.
+var old_GM_reg=window.old_GM_reg;     // sometime window object changes before load called here.
+var GM_registerMenuCommand;           //Uses closure to ensure a different function for each simulataneous userscript caller of this function.
 
 var submenuModule=(function() { try {  // a module, js pattern module, returns interfaceObj.  ownSubmenu() is a closure returning
 	// an interface object in scope of 'this'.  Side effect alters GM_registerMenuCommand.  Not window.submenuModule clash of multiusage.

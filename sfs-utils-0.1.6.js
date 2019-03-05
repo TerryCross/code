@@ -19,9 +19,9 @@
 //    var sname;   // Set to GM info's script.name.
 //    function GMDataEditor(scriptname); // Adds menu command to edit GM storage of given userscript.
 
-function logError(msg,e) { console.error("Error,",msg,".  On offset line:",Elineno(e),"lineno offset:",-log.lineoffset,{Error:e}); }
+function logError(msg,e) { console.error("Error,",msg,".  After offset is on line:",Elineno(e),", offset used:",-sfs_ut_offset,{Error:e}); }
 function typeofObj(unknown_obj){ return ({}).toString.call(unknown_obj).substr(8).slice(0,-1); }
-function Elineno(e) { return e.lineNumber-log.lineoffset; }
+function Elineno(e) { return e.lineNumber-sfs_ut_offset; }
 
 function objInfo(obj) {
 
@@ -41,9 +41,9 @@ function objInfo(obj) {
 }
 
 function log() { // Prints lineno of logging not this lineno.   //if (!Plat_Chrome) old_GM_log(t);};
-	var args=Array.from(arguments), lineno=parseInt(logStack(0,1))-log.lineoffset, pnewline,
-		locator="[ "+lineno +":"+ sname+ " "+( window!=parent? ("wname:"+window.name? window.name:"-") +" @"+location+", rstate: "+document.readyState:"") + " ]\t";
-	args.unshift(locator);
+	var args=Array.from(arguments), lineno=parseInt(logStack(0,1))-sfs_ut_offset, pnewline,
+		locator="\t\t\t[ "+lineno +":"+ sname+ " "+( window!=parent? ("wname:"+window.name? window.name:"-") +" @"+location+", rstate: "+document.readyState:"") + " ]";
+	args.push(locator);
 	console.log.apply(console, args);
 	// In general it is console.log("%c a msg and another %c meggss","float:right","float:left;",anobj,"text","etc");
 
@@ -67,6 +67,8 @@ if (log.lineoffset==undefined) { // cos ff58 has linon at 360 + script lineno.
 	}
 	log.lineoffset=offset;
 }
+
+const sfs_ut_offset=offset;
 
 function logNewNodes() {
 	new MutationObserver((mutations, observer) => {try{
