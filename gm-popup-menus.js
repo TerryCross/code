@@ -699,7 +699,7 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 					   close:closeSubmenu, unGroup:unGroup, ineffect:false, toString:toString, isOpen:false,
 					   changeName:mvitem, positionAt:positionAt,
 					   resizeIframe: userResizeIframe, revertIframeSize:userRevertIframeSize };
-	return interfaceObj;
+	return interfaceObj;  // the rest are func decls.  This is a return from global function: var submenuModule=(function(){
 	
 	function mutexlock() { this.lock=new Promise(r=>this.unlock=r);};// eg, mx=new mutexlock;...await mx.lock; (async...) mx.unlock(); // initial state is locked, once unlocked it cant be locked again.
 	

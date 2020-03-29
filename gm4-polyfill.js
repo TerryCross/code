@@ -26,7 +26,7 @@
    var gValue;
    async function init_globals() { gValue = await GM.getValue('x'); }
    async main() { await init_globals(); }
-   addEventListener("load",main);gm4-
+   addEventListener("load",main);
 
 */
 
