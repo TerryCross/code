@@ -1,9 +1,9 @@
-/* sfs-utils.js v0.1.5 */
+/* sfs-utils.js v0.1.6 */
 
 // ==UserLibrary==
 // @pseudoHeader
 // @name        SFS Utils
-// @version     0.1.5
+// @version     0.1.6
 // ==/UserLibrary==
 
 // Script must have a version of: 
@@ -42,7 +42,7 @@ function objInfo(obj) {
 
 function log() { // Prints lineno of logging not this lineno.   //if (!Plat_Chrome) old_GM_log(t);};
 	var args=Array.from(arguments), lineno=parseInt(logStack(0,1))-sfs_ut_offset, pnewline,
-		locator="\t\t\t["+lineno +":"+ sname+( window!=parent? (" wname:"+window.name? window.name:"-") +" @"+location+", rstate: "+document.readyState:"") + "]";
+		locator="\t\t\t["+lineno +":"+ sname+(window!=parent? (" wname:"+window.name? window.name:"-") +" @"+location+", rstate: "+document.readyState:"") + "]";
 	args.push(locator);
 	console.log.apply(console, args);
 	// In general it is console.log("%c a msg and another %c meggss","float:right","float:left;",anobj,"text","etc");
