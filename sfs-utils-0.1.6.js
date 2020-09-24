@@ -65,6 +65,7 @@ if (log.lineoffset==undefined) { // cos ff58 has linon at 360 + script lineno.
 		if (v>=60)         offset=492;
 		if (v>=63)         offset=504;
 		if (v>=65)         offset=557;
+		if (v>=68)         offset=577;
 	}
 	log.lineoffset=offset;
 }
