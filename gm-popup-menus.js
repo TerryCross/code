@@ -2,7 +2,7 @@
 
 // ==UserLibrary==
 // @pseudoHeader
-// @version     1.3.9
+// @version     1.4.9
 // @name        GM Popup Menus
 // @require     https://code.jquery.com/jquery-3.2.1.js
 // @require     https://raw.githubusercontent.com/SloaneFox/code/master/gm4-polyfill.js
