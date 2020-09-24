@@ -572,9 +572,9 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 				}
 				else if (e.button==2) div.style.display="none";
 				else if (e.button==1){
-					// this.style.left = this.style.left ? '' : lpix;
-					// this.style.right = this.parentNode.style.right ? '' : '10px';
-					// GM.setValue("GMmenuLeftRight", ( this.parentNode.style.right ? true : false )
+					this.style.left = this.style.left ? '' : "1px";
+					this.style.right = this.parentNode.style.right ? '' : '10px';
+					GM.setValue("GMmenuLeftRight", ( this.parentNode.style.right ? true : false ));
 				} 
 			}, false);
 			div[0].title="GreaseMonkey.  Click here to open/close GreaseMonkey scripts' menu.  Middle Click to move icon other side.  Right Click to remove icon.";
