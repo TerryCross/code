@@ -116,7 +116,7 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 		if (hotkey) altHotkey=hotkey.charCodeAt(0)-32;
 		createOwnSubmenu(hotkey, title_color, itsBackgroundColor); //html setup
 		ownSubmenu.hide();		    ownSubmenu.find(".osmXbutton").click(closeSubmenu);		ownSubmenu.append(ownSubmenuList);
-		if (plat_chrome)     setUpChromeButton();
+		if (plat_chrome)     await setUpChromeButton();
 		interfaceObj.ineffect=true; document.addEventListener("coord_resize",coord_resize);
 		$(window).on("keydown",function(e) { if (e.altKey&&e.keyCode==altHotkey) {  openSubmenu(e); return false;}}); // alt-m or hotkey shortcut !!
 		$(docready);	state="init";
@@ -543,11 +543,11 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 	},
 	nchars=function(char,n) { var roll=""; while(n--) roll+=char; return roll; },
 	toString=function(e) { return "[object submenuModule]"; },
-	setUpChromeButton=function() {
+	setUpChromeButton=async function() {
 		chromeButton=true;
 		var div=$("#GM_menu_button");
 		var right_pos;
-		if(GM.getValue) right_pos=GM.getValue("GMmenuLeftRight", true);
+		if(GM.getValue) right_pos=await GM.getValue("GMmenuLeftRight", true);
 		else try { right_pos=localStorage.GMmenuLeftRight;} catch(e){}
 		var par = document.body ? document.body : document.documentElement, 
 			full_name="GreaseMonkey \u27a4 User Script Commands \u00bb", short_name="GM\u00bb";
@@ -567,17 +567,19 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 			div.append(subdiv);
 			subdiv[0].addEventListener("click", function (e) {
 				if (e.button==0) {
+					if(e.shiftKey){
+						let ps=div[0].style;
+						if(ps.left)  { ps.left=""; ps.right="6px"; }
+						else         { ps.right=""; ps.left="41px"; }
+						GM.setValue("GMmenuLeftRight", ( ps.right ? true : false ));
+                    }
 					//document.dispatchEvent(new CustomEvent("coord_GM_menu",{detail:{chromeButton:true}}));
-					dispatch("coord_GM_menu",{chromeButton:true});
+					else
+						dispatch("coord_GM_menu",{chromeButton:true});
 				}
 				else if (e.button==2) div.style.display="none";
-				else if (e.button==1){
-					this.style.left = this.style.left ? '' : "1px";
-					this.style.right = this.parentNode.style.right ? '' : '10px';
-					GM.setValue("GMmenuLeftRight", ( this.parentNode.style.right ? true : false ));
-				} 
-			}, false);
-			div[0].title="GreaseMonkey.  Click here to open/close GreaseMonkey scripts' menu.  Middle Click to move icon other side.  Right Click to remove icon.";
+			});
+			div[0].title="GreaseMonkey.  Click here to open/close GreaseMonkey scripts' menu.  Shift-Click to move icon other side.  Right Click to remove icon.";
 		} // end if ! div.length
 		
 	},    //setUpChromeButton.
