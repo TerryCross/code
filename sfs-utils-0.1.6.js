@@ -122,10 +122,13 @@ function GMDataEditor(scriptname) {
 	else GM.registerMenuCommand("Edit data stored for this script, "+scriptname,openEditor);
 
 	async function openEditor(){try{
-		var wrapper=$("#aedc-wrapper");
+		var wrapper=$("#aedc-wrapper"),dummy;
 		if(wrapper.length) wrapper.remove(); // old one left there.
 
-		var allNames=await GM.listValues(), roll="";
+		var allNames=await GM.listValues(); // Returns an array of keys without values.
+		if (allNames.length==0){ allNames.push("dummy-name--edit") ;}
+//await GM.setValue("dummy-name--edit","dummy-value--edit"); dummy=true; }
+
 		console.log("all Names in script GM store:",allNames);
 		var namevalues_before=new Map(), namevalues_after=new Map();
 
@@ -146,9 +149,11 @@ function GMDataEditor(scriptname) {
 	<b>Value:</b><br><div class=aedcValue>${value}</div><br>`;
 		},"");
 
-		var div=$(`<div id="sfs-wh-maindiv"><u><b>Name/Value List</u><br><br></b>${scriptname} GM stored values (reload to remove, repeat menu command to refresh name/values).<br>The below names/values are editable.  Number of name/value pairs: ${allNames.length}<br><br>${built_text}<b>END.</b><br><br><br> </div>`)
-			.prependTo("body");
-
+		var div=$(`<div id="sfs-wh-maindiv"><u><b>Name/Value List</u><br><br></b>${scriptname} 
+            GM stored values (reload to remove, repeat menu command to refresh name/values).<br>
+            The below names/values are editable.  Number of name/value pairs: 
+            ${allNames.length}<br><br>${built_text}<b>END.</b><br><br><br> </div>`)
+	    .prependTo("body");
 		console.log("Added to body",$(".aedcName,.aedcValue",div));
 		
 		$(".aedcName,.aedcValue",div).attr("contenteditable","true");
@@ -182,9 +187,12 @@ function GMDataEditor(scriptname) {
 			// End the 4 cases.
 			// 
 			var merged_map=new Map([...namevalues_before,...namevalues_after]);
-			console.log("Merged MAP:",merged_map);
+			console.log("Merged MAP:",merged_map,"Dummy?",dummy);
+			if (dummy) await GM.deleteValue("dummy-name--edit");
 			alert("Saved data.");
-		}catch(e){console.error("Button error",e);}},"Click here to save or to remove/quit.","prepend"); //end invoke of addClickButtonTo
+		}catch(e){console.error("Button error",e);}}
+		,"Click here to save or to remove/quit.","prepend"
+	   ); //end invocation of addClickButtonTo
 
 		div[0].scrollIntoView();
 		button[0].scrollIntoView();
