@@ -126,8 +126,7 @@ function GMDataEditor(scriptname) {
 		if(wrapper.length) wrapper.remove(); // old one left there.
 
 		var allNames=await GM.listValues(); // Returns an array of keys without values.
-		if (allNames.length==0){ allNames.push("dummy-name--edit") ;}
-//await GM.setValue("dummy-name--edit","dummy-value--edit"); dummy=true; }
+		allNames.push("dummy-nameValue-edit-for-new-value");
 
 		console.log("all Names in script GM store:",allNames);
 		var namevalues_before=new Map(), namevalues_after=new Map();
@@ -188,7 +187,7 @@ function GMDataEditor(scriptname) {
 			// 
 			var merged_map=new Map([...namevalues_before,...namevalues_after]);
 			console.log("Merged MAP:",merged_map,"Dummy?",dummy);
-			if (dummy) await GM.deleteValue("dummy-name--edit");
+			GM.deleteValue("dummy-nameValue-edit-for-new-value");
 			alert("Saved data.");
 		}catch(e){console.error("Button error",e);}}
 		,"Click here to save or to remove/quit.","prepend"
