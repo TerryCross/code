@@ -186,7 +186,7 @@ function GMDataEditor(scriptname) {
 			// End the 4 cases.
 			// 
 			var merged_map=new Map([...namevalues_before,...namevalues_after]);
-			console.log("Merged MAP:",merged_map,"Dummy?",dummy);
+			console.log("Merged MAP:",merged_map);
 			GM.deleteValue("dummy-nameValue-edit-for-new-value");
 			alert("Saved data.");
 		}catch(e){console.error("Button error",e);}}
