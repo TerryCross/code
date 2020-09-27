@@ -120,7 +120,7 @@ function GMDataEditor(scriptname) {
 
 	if(typeof submenuModule != "undefined" && submenuModule.state!=null) GM_registerMenuCommand("Edit data stored for this script, "+scriptname,openEditor);
 	else GM.registerMenuCommand("Edit data stored for this script, "+scriptname,openEditor);
-
+ 
 	async function openEditor(){try{
 		var wrapper=$("#aedc-wrapper"),dummy;
 		if(wrapper.length) wrapper.remove(); // old one left there.
