@@ -579,7 +579,7 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 				}
 				else if (e.button==2) div.style.display="none";
 			});
-			div[0].title="GreaseMonkey.  Click here to open/close GreaseMonkey scripts' menu.  Shift-Click here to move icon other side.  Right Click to remove icon.";
+			div[0].title="Click here to open/close userscripts' menu.  Shift-Click here to move icon other side.  Right Click to remove icon.";
 		} // end if ! div.length
 		
 	},    //setUpChromeButton.
