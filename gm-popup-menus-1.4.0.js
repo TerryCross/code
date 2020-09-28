@@ -91,10 +91,6 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-
-
- 
 if(!window.old_GM_reg) window.old_GM_reg=GM_registerMenuCommand||this.GM_registerMenuCommand;
 var old_GM_reg=window.old_GM_reg;     // sometime window object changes before load called here.
 var GM_registerMenuCommand;           //Uses closure to ensure a different function for each simulataneous userscript caller of this function.
@@ -132,8 +128,8 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 		menuwrap=$("#osm-menuwrap");
 		menuwrap.hide();
 		if (!menuwrap.length) {
-			var point_of_attachment=body, gm_button=$("#GM_menu_button"), pos_css="left:15%;top:15%;";
-			if (gm_button.length && right_pos) { point_of_attachment=gm_button; pos_css="right:30px;"; }
+			var point_of_attachment=body, gm_button=$("#GM_menu_button"), pos_css="left:5px;top:15%;";
+			if (gm_button.length && right_pos) { point_of_attachment=gm_button; pos_css="right:30px;"; 	}
 			point_of_attachment.append(menuwrap=$("<div id=osm-menuwrap style='position:fixed;"+pos_css+"z-index:2147483647 ;display:table;'></div>"));
 		}
 		menuwrap.append(ownSubmenu);
@@ -546,8 +542,10 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 	setUpChromeButton=async function() {
 		chromeButton=true;
 		var div=$("#GM_menu_button");
-		if(GM.getValue) right_pos=await GM.getValue("GMmenuLeftRight", true);
+		if(GM.getValue) right_pos=await GM.getValue("GMmenuLeftRight", "truthy");  // Has GM is polyfill pre-required.
 		else try { right_pos=localStorage.GMmenuLeftRight;} catch(e){}
+		if(right_pos!="truthy") right_pos=false;
+
 		var par = document.body ? document.body : document.documentElement, 
 			full_name="GreaseMonkey \u27a4 User Script Commands \u00bb", short_name="GM\u00bb";
 		if (div.length==0) {
@@ -564,15 +562,17 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 			//var subdiv=$("<div></div>");
 			//subdiv.append(img);
 			div.append(img); //subdiv);
-			img[0].addEventListener("click", function (e) {
+			img[0].addEventListener("click", async function (e) {
 				if (e.button==0) {
 					if(e.shiftKey){
 						let ps=div[0].style;
-						if(ps.left)  { ps.left=""; ps.right="6px"; }
-						else         { ps.right=""; ps.left="41px"; }
-						if(GM.getValue) GM.setValue("GMmenuLeftRight", ( ps.right ? true : false ));
-						else localStorage.GMmenuLeftRight=ps.right;
-						right_pos=ps.right;
+						if(right_pos) { 
+							right_pos=false; ps.right=""; ps.left="41px";
+							$("#osm-menuwrap").css({ left:"5%",top:"15%" });  
+						} else { right_pos="truthy";ps.left=""; ps.right="6px";
+								 $("#osm-menuwrap").css({ left:"",right:"5px", top:"15%" }); 	 }
+						if(GM.getValue) await GM.setValue("GMmenuLeftRight", right_pos);
+						else localStorage.GMmenuLeftRight=right_pos;
                     }
 					//document.dispatchEvent(new CustomEvent("coord_GM_menu",{detail:{chromeButton:true}}));
 					else
