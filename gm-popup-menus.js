@@ -91,10 +91,6 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-
-
- 
 if(!window.old_GM_reg) window.old_GM_reg=GM_registerMenuCommand||this.GM_registerMenuCommand;
 var old_GM_reg=window.old_GM_reg;     // sometime window object changes before load called here.
 var GM_registerMenuCommand;           //Uses closure to ensure a different function for each simulataneous userscript caller of this function.
@@ -102,7 +98,7 @@ var GM_registerMenuCommand;           //Uses closure to ensure a different funct
 var submenuModule=(function() { try {  // a module, js pattern module, returns interfaceObj.  ownSubmenu() is a closure returning
 	// an interface object in scope of 'this'.  Side effect alters GM_registerMenuCommand.  Not window.submenuModule clash of multiusage.
 	var sify=JSON.stringify, ownSubmenu, ownSubmenuList, xbutton, body, state=null;
-	var coord_id=1, $, nlist=1, scriptName, nofocus, altHotkey=77, thishere, list_orig_height, chromeButton, queue;
+	var coord_id=1, $, nlist=1, right_pos=true, scriptName, nofocus, altHotkey=77, thishere, list_orig_height, chromeButton, queue;
 	var regmutex, osmlisel="li.osm-button",lis, plat_chrome=/Chrome/.test(navigator.userAgent), uw=unsafeWindow, cmd, ln="\u2501", menuwrap, shrink_factor, header;
 	var iframe=window!=window.parent, lmarg=window.innerWidth*0.04, blank_textContent=false;    //77==m, 0.04==4%.
 	var init=async function(script_name, hotkey, title_color, itsBackgroundColor, dont_focus) //is submenuModule.register() 
@@ -132,8 +128,8 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 		menuwrap=$("#osm-menuwrap");
 		menuwrap.hide();
 		if (!menuwrap.length) {
-			var point_of_attachment=body, gm_button=$("#GM_menu_button"), pos_css="left:15%;top:15%;";
-			if (gm_button.length) { point_of_attachment=gm_button; pos_css="right:30px;"; }
+			var point_of_attachment=body, gm_button=$("#GM_menu_button"), pos_css="left:5px;top:15%;";
+			if (gm_button.length && right_pos) { point_of_attachment=gm_button; pos_css="right:30px;"; 	}
 			point_of_attachment.append(menuwrap=$("<div id=osm-menuwrap style='position:fixed;"+pos_css+"z-index:2147483647 ;display:table;'></div>"));
 		}
 		menuwrap.append(ownSubmenu);
@@ -546,9 +542,10 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 	setUpChromeButton=async function() {
 		chromeButton=true;
 		var div=$("#GM_menu_button");
-		var right_pos;
-		if(GM.getValue) right_pos=await GM.getValue("GMmenuLeftRight", true);
+		if(GM.getValue) right_pos=await GM.getValue("GMmenuLeftRight", "truthy");  // Has GM is polyfill pre-required.
 		else try { right_pos=localStorage.GMmenuLeftRight;} catch(e){}
+		if(right_pos!="truthy") right_pos=false;
+
 		var par = document.body ? document.body : document.documentElement, 
 			full_name="GreaseMonkey \u27a4 User Script Commands \u00bb", short_name="GM\u00bb";
 		if (div.length==0) {
@@ -562,16 +559,20 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 			var img=$("<img class=GM_menuman style='border:none; margin:0; padding:0; float:left;'"
 					  +" src=data:image/gif;base64,AAABAAEADxAAAAEAIAAoBAAAFgAAACgAAAAPAAAAIAAAAAEAIAAAAAAAAAAAABMLAAATCwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAADgAAABAAAAAQAAAAEAAAAA4AAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAfw8ANGiHADx42wBAf/8AQH//AEB//wBAf/8AQH//ADx42wA0aIcAQH8PAAAAAAAAAAAAAAAAAEB/LwBAf98jZp//YKrX/4/b//+T3P//lNz//5Pc//+Q2///YarX/yNmn/8AQH/fAEB/LwAAAAAAAAAAAEB/vzR5r/+M2v//ktv//5jd//+c3///nt///53f//+Z3v//lNz//43a//80ea//AEB/vwAAAAAAQH8PAEB//4PQ9/9+v+D/L0Vj/x4qX/8qOIT/KjmY/yo4if8fKmX/L0Vn/4DA4P+D0Pf/AEB//wAAAAAAQH8PEVOP/43a//9Se5D/gbXS/6bi//+t5P//seX//67l//+o4v//grbT/1R8kv+O2v//AEB//wAAAAAAJElfCEJ6/4XR9/+W3f//oOD//2mVn/9wlZ//uuj//3GXn/9rlJ//o+H//5ne//+G0ff/CEJ6/wAkSV8TPmXfO3em/1CXx/+W3f//oOD//wAmAP8AHQD/uOf//wAmAP8AHQD/ouH//5ne//9Rl8f/Q3+s/xM+Zd87bZP/O3em/z6Dt/+U3P//nN///0BvQP8QPBD/ruT//0BvQP8QPBD/n9///5bd//8+g7f/Q3+s/zttk/8yaJP/S4ax/yNmn/+P2///l93//2Gon/9lop//peH//2apn/9iop//md7//5Hb//8jZp//S4ax/zJok/8JQ3vvMm2d/wBAf/+D0Pf/kNv//5bd//+a3v//dbff/5re//+X3f//ktv//4TQ9/8AQH//Mm2d/wlDe+8APn1PAD99rwA/fq8rcKf/g9D3/47a//9boc//AEB//1uhz/+O2v//g9D3/ytwp/8AP36vAD99rwA+fU8AAAAAAAAAAAAAAAAAQH/PAEB//xFTj/8ANGf/ADBf/wAyY/8AOnP/ADpz/wAqU/8AIEA/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEB/jwBAf/8AQH//AC5b/wAgQP8AIED/AChP/wA6dL8AJEnfACBADwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAfx8AQH+PAEB/3wA2a/8AJEf/ACBA/wAgQH8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAfy8AQH9vAC5crwAiRN8AAAAAAAAAAAAAAAD/////4A///8AH//+AA///gAP//4AD//+AAwAAAAEAAAABAAAAAQAAAAEAAIADAADgDwAA8AcAAPwfAAD/zwAA"
 					  +"></img>");
-			var subdiv=$("<div></div>");
-			subdiv.append(img);
-			div.append(subdiv);
-			subdiv[0].addEventListener("click", function (e) {
+			//var subdiv=$("<div></div>");
+			//subdiv.append(img);
+			div.append(img); //subdiv);
+			img[0].addEventListener("click", async function (e) {
 				if (e.button==0) {
 					if(e.shiftKey){
 						let ps=div[0].style;
-						if(ps.left)  { ps.left=""; ps.right="6px"; }
-						else         { ps.right=""; ps.left="41px"; }
-						GM.setValue("GMmenuLeftRight", ( ps.right ? true : false ));
+						if(right_pos) { 
+							right_pos=false; ps.right=""; ps.left="41px";
+							$("#osm-menuwrap").css({ left:"5%",top:"15%" });  
+						} else { right_pos="truthy";ps.left=""; ps.right="6px";
+								 $("#osm-menuwrap").css({ left:"",right:"5px", top:"15%" }); 	 }
+						if(GM.getValue) await GM.setValue("GMmenuLeftRight", right_pos);
+						else localStorage.GMmenuLeftRight=right_pos;
                     }
 					//document.dispatchEvent(new CustomEvent("coord_GM_menu",{detail:{chromeButton:true}}));
 					else
