@@ -669,7 +669,7 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 	////////////////////End of var comma module function def sequence.
 	////////////Semicolon ends comma separated variable definitions of the various module functions.
 	/////////////////////
-
+	
 	var getCoordid=function(){return coord_id;}; 
 	String.prototype.trim = function (charset) { if (!charset) return this.replace(/^\s*|\s*$/g,""); else return this.replace( RegExp("^["+charset+"]*|["+charset+"]*$", "g" ) , "");}; //trim spaces or any set of characters.
 	if (/Chrome/.test(navigator.userAgent)) window.plat_chrome=true;
@@ -693,7 +693,7 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 	return interfaceObj; // interfaceObj becomes the value of the closure variable "submenuModule" in user space.
 	
 	function mutexlock() { this.lock=new Promise(r=>this.unlock=r);};// eg, mx=new mutexlock;...await mx.lock; (async...) mx.unlock(); // initial state is locked, once unlocked it cant be locked again.
-	
+	function logStack(depth){var e=new Error; return e.stack.split(/\n/).slice(2).slice(0,depth);}	
 	async function preInit(){ try { //cache font in base64
 		if (!this.jQuery) this.jqcode= GM.getValue ? await GM.getValue("osm_jqueryCode","") : "";
 		if (! document.getElementById("squadafont")) {
@@ -728,30 +728,14 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 			} //injectCss()
 			
 		} //endif !doc.getElementById(squadafont)
-	} catch(e) { console.log("Cannot get font, error: "+e+", line:"+e.lineNumber+".");}} //preInit()
-} catch(e){console.log("Error in submenuModule",e);}} )(); // Self invoked ")()" an IIFE.
+   	} catch(e) { console.log("Cannot get font, error: "+e+", line:"+e.lineNumber+".");}} //preInit()
+   } catch(e){console.log("Error in submenuModule",e);}} 
+)(); // Self invoked ")()" an IIFE.
+
 //
 // End self-invoking function setting var submenuModule=(function(){.  
 //
 
-function logStack(depth){var e=new Error; return e.stack.split(/\n/).slice(2).slice(0,depth);}
-
-// function logStack(todepth=2) {  // returns string, depth default is 2 gives up to callee of function where from logStack is called.
-// 	var res="", e=new Error;
-// 	var ar=e.stack.replace(/Error\n/,"").replace(/\n/g,"").split(/ at /).slice(1);
-// 	//ar=ar.map((curr)=>curr.trim().replace(/[ :].*/,""));
-// 	ar=ar.map((curr)=>"\n"+curr);
-// 	ar.shift();   // 'logStack' itself.
-// 	return ar.slice(0,todepth).join("-->");
-// }
-
-// function logStack(fileToo) { // returns string, deepest first.
-// 	var res="", e=new Error;
-// 	var s=e.stack.split("\n");
-// 	if (fileToo) res="Stack of callers:\n\t\t"; //+s[1].split("@")[0]+"():\n\t\t"
-// 	for (var i=1;i<s.length-1;i++)
-// 		res+=s[i].split("@")[0]+"() "+s[i].split(":").slice(-2)+"\n";
-// 	return !fileToo ? res : {Stack:s[0]+"\n"+res}; 
-// }
-
-
+                                     //
+window.submenuModule=submenuModule;  // Export to global scope, window.
+                                     //
