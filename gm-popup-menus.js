@@ -91,6 +91,7 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
 if(!window.old_GM_reg) window.old_GM_reg=GM_registerMenuCommand||this.GM_registerMenuCommand;
 var old_GM_reg=window.old_GM_reg;     // sometime window object changes before load called here.
 var GM_registerMenuCommand;           //Uses closure to ensure a different function for each simulataneous userscript caller of this function.
@@ -160,15 +161,18 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 			makeDraggable($(".osm-box"));
 			uw.osm_shutdoor=true;
 			uw.osm_max=uw.osm_queue.length; //Don't wait for one that never init.s.
-			for (let i=0;i<uw.osm_max;i++) dispatch("coord_GM_menu",uw.osm_queue[i]); // emits one event for each coord_id ir oder from 1 up.
+			for (let i=0;i<uw.osm_max;i++) 
+							dispatch("coord_GM_menu",uw.osm_queue[i]); // emits one event for each coord_id ir oder from 1 up.
 			uw.osm_count=0; //resets storage on next load.
 		},tout); /// close inits after this time passed??
 	},
 	coord_GM_menu=function(e){try{  // Custom Event handler dispatched in func near above.
 		var detail=e.originalEvent.detail,menu;
-		
 		if(Number(detail)) { if (detail!=coord_id) return; }// Only handle event directed by coord order.
-		else if (detail && detail.chromeButton) { if (interfaceObj.isOpen) closeSubmenu(); else {console.log("OPEN submenu detail"); openSubmenu();} return;} //Behaviour, instead, if in queue then either just init or is open.
+		else if (detail && detail.chromeButton) { 
+			if (interfaceObj.isOpen) closeSubmenu();
+			else  openSubmenu(); return;
+		} //Behaviour, instead, if in queue then either just init or is open.
 		
 		if (!coord_GM_menu.done) coord_GM_menu.done=true; else return;
 		groupBracketing();
@@ -202,7 +206,9 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 		interfaceObj.activeElement=document.activeElement;
 		if (interfaceObj.isOpen) return; interfaceObj.isOpen=true;
 		var diagdist=Infinity;
-		if (uw.osm_queue.indexOf(coord_id)==-1) uw.osm_queue.push(coord_id);
+		if (uw.osm_queue.indexOf(coord_id)==-1) 
+			uw.osm_queue.push(coord_id);
+		
 		lis=ownSubmenuList.find("li");
 		menuwrap.show();
 		ownSubmenu.show(300, function(){ // called on completion; slowly changes opacity. jQuery creates an undisplayed table during this for some reason.  If error in thread this may leave elements half open.
@@ -241,7 +247,7 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 			var t=$(e.target);
 			e.target.focus(); //needed on chromium.
 			if (t.is("li.osm-button") || (t.closest("div.osm-box").length==0 && t.closest("div#GM_menu_button").length==0) && ! /menuitem/i.test(t[0].tagName)) {
-				//console.log("body click on target",t[0].tagName,"if osm-button or not child of osm & button");
+				console.log("body click on target",t[0].tagName,"if osm-button or not child of osm & button");
 				closeSubmenu(e.clientX==0 && e.clientY==0);
 			} // close if body clicked but not bubbled from a menu item.
 		});
@@ -295,7 +301,7 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 	coord_resize=function(e,ex,ex2) { 
 		if ( ! interfaceObj.isOpen) return;
 		//console.log("coord_resize()", scriptName,ex,ex2, "Event:",e,( e ? ["Details",e.detail,e.originalEvent] : "no e"));
-		if (e && e.detail) { closeSubmenu(); return; }
+		if (e && e.detail) { console.log("close from resize");closeSubmenu(); return; }
 		var portalh=Math.min(window.innerHeight,$(window).height())-10, available_height, available_width, portalw=Math.min(window.innerWidth,$(window).width()-lmarg);
 		available_height = portalh - ownSubmenu.position().top - shrink_factor*(header.height() + 22); //$.height ignores "box-sizing: border-box" which normally includes paddings & borders but not margins.
 		var new_h=Math.max(Math.min(75,list_orig_height), Math.min(available_height, list_orig_height)); //position relative to window not document, use: ownSubmenuList.offset().top - $(window).scrollTop(). viewport height.
@@ -428,9 +434,10 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 		li_bg_color=modColor(title_color+" ^ 0xa1a3e1");
 		xbutton="<b class=osmXbutton style='float:right;margin-top:-7px;color:"+title_color+";margin-right:-4px;"
 			+"font-size:xx-small;'>&#x2715;</b>";         // #2715 is an 'x'
-		
+		let id="ownSubmenu"+coord_id;
+		if($("#"+id).length) throw new Error("submenuModule #"+coord_id+" already registed, rejecting registration.");
 		//console.log("Colors: title_color:",title_color,"li_text_color:", li_text_color,"computed: li_bg_color:",li_bg_color,"shadow_color:",shadow_color," selected_color",selected_color,"selected_bg_color",selected_bg_color);
-		ownSubmenu=$("<div id=ownSubmenu"+coord_id+" draggable=true class=osm-box data-coord_id="+coord_id
+		ownSubmenu=$("<div id="+id+" draggable=true class=osm-box data-coord_id="+coord_id
 					 +" script-name='"+scriptName+coord_id+"' tabindex='' "
 					 + "style='z-index:2147483647;"
 					 //+"background-color: "+(backgroundColor||"#ffffee;")+"; color:"+(color||"#3f005e")+";"
@@ -563,6 +570,7 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 			//subdiv.append(img);
 			div.append(img); //subdiv);
 			img[0].addEventListener("click", async function (e) {
+				console.log("Click on chromeButton",img[0]);
 				if (e.button==0) {
 					if(e.shiftKey){
 						let ps=div[0].style;
@@ -587,7 +595,8 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 	dispatch=function(event,subcmd) {
 		if (subcmd) event=new CustomEvent(event,{detail:subcmd});
 		else event=new Event(event);
-		//console.log("DISPATCH", scriptName, ", subcmd:",subcmd, "Event:",event);
+		//console.log("DISPATCH", event.type, scriptName, ", subcmd:",subcmd, "Event:\n",event);
+		console.dir(logStack());
 		document.dispatchEvent(event);
 	},
 
@@ -654,71 +663,8 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 		//var iframeEl=$("iframe").filter(function(){ return this.contentWindow==e.source; });
 		//handleClick({target:iframeEl[0],ctrlKey:true},"iframe_click");
 		function strdiff(s1,s2) { var i;for (i=0; i<s1.length&&i<s2.length;i++) if(s1[i]!=s2[i]) return i-1; return i-1;}
-	}catch(e){console.log("rmc.  Error in postMessageHandler",e.lineNumber,e);}},
-	
-	initUWonChrome=function() {
-		function unsafeWindowObj() { //a singleton object.
-			try{var ss=sessionStorage;}catch(e){ss=window.tempVaringmpm={};}          			//console.log("initUWonChrome new usw",ss,localStorage);
-			var usw="StandinForUnsafeWindow";			//try { console.log("Try local:",localStorage.usw);}catch(e){console.log("No access to LS");}
-			var singleton=this, readphase;
-			this.underlying_obj={}; //try{
-			if (!ss[usw]) ss[usw]="{}";//} catch(e){console.log("Cannot access sessionStorage",window!=parent,e);}
-			this.read=function() { // Read in changes announce by DOM event or at init;
-				readphase=true;
-				var robj=JSON.parse(ss[usw]);		  //var roll=""; for (var i in robj) { roll+=i+" "; }
-				for (var i in robj) this[i]=robj[i];  //eg,this[osm_count], invokes setters below.
-				readphase=false;
-				return this;
-			};
-			this.share=function(){   //Announce changes by event to other storers of usw.
-				if (readphase) return;
-				ss[usw]=JSON.stringify(this.underlying_obj);
-				dispatch("Storage-changed",{from_id:coord_id,newval:this.underlying_obj});
-				//var newev=new window.CustomEvent("Storage-changed",{detail:{from_id:coord_id,newval:this.underlying_obj}});		document.dispatchEvent(newev);// target is document
-			};  
-			this.proxify=function(robj,member_list, obj_name) {
-				member_list.forEach(function(member) {
-					if (member.length)
-						robj[member]=function() { 
-							var res=window[toType(robj)].prototype[member].apply(singleton.underlying_obj[obj_name],arguments);
-							singleton.share();
-						};
-					else 
-						singleton.underlying_obj[obj_name]={
-							uvalue:robj, //new objs, so always deref back to singleton.underlying_obj.
-							get 0(){ return singleton.underlying_obj[obj_name].uvalue[0]; },
-							set 0(v){ singleton.underlying_obj[obj_name].uvalue[0]=v;
-									  singleton.share();
-									  return v;},
-							toString:function(){return this.toJSON().toString();}, toJSON:function(){return singleton.underlying_obj[obj_name].uvalue;}
-						}; //end obj def.
-				}); //forEach().
-			}; //proxify().
-			document.addEventListener("Storage-changed",storeHasChanged,false);
-			function storeHasChanged(e){
-				if (e.detail && e.detail.from_id==coord_id) return;
-				singleton.read();
-			}
-		}; //End unsafeWindowObj().
-		
-		unsafeWindowObj.prototype = {
-			get osm_count() { return this.underlying_obj.osm_count;	},
-			set osm_count(n) { this.underlying_obj.osm_count=n; this.share(); return n; },
-			get osm_queue() { return this.underlying_obj.osm_queue;	},
-			set osm_queue(arr) {
-				this.proxify(arr,["push","splice","sort"],"osm_queue");
-				this.underlying_obj.osm_queue=arr;
-				this.share(); return arr;
-			},
-			get osm_shrink_factor() { return this.underlying_obj.osm_shrink_factor;	},
-			set osm_shrink_factor(arr) { this.proxify(arr,[0],"osm_shrink_factor"); this.share(); return arr; },
-			get osm_max() { return this.underlying_obj.osm_max; },
-			set osm_max(v) { this.underlying_obj.osm_max=v; this.share(); }
-		}; //end prototype.
-		function toType(obj) { return ({}).toString.call(obj).match(/\s([a-zA-Z]+)/)[1]; }
-		return (new unsafeWindowObj()).read();
-
-	};// } End initUWonChrome(), semicolon ends var declarations that began "var init="
+	}catch(e){console.log("rmc.  Error in postMessageHandler",e.lineNumber,e);}};	
+	// That last semicolon ends var declarations that began "var init="
 
 	////////////////////End of var comma module function def sequence.
 	////////////Semicolon ends comma separated variable definitions of the various module functions.
@@ -727,8 +673,9 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 	var getCoordid=function(){return coord_id;}; 
 	String.prototype.trim = function (charset) { if (!charset) return this.replace(/^\s*|\s*$/g,""); else return this.replace( RegExp("^["+charset+"]*|["+charset+"]*$", "g" ) , "");}; //trim spaces or any set of characters.
 	if (/Chrome/.test(navigator.userAgent)) window.plat_chrome=true;
-	if (window.plat_chrome) uw=initUWonChrome();
-	else uw=unsafeWindow;
+	//	if (window.plat_chrome) uw=initUWonChrome();
+	//	else 
+	uw=unsafeWindow;
 	if (uw.osm_count) uw.osm_count++;
 	else { uw.osm_count=1; uw.osm_max=1; uw.osm_queue=[]; uw.osm_shrink_factor=[1]; }
 	coord_id=uw.osm_count; queue=uw.osm_queue;uw.osm_max=uw.osm_count;
@@ -787,13 +734,24 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 // End self-invoking function setting var submenuModule=(function(){.  
 //
 
-function logStack(fileToo) { // deepest first.
-	var res="", e=new Error;
-	var s=e.stack.split("\n");
-	if (fileToo) res="Stack of callers:\n\t\t"; //+s[1].split("@")[0]+"():\n\t\t"
-	for (var i=1;i<s.length-1;i++)
-		res+=s[i].split("@")[0]+"() "+s[i].split(":").slice(-2)+"\n";
-	return !fileToo ? res : {Stack:s[0]+"\n"+res}; 
-}
+function logStack(depth){var e=new Error; return e.stack.split(/\n/).slice(2).slice(0,depth);}
+
+// function logStack(todepth=2) {  // returns string, depth default is 2 gives up to callee of function where from logStack is called.
+// 	var res="", e=new Error;
+// 	var ar=e.stack.replace(/Error\n/,"").replace(/\n/g,"").split(/ at /).slice(1);
+// 	//ar=ar.map((curr)=>curr.trim().replace(/[ :].*/,""));
+// 	ar=ar.map((curr)=>"\n"+curr);
+// 	ar.shift();   // 'logStack' itself.
+// 	return ar.slice(0,todepth).join("-->");
+// }
+
+// function logStack(fileToo) { // returns string, deepest first.
+// 	var res="", e=new Error;
+// 	var s=e.stack.split("\n");
+// 	if (fileToo) res="Stack of callers:\n\t\t"; //+s[1].split("@")[0]+"():\n\t\t"
+// 	for (var i=1;i<s.length-1;i++)
+// 		res+=s[i].split("@")[0]+"() "+s[i].split(":").slice(-2)+"\n";
+// 	return !fileToo ? res : {Stack:s[0]+"\n"+res}; 
+// }
 
 
