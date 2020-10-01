@@ -94,12 +94,8 @@
 if(!window.old_GM_reg) window.old_GM_reg=window.GM_registerMenuCommand;
 var old_GM_reg=window.old_GM_reg;     // sometimes window object changes before load called here.
 
-console.log("set old_GM_reg to ",old_GM_reg,typeof GM_registerMenuCommand,typeof GM_getValue,typeof GM_addStyle);
-
-var GM_registerMenuCommand;           //Uses closure to ensure a different function for each simulataneous userscript caller of this function.
-
 var submenuModule=(function() { try {  // a module, js pattern module, returns interfaceObj.  ownSubmenu() is a closure returning
-	// an interface object in scope of 'this'.  Side effect alters GM_registerMenuCommand.  Not window.submenuModule clash of multiusage.
+                                      	// an interface object in scope of 'this'.  Side effect alters GM_registerMenuCommand.  Not window.submenuModule clash of multiusage.
 	var sify=JSON.stringify, ownSubmenu, ownSubmenuList, xbutton, body, state=null;
 	var coord_id=1, $, nlist=1, right_pos="truthy", scriptName, nofocus, altHotkey=77, thishere, list_orig_height, chromeButton, queue;
 	var regmutex, osmlisel="li.osm-button",lis, plat_chrome=/Chrome/.test(navigator.userAgent), uw=unsafeWindow, cmd, ln="\u2501", menuwrap, shrink_factor, header;
@@ -108,7 +104,9 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 	{ try {
 		scriptName=script_name||""; nofocus=dont_focus; state="preinit";
 		regmutex=new mutexlock(); // Lock is just to ensure init is complete before user commands are registered.
-		GM_registerMenuCommand=registerInOwnSubmenu;
+		//
+		GM_registerMenuCommand=window.GM_registerMenuCommand=registerInOwnSubmenu;
+		// overrides GM_registerMenuCommand()
 		await preInit();
 		queue.push(coord_id);		queue.sort();     // In GM execution order.  Some may not call register();
 		$=ensurejQuery(); //console.log("GM4_rMC Jquery version:",$.fn.jquery);
@@ -598,7 +596,6 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 		if (subcmd) event=new CustomEvent(event,{detail:subcmd});
 		else event=new Event(event);
 		//console.log("DISPATCH", event.type, scriptName, ", subcmd:",subcmd, "Event:\n",event);
-		console.dir(logStack());
 		document.dispatchEvent(event);
 	},
 
