@@ -20,6 +20,7 @@
 //    function GMDataEditor(scriptname); // Adds menu command to edit GM storage of given userscript.
 
 function logError(msg,e,...extras) { console.error("Error,",msg,".  After offset is on line:",Elineno(e),", offset used:",-sfs_ut_offset,"Error msg:",e.message,"Stack:\n",e.stack, ...extras); }
+window.logError=logError; // export
 function typeofObj(unknown_obj){ return ({}).toString.call(unknown_obj).substr(8).slice(0,-1); }
 function Elineno(e) { return e.lineNumber-sfs_ut_offset; }
 
@@ -46,6 +47,8 @@ function log() { // Prints lineno of logging not this lineno.   //if (!Plat_Chro
 	args.push(locator);
 	console.log.apply(console, args);
 	// In general it is console.log("%c a msg and another %c meggss","float:right","float:left;",anobj,"text","etc");
+
+window.log=log; //export
 
 	function logStack(fileToo, lineno_of_callee) { // deepest first.
 		var res="", e=new Error;
@@ -109,7 +112,6 @@ async function cmdrepl(e={},immediate,...args) {               // When called fr
 		try{ res=await eval(reply); console.log(reply,"==>",res);res="==>"+res; } catch(e) {console.log("cmd err",e); cmdrepl(e);}
 	}
 }
-
 
 function GMDataEditor(scriptname) {  
 
@@ -205,6 +207,7 @@ function GMDataEditor(scriptname) {
 	}catch(e){console.error("Error in GMDataEditor,",e);}}; // end openEditor()
 
 	function parse(str){ try { return JSON.parse(str); } catch(e){} };	
+	window.parse=parse;//export
 	function ordinal(n) { var sfx = ["th","st","nd","rd"];var val = n%100;return n + (sfx[(val-20)%10] || sfx[val] || sfx[0]);}
 	// function addClickButtonTo(elem,buttonLabel,cb) {
 	// 	var style="position:fixed; background-color:green;color:whitesmoke; cursor:pointer;border:#f0f0f0 20px ridge";

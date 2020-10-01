@@ -91,9 +91,11 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+if(!window.old_GM_reg) window.old_GM_reg=window.GM_registerMenuCommand;
+var old_GM_reg=window.old_GM_reg;     // sometimes window object changes before load called here.
 
-if(!window.old_GM_reg) window.old_GM_reg=GM_registerMenuCommand||this.GM_registerMenuCommand;
-var old_GM_reg=window.old_GM_reg;     // sometime window object changes before load called here.
+console.log("set old_GM_reg to ",old_GM_reg,typeof GM_registerMenuCommand,typeof GM_getValue,typeof GM_addStyle);
+
 var GM_registerMenuCommand;           //Uses closure to ensure a different function for each simulataneous userscript caller of this function.
 
 var submenuModule=(function() { try {  // a module, js pattern module, returns interfaceObj.  ownSubmenu() is a closure returning
