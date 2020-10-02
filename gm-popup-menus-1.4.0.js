@@ -105,7 +105,7 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 		scriptName=script_name||""; nofocus=dont_focus; state="preinit";
 		regmutex=new mutexlock(); // Lock is just to ensure init is complete before user commands are registered.
 		//
-		GM_registerMenuCommand=window.GM_registerMenuCommand=registerInOwnSubmenu;
+		GM_registerMenuCommand=registerInOwnSubmenu; // Must this way, not window.GM_registerMenuCommand like other exports since GM_registerMenuCommand is defined as arg to userscript wrapper function.
 		// overrides GM_registerMenuCommand()
 		await preInit();
 		queue.push(coord_id);		queue.sort();     // In GM execution order.  Some may not call register();

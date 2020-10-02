@@ -21,6 +21,7 @@
 
 function logError(msg,e,...extras) { console.error("Error,",msg,".  After offset is on line:",Elineno(e),", offset used:",-sfs_ut_offset,"Error msg:",e.message,"Stack:\n",e.stack, ...extras); }
 window.logError=logError; // export
+
 function typeofObj(unknown_obj){ return ({}).toString.call(unknown_obj).substr(8).slice(0,-1); }
 function Elineno(e) { return e.lineNumber-sfs_ut_offset; }
 
@@ -43,11 +44,13 @@ function objInfo(obj) {
 
 var ver_pos=navigator.userAgent.indexOf("Firefox/");
 
-log=function() { // Prints lineno of logging not this lineno.   //if (!Plat_Chrome) old_GM_log(t);};
+window.log=log; // export log()
+
+function log() { // Prints lineno of logging not this lineno.   //if (!Plat_Chrome) old_GM_log(t);};
 	var args=Array.from(arguments), lineno=parseInt(logStack(0,1))-sfs_ut_offset, pnewline,
 	
 		//locator="\t\t\t["+(ver_pos!=-1?lineno+":":"") + sname+(window!=parent? (" wname:"+window.name? window.name:"-") +" @"+location+", rstate: "+document.readyState:"") + "]";
-		locator="\t\t\t["+ sname+(window!=parent? (" wname:"+window.name? window.name:"-") +" @"+location+", rstate: "+document.readyState:"") + "]";
+		locator="\t\t\t["+ script_name+(window!=parent? (" wname:"+window.name? window.name:"-") +" @"+location+", rstate: "+document.readyState:"") + "]";
 	args.push(locator);
 	console.log.apply(console, args);
 	// In general it is console.log("%c a msg and another %c meggss","float:right","float:left;",anobj,"text","etc");
@@ -93,8 +96,9 @@ function logNewNodes() {
 // Call cmdreply to get js console at that point.   Pass reg in to register cmd console as a menu command.
 // If cant register cmd, invoke immediately.
 
-var sname= typeof GM != "undefined" ?  GM.info && GM.info.script.name : "noscript name";
+window.script_name= typeof GM != "undefined" ?  GM.info && GM.info.script.name : "noscript name"; // export
 
+window.cmdrepl=cmdrepl; // export
 async function cmdrepl(e={},immediate,...args) {               // When called from GM menu e is set to event.
 	if(!immediate && !cmdrepl.regdone) {          // if (typeof GM_registerMenuCommand!="undefined" && document.body)
 		cmdrepl.regdone=true;
@@ -114,6 +118,7 @@ async function cmdrepl(e={},immediate,...args) {               // When called fr
 		try{ res=await eval(reply); console.log(reply,"==>",res);res="==>"+res; } catch(e) {console.log("cmd err",e); cmdrepl(e);}
 	}
 }
+window.GMDataEditor=GMDataEditor;
 
 function GMDataEditor(scriptname) {  
 
