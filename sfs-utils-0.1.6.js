@@ -43,12 +43,11 @@ function objInfo(obj) {
 
 log=function() { // Prints lineno of logging not this lineno.   //if (!Plat_Chrome) old_GM_log(t);};
 	var args=Array.from(arguments), lineno=parseInt(logStack(0,1))-sfs_ut_offset, pnewline,
-		locator="\t\t\t["+lineno +":"+ sname+(window!=parent? (" wname:"+window.name? window.name:"-") +" @"+location+", rstate: "+document.readyState:"") + "]";
+		ver_pos=navigator.userAgent.indexOf("Firefox/"),
+		locator="\t\t\t["+(ver_pos!=-1?lineno+":":"") + sname+(window!=parent? (" wname:"+window.name? window.name:"-") +" @"+location+", rstate: "+document.readyState:"") + "]";
 	args.push(locator);
 	console.log.apply(console, args);
 	// In general it is console.log("%c a msg and another %c meggss","float:right","float:left;",anobj,"text","etc");
-
-window.log=log; //export
 
 	function logStack(fileToo, lineno_of_callee) { // deepest first.
 		var res="", e=new Error;
@@ -61,7 +60,7 @@ window.log=log; //export
 };
 
 if (log.lineoffset==undefined) { // cos ff58 has linon at 360 + script lineno.
-	var ver=0,offset=0,ver_pos=navigator.userAgent.indexOf("Firefox/");
+	var ver=0,offset=0;
 	if (ver_pos!=-1) {
 		let v=parseInt(navigator.userAgent.substr(ver_pos+8));
 		if (v>=58 && v<60) offset=360; 
