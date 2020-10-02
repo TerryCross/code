@@ -41,9 +41,11 @@ function objInfo(obj) {
 	}
 }
 
+var ver_pos=navigator.userAgent.indexOf("Firefox/"),
+
 log=function() { // Prints lineno of logging not this lineno.   //if (!Plat_Chrome) old_GM_log(t);};
 	var args=Array.from(arguments), lineno=parseInt(logStack(0,1))-sfs_ut_offset, pnewline,
-		ver_pos=navigator.userAgent.indexOf("Firefox/"),
+	
 		locator="\t\t\t["+(ver_pos!=-1?lineno+":":"") + sname+(window!=parent? (" wname:"+window.name? window.name:"-") +" @"+location+", rstate: "+document.readyState:"") + "]";
 	args.push(locator);
 	console.log.apply(console, args);
