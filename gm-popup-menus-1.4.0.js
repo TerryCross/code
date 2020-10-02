@@ -558,7 +558,7 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 		if (div.length==0) {
 			div=$("<div id=GM_menu_button style='border: 3px outset #ccc;position: fixed;"
 				  +"opacity:  1; z-index: 2147483647;top: 5px; padding: 0 0 0 0;" //height: 16px; "
-				  +"background-color:whitesmoke;"
+				  +"background-color:whitesmoke; width:auto;"
 				  //+"max-height: 15px; max-width: 15px;" 
 				  +(right_pos ? "right: 5px;" : "left: 40px;")
 				  +"'></div>");
