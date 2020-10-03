@@ -96,7 +96,7 @@ function logNewNodes() {
 // Call cmdreply to get js console at that point.   Pass reg in to register cmd console as a menu command.
 // If cant register cmd, invoke immediately.
 
-window.script_name= typeof GM != "undefined" ?  GM.info && GM.info.script.name : "noscript name"; // export
+window.script_name= typeof GM != "undefined" ?  GM.info && GM.info.script.name : GM_info.script.name; // export
 
 window.cmdrepl=cmdrepl; // export
 async function cmdrepl(e={},immediate,...args) {     // Set immediate to skip GM registration.  When called from GM menu e is set to event.
@@ -118,63 +118,104 @@ async function cmdrepl(e={},immediate,...args) {     // Set immediate to skip GM
 		try{ res=await eval(reply); console.log(reply,"==> "+res); res="==>"+res; } catch(e) {console.log("cmd err",e); cmdrepl(e);}
 	}
 }
-window.GMDataEditor=GMDataEditor;
 
-function GMDataEditor(scriptname) {  
+window.GMDataEditor=GMDataEditor; // export
 
-	// Scripts using this need header item: // @grant for each of the value commands: listValues, getValue, setValue, deleteValue, 
-	// Use by calling this function passing in the user script name, this will add to the GM command menu, page 
-	// context menu, "Edit data stored for this script, [scriptname]".
+function GMDataEditor() {  
+
+	// When run this function adds a userscript menu option to export/input the script's stored data.
+	// When the user then selects that option it presents the import/export dialogue.
+	// Menu option is named "Edit data stored for this script, <scriptName>";
+
+	// Scripts using this need header item: 
+    // @grant for each of the value commands: listValues, getValue, setValue, deleteValue, 
 	// Jquery is also required by this script, so include it as a userscript header require.
 
-	if(typeof submenuModule != "undefined" && submenuModule.state!=null) GM_registerMenuCommand("Edit data stored for this script, "+scriptname,openEditor);
-	else GM.registerMenuCommand("Edit data stored for this script, "+scriptname,openEditor);
+	if(typeof submenuModule != "undefined" && submenuModule.state!=null) GM_registerMenuCommand("Edit data stored for this script, "+script_name,openEditor);
+	else GM.registerMenuCommand("Edit data stored for this script, "+script_name,openEditor);
  
 	async function openEditor(){try{
 		var wrapper=$("#aedc-wrapper"),dummy;
 		if(wrapper.length) wrapper.remove(); // old one left there.
 
 		var allNames=await GM.listValues(); // Returns an array of keys without values.
-		allNames.push("dummy-nameValue-edit-for-new-value");
+
+		var nameValues_ar=await Promise.all(allNames.map(async function(name){
+			let retv=[name, await GM_getValue(name,null)];
+			//console.log("returning ",retv);
+			return retv;
+		}));
+		var NV_str=JSON.stringify(nameValues_ar);
+		var textarea=$("<textarea style='vertical-align:middle; width:100%; max-width:800px;height:300px;'>");
+		textarea.val(NV_str);
+		console.log("NV_str len:",NV_str.length,"nameValues_ar",nameValues_ar);
+		var built_text1=`<div id="aedcEntireStore"<u><b style='display:block'>Entire store as one long data string — for export/import:</b></u></div><br><br>`;
+
+		allNames.push("dummy — edit for new name/value");
 
 		console.log("all Names in script GM store:",allNames);
 		var namevalues_before=new Map(), namevalues_after=new Map();
 
 		for (let name of allNames) {
 			namevalues_before.set(name,await GM.getValue(name)); 
-			//console.log("set map name:",name," to: ",namevalues_before.get(name));
+			let v=namevalues_before.get(name);
+			console.log("set map name:",name," to: ",v?v.length:"undef");
 		}
 		// await allNames.forEach(async name=> { 
 		// 	namevalues_before.set(name,await GM.getValue(name)); 
 		// 	console.log("set map name:",name," to: ",namevalues_before.get(name));
 		// });
 		
-		//console.log("Have MAP size:",namevalues_before.size,namevalues_before, "len",namevalues_before.length);
+		console.log("Have MAP size:",namevalues_before.size, "len",namevalues_before.length);
 
-		var built_text=await allNames.reduce(async (acc_namevalues,curr_name,i)=>{
-			var value=await GM.getValue(curr_name);
-			return (await acc_namevalues)+`<b>${ordinal(i+1)} Name:</b><br><div class=aedcName>${curr_name}</div><br>
-	<b>Value:</b><br><div class=aedcValue>${value}</div><br>`;
+		var values=[],built_text2=await 
+		allNames.reduce(async (acc_namevalues,curr_name,i)=>{
+			let v=values[i]=await GM.getValue(curr_name);
+			return (await acc_namevalues)+
+        `      <b>${ordinal(i+1)} 
+               Name:</b><br><div class=aedcName>${curr_name}</div><br><b>
+               Value${v && v.length ? " — "+v.length.toLocaleString()+" bytes":""}:</b><br><div class=aedcValue></div><br>
+        `;     // thousands' comma from toLocaleString().
 		},"");
 
-		var div=$(`<div id="sfs-wh-maindiv"><u><b>Name/Value List</u><br><br></b>${scriptname} 
+		var div=$(`<div id="sfs-wh-maindiv">${built_text1}<u><b>Editable Name/Value List:</u><br><br></b>${script_name} 
             GM stored values (reload to remove, repeat menu command to refresh name/values).<br>
             The below names/values are editable.  Number of name/value pairs: 
-            ${allNames.length}<br><br>${built_text}<b>END.</b><br><br><br> </div>`)
+            ${allNames.length}<br><br>${built_text2}<b>END.</b><br><br><br> </div>`)
 	    .prependTo("body");
+		console.log("Prepended to budy");
+
+		$(".aedcValue").each(function (i){
+			$(this).text(values[i]);
+		});
+		console.log("set value in div aedcValue");
+		$("#aedcEntireStore").append(textarea);
 		console.log("Added to body",$(".aedcName,.aedcValue",div));
 		
 		$(".aedcName,.aedcValue",div).attr("contenteditable","true");
 		div.wrap("<div id=aedc-wrapper>");
 		wrapper=$("#aedc-wrapper");
 
-		var button=addClickButtonTo(wrapper,"Save edited Name/Value pairs......",async e=>{try{
+		var button=addClickButtonTo(wrapper,"Save edited Name/Value pairs......", async e=>{try{
+			
+			var newNV_str=textarea.val();
+			if(newNV_str!=NV_str) {
+				console.log("newNV_str",newNV_str);
+				
+				var new_nv_ar=JSON.parse(newNV_str);
+				alert("Saving data string — reload page once directly to cancel.");
+				new_nv_ar.forEach(async function(el){
+					await GM_setValue(el[0],el[1]);
+				});
+				return;
+			}
+
 			console.log("Len of name value class divs",$(".aedcName,.aedcValue",div).length);
-			var reply=confirm("Save data, cancel to remove.");
+			var reply=confirm("OK to save data; Cancel to quit.");
 			if(!reply) { $(e.target).parent().remove(); return; }
 			var nv_texts_1dar=$(".aedcName,.aedcValue",div).get().map(el=>{
 				//log(" NV map returning text:",el.textContent);
-				return el.textContent;});
+				return $(el).text();});
 			namevalues_after=new Map(pairup_array(nv_texts_1dar));
 
 			// 4 cases, 1: Name blanked (new val will be undef).  2: Value blanked (new val is "").
@@ -197,10 +238,10 @@ function GMDataEditor(scriptname) {
 			var merged_map=new Map([...namevalues_before,...namevalues_after]);
 			console.log("Merged MAP:",merged_map);
 			GM.deleteValue("dummy-nameValue-edit-for-new-value");
-			alert("Saved data.");
-		}catch(e){console.error("Button error",e);}}
+			alert("Saved Name/Value List.");
+		} catch(e){console.error("Button error",e);}}                                    // end async e=>{try{
 		,"Click here to save or to remove/quit.","prepend"
-	   ); //end invocation of addClickButtonTo
+	   ); //end invocation of addClickButtonTo()
 
 		div[0].scrollIntoView();
 		button[0].scrollIntoView();
@@ -208,7 +249,7 @@ function GMDataEditor(scriptname) {
 		wrapper.css({
 			zIndex:2147483647, position: "absolute", 
 			backgroundColor:"whitesmoke", padding:"20px", top:0, //width:"100%",
-			fontSize:"medium", maxWidth: "intrinsic", width: "-moz-max-content"
+			fontSize:"medium", maxWidth: "800px", width: "-moz-max-content"
 		});
 
 	}catch(e){console.error("Error in GMDataEditor,",e);}}; // end openEditor()
