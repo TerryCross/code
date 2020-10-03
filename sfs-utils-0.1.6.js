@@ -49,7 +49,7 @@ window.log=log; // export log()
 function log() { // Prints lineno of logging not this lineno.   //if (!Plat_Chrome) old_GM_log(t);};
 	var args=Array.from(arguments), lineno=parseInt(logStack(0,1))-sfs_ut_offset, pnewline,
 	
-		//locator="\t\t\t["+(ver_pos!=-1?lineno+":":"") + sname+(window!=parent? (" wname:"+window.name? window.name:"-") +" @"+location+", rstate: "+document.readyState:"") + "]";
+		//locator="\t\t\t["+(ver_pos!=-1?lineno+":":"") + script_name+(window!=parent? (" wname:"+window.name? window.name:"-") +" @"+location+", rstate: "+document.readyState:"") + "]";
 		locator="\t\t\t["+ script_name+(window!=parent? (" wname:"+window.name? window.name:"-") +" @"+location+", rstate: "+document.readyState:"") + "]";
 	args.push(locator);
 	console.log.apply(console, args);
@@ -99,7 +99,7 @@ function logNewNodes() {
 window.script_name= typeof GM != "undefined" ?  GM.info && GM.info.script.name : "noscript name"; // export
 
 window.cmdrepl=cmdrepl; // export
-async function cmdrepl(e={},immediate,...args) {               // When called from GM menu e is set to event.
+async function cmdrepl(e={},immediate,...args) {     // Set immediate to skip GM registration.  When called from GM menu e is set to event.
 	if(!immediate && !cmdrepl.regdone) {          // if (typeof GM_registerMenuCommand!="undefined" && document.body)
 		cmdrepl.regdone=true;
 		setTimeout(function(){ 
@@ -110,12 +110,12 @@ async function cmdrepl(e={},immediate,...args) {               // When called fr
 	}
 	ls={}; 
 	try { let tmp=localStorage.reply; ls=localStorage; } catch(e){}
-	var res=e.message||sname+", enter command:",reply=ls.reply||"cmd";
+	var res=e.message||script_name+", enter javascript:",reply=ls.reply||"cmd";
 	while(reply) {
 		reply=prompt(res,reply);
 		if(!reply) break;
 		ls.reply=reply;                   
-		try{ res=await eval(reply); console.log(reply,"==>",res);res="==>"+res; } catch(e) {console.log("cmd err",e); cmdrepl(e);}
+		try{ res=await eval(reply); console.log(reply,"==> "+res); res="==>"+res; } catch(e) {console.log("cmd err",e); cmdrepl(e);}
 	}
 }
 window.GMDataEditor=GMDataEditor;
