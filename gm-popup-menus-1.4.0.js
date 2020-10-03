@@ -570,7 +570,7 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 			//subdiv.append(img);
 			div.append(img); //subdiv);
 			img[0].addEventListener("click", async function (e) {
-				console.log("Click on chromeButton",img[0]);
+				//console.log("Click on chromeButton",img[0]);
 				if (e.button==0) {
 					if(e.shiftKey){
 						let ps=div[0].style;
