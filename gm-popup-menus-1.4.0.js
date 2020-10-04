@@ -90,8 +90,8 @@
 //
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-if(!window.old_GM_reg) window.old_GM_reg=window.GM_registerMenuCommand;
+console.log("gm-pop window.GM_registerMenuCommand",this.GM_registerMenuCommand);
+if(!window.old_GM_reg) window.old_GM_reg=this.GM_registerMenuCommand;
 var old_GM_reg=window.old_GM_reg;     // sometimes window object changes before load called here.
 
 var submenuModule=(function() { try {  // a module, js pattern module, returns interfaceObj.  ownSubmenu() is a closure returning
@@ -105,7 +105,11 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 		scriptName=script_name||""; nofocus=dont_focus; state="preinit";
 		regmutex=new mutexlock(); // Lock is just to ensure init is complete before user commands are registered.
 		//
-		GM_registerMenuCommand=registerInOwnSubmenu; // Must this way, not window.GM_registerMenuCommand like other exports since GM_registerMenuCommand is defined as arg to userscript wrapper function.
+		//GM_registerMenuCommand=registerInOwnSubmenu;// On chrome this sets the value for all userscript, ok on firefox.
+		//window.GM_registerMenuCommand=registerInOwnSubmenu; // On firefox this sets it for all userscripts. On chrome it doesnt get set for any and the polyfill one is setMust this way, not window.GM_registerMenuCommand like other exports since GM_registerMenuCommand is defined as arg to userscript wrapper function.
+		//this.registerInOwnSubmenu;
+		this.GM_registerMenuCommand=registerInOwnSubmenu;
+		console.log("in gm popup set GM_registerMenuCommand",GM_registerMenuCommand);
 		// overrides GM_registerMenuCommand()
 		await preInit();
 		queue.push(coord_id);		queue.sort();     // In GM execution order.  Some may not call register();

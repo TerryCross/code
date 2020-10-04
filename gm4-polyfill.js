@@ -52,7 +52,7 @@ if (typeof GM == 'undefined')
 
 
 if (typeof GM_addStyle == 'undefined') {
-	window.GM_addStyle = (aCss_in_polyfill,id) => {
+	this.GM_addStyle = (aCss_in_polyfill,id) => {
 		'use strict';
 		let head = document.getElementsByTagName('head')[0];
 		if (head) {
@@ -67,10 +67,10 @@ if (typeof GM_addStyle == 'undefined') {
 	};
 }
 
-GM.addStyle=window.GM_addStyle;
+GM.addStyle=this.GM_addStyle;
 
 if (typeof GM_getResourceText == 'undefined')
-	window.GM_getResourceText = async aResourceName =>
+	this.GM_getResourceText = async aResourceName =>
 	( await fetch(await GM.getResourceUrl(aResourceName)) ).text(); 
 
 if (typeof GM_registerMenuCommand=="function" && /is not supported[^]{0,100}$/.test(GM_registerMenuCommand.toString()))
@@ -96,7 +96,8 @@ GM.registerMenuCommand = function (caption, commandFunc, accessKey_in_polyfill) 
 };
 
 if (typeof GM_registerMenuCommand == 'undefined') {
-	window.GM_registerMenuCommand=GM.registerMenuCommand;
+	this.GM_registerMenuCommand=GM.registerMenuCommand;
+	console.log("in pooyfil set",GM_registerMenuCommand);
 }
 
 Object.entries({
@@ -133,4 +134,4 @@ Object.entries({          // Object.entries() returns a 2-d array of all the giv
 	} 
 });//forEach()
 
-window.GM=GM; // exports GM object, eg, js was included dynamically via local eval(fetch(<this-file>))
+this.GM=GM; // exports GM object, eg, if js is included dynamically via local eval(fetch(<this-file>))
