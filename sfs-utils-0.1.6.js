@@ -96,7 +96,9 @@ function logNewNodes() {
 // Call cmdreply to get js console at that point.   Pass reg in to register cmd console as a menu command.
 // If cant register cmd, invoke immediately.
 
-window.script_name= typeof GM != "undefined" ?  GM.info && GM.info.script.name : GM_info.script.name; // export
+window.script_name="n/a";
+if (typeof GM != "undefined") if (GM.info) window.script_name=GM.info.script.name;
+else if(typeof GM_info != "undefined") window.script_name=GM_info.script.name ; // export
 
 window.cmdrepl=cmdrepl; // export
 async function cmdrepl(e={},immediate,...args) {     // Set immediate to skip GM registration.  When called from GM menu e is set to event.
