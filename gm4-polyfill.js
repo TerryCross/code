@@ -1,8 +1,8 @@
-/* gm4-polyfill.js v1.0.1 */
+/* gm4-polyfill.js v1.0.2 */
 
 // ==UserLibrary==
 // @pseudoHeader
-// @version     1.0.1
+// @version     1.0.2
 // @name        GM4 PolyFill
 // ==/UserLibrary==
 
@@ -52,7 +52,7 @@ if (typeof GM == 'undefined')
 
 
 if (typeof GM_addStyle == 'undefined') {
-	this.GM_addStyle = (aCss_in_polyfill,id) => {
+	window.GM_addStyle = (aCss_in_polyfill,id) => {
 		'use strict';
 		let head = document.getElementsByTagName('head')[0];
 		if (head) {
@@ -67,10 +67,10 @@ if (typeof GM_addStyle == 'undefined') {
 	};
 }
 
-GM.addStyle=this.GM_addStyle;
+GM.addStyle=window.GM_addStyle;
 
 if (typeof GM_getResourceText == 'undefined')
-	this.GM_getResourceText = async aResourceName =>
+	window.GM_getResourceText = async aResourceName =>
 	( await fetch(await GM.getResourceUrl(aResourceName)) ).text(); 
 
 if (typeof GM_registerMenuCommand=="function" && /is not supported[^]{0,100}$/.test(GM_registerMenuCommand.toString()))
@@ -95,7 +95,9 @@ GM.registerMenuCommand = function (caption, commandFunc, accessKey_in_polyfill) 
 	return menuItem;    // The real GM_registerMenuCommand returns undefined.  Here user can change eg, label attribute of returned menuItem.
 };
 
-if (typeof GM_registerMenuCommand == 'undefined') this.GM_registerMenuCommand=GM.registerMenuCommand;
+if (typeof GM_registerMenuCommand == 'undefined') {
+	window.GM_registerMenuCommand=GM.registerMenuCommand;
+}
 
 Object.entries({
 	'log': console.log.bind(console),
@@ -120,11 +122,11 @@ Object.entries({          // Object.entries() returns a 2-d array of all the giv
 	'GM_xmlhttpRequest': 'xmlHttpRequest',
 	'GM_getResourceText': 'getResourceText'
 }).forEach(([oldKey, newKey]) => {         // Enables eg, "await GM.getValue" to run ok on pre GM4. But not vice versa, ie, it defines no GM_getValue in newer GM.
-	let old = this[oldKey];
+	let old = window[oldKey];
 	if (old && (typeof GM[newKey] == 'undefined')) {
 		GM[newKey] = function(...args) {
 			return new Promise(function(resolve, reject) { try {
-				resolve(old.apply(this, args));
+				resolve(old.apply(window, args));
 			} catch (e) { reject(e); }
 														 });
 		};
@@ -132,4 +134,3 @@ Object.entries({          // Object.entries() returns a 2-d array of all the giv
 });//forEach()
 
 window.GM=GM; // exports GM object, eg, js was included dynamically via local eval(fetch(<this-file>))
-
