@@ -6,10 +6,19 @@
 // @name        GM4 PolyFill
 // ==/UserLibrary==
 
-/*   This helper script bridges backwardly compatibility between the Greasemonkey 4 APIs and
-   existing/legacy APIs.  Say for example your user script includes
+/*  
+	This script helps newer (GM4) userscripts to run on older GM versions (GM versions < 4 or Tampermonkey etc.).
+	Not vice versa.  Instead to run an old script on the newer GM.<fname> style requires rewrite (adding awaits) &/or some other polyfill.
+	
+	However, if this polyfill script finds eg, GM_addStyle is undefined despite the fact that GM_addStyle
+	should exist in older GM versions it will go ahead and define GM_addStyle() and GM.addStyle() to boot.
+	same goes for GM_registerMenuCommand() and GM_getResourceText().  These definition are then set in
+    the GM object as, eg GM.addStyle().  This is because GM4 removed these function.
+	
+	This helper script bridges backwardly compatibility between the Greasemonkey 4 APIs and
+	existing/legacy APIs.  Say for example your user script includes
    
-   // @grant GM_getValue
+	// @grant GM_getValue
    
    And you'd like to be compatible with both Greasemonkey 3 and Greasemonkey 4
    (and for that matter all versions of Violentmonkey, Tampermonkey, and any other
@@ -43,20 +52,21 @@ if (typeof GM == 'undefined')
 
 
 if (typeof GM_addStyle == 'undefined') {
-	this.GM_addStyle = (aCss,id) => {
+	this.GM_addStyle = (aCss_in_polyfill,id) => {
 		'use strict';
 		let head = document.getElementsByTagName('head')[0];
 		if (head) {
 			let style = document.createElement('style');
 			style.setAttribute('type', 'text/css');
 			if(id) style.setAttribute('id', id);
-			style.textContent = aCss;
+			style.textContent = aCss_in_polyfill;
 			head.appendChild(style);
 			return style;
 		}
 		return null;
 	};
 }
+
 GM.addStyle=this.GM_addStyle;
 
 if (typeof GM_getResourceText == 'undefined')
@@ -66,7 +76,7 @@ if (typeof GM_getResourceText == 'undefined')
 if (typeof GM_registerMenuCommand=="function" && /is not supported[^]{0,100}$/.test(GM_registerMenuCommand.toString()))
 	GM_registerMenuCommand=undefined;
 
-GM.registerMenuCommand = function (caption, commandFunc, accessKey) {
+GM.registerMenuCommand = function (caption, commandFunc, accessKey_in_polyfill) {
 	let body=document.body;
 	if (!body) throw "GM registerMenuCommand aint got no body in document, call again later.";
 	let contextMenu = body.getAttribute('contextmenu');
@@ -117,7 +127,7 @@ Object.entries({          // Object.entries() returns a 2-d array of all the giv
 				resolve(old.apply(this, args));
 			} catch (e) { reject(e); }
 														 });
-		};//GM[newKey]=func
+		};
 	}
 });//forEach()
 
