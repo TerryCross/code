@@ -128,7 +128,8 @@ Object.entries({          // Object.entries() returns a 2-d array of all the giv
 			} catch (e) { reject(e); }
 														 });
 		};
-	}
+	} 
 });//forEach()
 
+window.GM=GM; // exports GM object, eg, js was included dynamically via local eval(fetch(<this-file>))
 
