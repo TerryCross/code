@@ -91,13 +91,11 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-if(!window.old_GM_reg) window.old_GM_reg=GM_registerMenuCommand||this.GM_registerMenuCommand;
-var old_GM_reg=window.old_GM_reg;     // sometime window object changes before load called here.
-var GM_registerMenuCommand;           //Uses closure to ensure a different function for each simulataneous userscript caller of this function.
+if(!window.old_GM_reg) window.old_GM_reg=window.GM_registerMenuCommand;
+var old_GM_reg=window.old_GM_reg;     // sometimes window object changes before load called here.
 
 var submenuModule=(function() { try {  // a module, js pattern module, returns interfaceObj.  ownSubmenu() is a closure returning
-	// an interface object in scope of 'this'.  Side effect alters GM_registerMenuCommand.  Not window.submenuModule clash of multiusage.
+                                      	// an interface object in scope of 'this'.  Side effect alters GM_registerMenuCommand.  Not window.submenuModule clash of multiusage.
 	var sify=JSON.stringify, ownSubmenu, ownSubmenuList, xbutton, body, state=null;
 	var coord_id=1, $, nlist=1, right_pos="truthy", scriptName, nofocus, altHotkey=77, thishere, list_orig_height, chromeButton, queue;
 	var regmutex, osmlisel="li.osm-button",lis, plat_chrome=/Chrome/.test(navigator.userAgent), uw=unsafeWindow, cmd, ln="\u2501", menuwrap, shrink_factor, header;
@@ -106,7 +104,9 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 	{ try {
 		scriptName=script_name||""; nofocus=dont_focus; state="preinit";
 		regmutex=new mutexlock(); // Lock is just to ensure init is complete before user commands are registered.
-		GM_registerMenuCommand=registerInOwnSubmenu;
+		//
+		GM_registerMenuCommand=registerInOwnSubmenu; // Must this way, not window.GM_registerMenuCommand like other exports since GM_registerMenuCommand is defined as arg to userscript wrapper function.
+		// overrides GM_registerMenuCommand()
 		await preInit();
 		queue.push(coord_id);		queue.sort();     // In GM execution order.  Some may not call register();
 		$=ensurejQuery(); //console.log("GM4_rMC Jquery version:",$.fn.jquery);
@@ -558,7 +558,7 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 		if (div.length==0) {
 			div=$("<div id=GM_menu_button style='border: 3px outset #ccc;position: fixed;"
 				  +"opacity:  1; z-index: 2147483647;top: 5px; padding: 0 0 0 0;" //height: 16px; "
-				  +"background-color:whitesmoke;"
+				  +"background-color:whitesmoke; width:auto;"
 				  //+"max-height: 15px; max-width: 15px;" 
 				  +(right_pos ? "right: 5px;" : "left: 40px;")
 				  +"'></div>");
@@ -570,7 +570,7 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 			//subdiv.append(img);
 			div.append(img); //subdiv);
 			img[0].addEventListener("click", async function (e) {
-				console.log("Click on chromeButton",img[0]);
+				//console.log("Click on chromeButton",img[0]);
 				if (e.button==0) {
 					if(e.shiftKey){
 						let ps=div[0].style;
@@ -596,7 +596,6 @@ var submenuModule=(function() { try {  // a module, js pattern module, returns i
 		if (subcmd) event=new CustomEvent(event,{detail:subcmd});
 		else event=new Event(event);
 		//console.log("DISPATCH", event.type, scriptName, ", subcmd:",subcmd, "Event:\n",event);
-		console.dir(logStack());
 		document.dispatchEvent(event);
 	},
 
