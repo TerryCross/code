@@ -17,6 +17,7 @@ this.logError=logError; // export
 
 function typeofObj(unknown_obj){ return ({}).toString.call(unknown_obj).substr(8).slice(0,-1); }
 function Elineno(e) { return e.lineNumber-sfs_ut_offset; }
+this.Elineno=Elineno;
 
 function objInfo(obj) {
 
@@ -89,19 +90,12 @@ function logNewNodes() {
 
 // Call cmdreply to get js console at that point.   Pass reg in to register cmd console as a menu command.
 // If cant register cmd, invoke immediately.
-console.log("script_name:",typeof script_name);
-
-// this.script_name="n/a";
-// if (typeof GM != "undefined") if (GM.info) this.script_name=GM.info.script.name;
-// else if(typeof GM_info != "undefined") this.script_name=GM_info.script.name ; // export
-// console.log("script_name, this:",this,this.script_name);
+//console.log("script_name:",typeof script_name);
 
 script_name="n/a";
 var shandler="n/a";
 if (typeof GM != "undefined") if (GM.info) {script_name=GM.info.script.name; shandler="GM."; }
 else if(typeof GM_info != "undefined") { script_name=GM_info.script.name ; shandler="GM_"; }
-
-console.log("script_name:",script_name);
 
 this.cmdrepl=cmdrepl; // export
 async function cmdrepl(e={},immediate,...args) {     // Set immediate to skip GM registration.  When called from GM menu e is set to event.
