@@ -5,13 +5,6 @@
 // @name        SFS Utils
 // @version     0.1.6
 // ==/UserLibrary==
-
-// Script must have a version of: 
-//
-//           // @require     https://raw.githubusercontent.com/SloaneFox/code/master/gm4-polyfill-1.0.1.js
-//
-// in header to use this module userscript.  Also for use of cmdrepl console function below grant of GM register command is required.
-
 // See below for functions:
 //    function log(arguments);  // prints correct line number under GM4, due to scope wrapper the given one is incorrect.
 //    function cmdrepl(e,immediate_flag);  //  Launch a js console from any place in the code &/or register one from a menu.  Set immediate to launch console directly, without it it registers a menu item to launch a cmd console. 
@@ -20,7 +13,7 @@
 //    function GMDataEditor(scriptname); // Adds menu command to edit GM storage of given userscript.
 
 function logError(msg,e,...extras) { console.error("Error,",msg,".  After offset is on line:",Elineno(e),", offset used:",-sfs_ut_offset,"Error msg:",e.message,"Stack:\n",e.stack, ...extras); }
-window.logError=logError; // export
+this.logError=logError; // export
 
 function typeofObj(unknown_obj){ return ({}).toString.call(unknown_obj).substr(8).slice(0,-1); }
 function Elineno(e) { return e.lineNumber-sfs_ut_offset; }
@@ -44,9 +37,8 @@ function objInfo(obj) {
 
 var ver_pos=navigator.userAgent.indexOf("Firefox/");
 
-window.log=log; // export log()
-
-function log() { // Prints lineno of logging not this lineno.   //if (!Plat_Chrome) old_GM_log(t);};
+// To import declare "var log" in js before loading this js file.  Thus ensuring it remain local to the script that includes this script.
+var log=function log() { // Prints lineno of logging not this lineno.   //if (!Plat_Chrome) old_GM_log(t);};
 	var args=Array.from(arguments), lineno=parseInt(logStack(0,1))-sfs_ut_offset, pnewline,
 	
 		//locator="\t\t\t["+(ver_pos!=-1?lineno+":":"") + script_name+(window!=parent? (" wname:"+window.name? window.name:"-") +" @"+location+", rstate: "+document.readyState:"") + "]";
@@ -64,6 +56,8 @@ function log() { // Prints lineno of logging not this lineno.   //if (!Plat_Chro
 		return !fileToo ? res : {Stack:s[0]+"\n"+res}; 
 	}
 };
+
+this.log=log; // export log()
 
 if (log.lineoffset==undefined) { // cos ff58 has linon at 360 + script lineno.
 	var ver=0,offset=0;
@@ -95,12 +89,21 @@ function logNewNodes() {
 
 // Call cmdreply to get js console at that point.   Pass reg in to register cmd console as a menu command.
 // If cant register cmd, invoke immediately.
+console.log("script_name:",typeof script_name);
 
-window.script_name="n/a";
-if (typeof GM != "undefined") if (GM.info) window.script_name=GM.info.script.name;
-else if(typeof GM_info != "undefined") window.script_name=GM_info.script.name ; // export
+// this.script_name="n/a";
+// if (typeof GM != "undefined") if (GM.info) this.script_name=GM.info.script.name;
+// else if(typeof GM_info != "undefined") this.script_name=GM_info.script.name ; // export
+// console.log("script_name, this:",this,this.script_name);
 
-window.cmdrepl=cmdrepl; // export
+script_name="n/a";
+var shandler="n/a";
+if (typeof GM != "undefined") if (GM.info) {script_name=GM.info.script.name; shandler="GM."; }
+else if(typeof GM_info != "undefined") { script_name=GM_info.script.name ; shandler="GM_"; }
+
+console.log("script_name:",script_name);
+
+this.cmdrepl=cmdrepl; // export
 async function cmdrepl(e={},immediate,...args) {     // Set immediate to skip GM registration.  When called from GM menu e is set to event.
 	if(!immediate && !cmdrepl.regdone) {          // if (typeof GM_registerMenuCommand!="undefined" && document.body)
 		cmdrepl.regdone=true;
@@ -121,29 +124,35 @@ async function cmdrepl(e={},immediate,...args) {     // Set immediate to skip GM
 	}
 }
 
-window.GMDataEditor=GMDataEditor; // export
+this.GMDataEditor=GMDataEditor; // export
 
-function GMDataEditor() {  
+function GMDataEditor() {  // requires either gm-popup-menus.js or @grant GM_registerMenuCommand.
 
 	// When run this function adds a userscript menu option to export/input the script's stored data.
 	// When the user then selects that option it presents the import/export dialogue.
 	// Menu option is named "Edit data stored for this script, <scriptName>";
 
 	// Scripts using this need header item: 
-    // @grant for each of the value commands: listValues, getValue, setValue, deleteValue, 
+    // @grant for each of the GM.* or GM_* commands: listValues, getValue, setValue, deleteValue, 
 	// Jquery is also required by this script, so include it as a userscript header require.
 
-	if(typeof submenuModule != "undefined" && submenuModule.state!=null) GM_registerMenuCommand("Edit data stored for this script, "+script_name,openEditor);
-	else GM.registerMenuCommand("Edit data stored for this script, "+script_name,openEditor);
+	console.log("submenuModule?",typeof submenuModule, "shandler:"+shandler);
+	var getValue, setValue, listValues, deleteValue;
+	if(shandler=="GM.") { listValues=GM.listValues; getValue=GM.getValue; setValue=GM.setValue; deleteValue=GM.deleteValue; }
+	else  {listValues=GM_listValues; getValue=GM_getValue; setValue=GM_setValue; deleteValue=GM_deleteValue; }
+	
+
+//	if(typeof submenuModule != "undefined" && submenuModule.state!=null) registerMenuCommand("Edit data stored for this script, "+script_name,openEditor);
+	if(typeof submenuModule != "undefined") registerMenuCommand("Edit data stored for this script, "+script_name,openEditor,"",3);
+	else if(typeof GM_registerMenuCommand!="undefined") GM_registerMenuCommand("Edit data stored for this script, "+script_name,openEditor);
  
 	async function openEditor(){try{
 		var wrapper=$("#aedc-wrapper"),dummy;
 		if(wrapper.length) wrapper.remove(); // old one left there.
-
-		var allNames=await GM.listValues(); // Returns an array of keys without values.
-
+		var allNames=await listValues(); // Returns an array of keys without values.
+		console.log("allNames",allNames);
 		var nameValues_ar=await Promise.all(allNames.map(async function(name){
-			let retv=[name, await GM_getValue(name,null)];
+			let retv=[name, await getValue(name,null)];
 			//console.log("returning ",retv);
 			return retv;
 		}));
@@ -159,12 +168,12 @@ function GMDataEditor() {
 		var namevalues_before=new Map(), namevalues_after=new Map();
 
 		for (let name of allNames) {
-			namevalues_before.set(name,await GM.getValue(name)); 
+			namevalues_before.set(name,await getValue(name)); 
 			let v=namevalues_before.get(name);
 			console.log("set map name:",name," to: ",v?v.length:"undef");
 		}
 		// await allNames.forEach(async name=> { 
-		// 	namevalues_before.set(name,await GM.getValue(name)); 
+		// 	namevalues_before.set(name,await getValue(name)); 
 		// 	console.log("set map name:",name," to: ",namevalues_before.get(name));
 		// });
 		
@@ -172,7 +181,7 @@ function GMDataEditor() {
 
 		var values=[],built_text2=await 
 		allNames.reduce(async (acc_namevalues,curr_name,i)=>{
-			let v=values[i]=await GM.getValue(curr_name);
+			let v=values[i]=await getValue(curr_name);
 			return (await acc_namevalues)+
         `      <b>${ordinal(i+1)} 
                Name:</b><br><div class=aedcName>${curr_name}</div><br><b>
@@ -186,6 +195,12 @@ function GMDataEditor() {
             ${allNames.length}<br><br>${built_text2}<b>END.</b><br><br><br> </div>`)
 	    .prependTo("body");
 		console.log("Prepended to budy");
+
+		console.log(".aedcValue len", $(".aedcValue").length);
+		$(".aedcValue").each(function (i){
+			console.log("set ",i," obj:",this,"val",values[i]);
+			$(this).text(values[i]);
+		});
 
 		$(".aedcValue").each(function (i){
 			$(this).text(values[i]);
@@ -201,13 +216,13 @@ function GMDataEditor() {
 		var button=addClickButtonTo(wrapper,"Save edited Name/Value pairs......", async e=>{try{
 			
 			var newNV_str=textarea.val();
-			if(newNV_str!=NV_str) {
+			if(newNV_str!=NV_str) {                 // one long string for entire store changed? Set each new value & return;
 				console.log("newNV_str",newNV_str);
 				
 				var new_nv_ar=JSON.parse(newNV_str);
 				alert("Saving data string — reload page once directly to cancel.");
 				new_nv_ar.forEach(async function(el){
-					await GM_setValue(el[0],el[1]);
+					await setValue(el[0],el[1]);
 				});
 				return;
 			}
@@ -225,13 +240,13 @@ function GMDataEditor() {
 
 			for(let [old_name,old_value] of namevalues_before){
 				var new_val=namevalues_after.get(old_name);
-				if( ! new_val ) { await GM.deleteValue(old_name); continue; }
-				if( new_val != old_value); {await GM.setValue(old_name,new_val);continue;}
+				if( ! new_val ) { await deleteValue(old_name); continue; }
+				if( new_val != old_value); {await setValue(old_name,new_val);continue;}
 			}
 			for (let [new_name,new_val] of namevalues_after) {
 				var old_val=namevalues_before.get(new_name);
 				if (new_name && !old_val && new_val) { 
-					await GM.setValue(new_name,new_val);
+					await setValue(new_name,new_val);
 					console.log("Change in NM, \nNew name:",new_name,"\nNew val",new_val,"\nOld val:",old_val);
 				}
 			}
@@ -239,7 +254,7 @@ function GMDataEditor() {
 			// 
 			var merged_map=new Map([...namevalues_before,...namevalues_after]);
 			console.log("Merged MAP:",merged_map);
-			GM.deleteValue("dummy-nameValue-edit-for-new-value");
+			deleteValue("dummy-nameValue-edit-for-new-value");
 			alert("Saved Name/Value List.");
 		} catch(e){console.error("Button error",e);}}                                    // end async e=>{try{
 		,"Click here to save or to remove/quit.","prepend"
@@ -257,7 +272,7 @@ function GMDataEditor() {
 	}catch(e){console.error("Error in GMDataEditor,",e);}}; // end openEditor()
 
 	function parse(str){ try { return JSON.parse(str); } catch(e){} };	
-	window.parse=parse;//export
+	this.parse=parse;//export
 	function ordinal(n) { var sfx = ["th","st","nd","rd"];var val = n%100;return n + (sfx[(val-20)%10] || sfx[val] || sfx[0]);}
 	// function addClickButtonTo(elem,buttonLabel,cb) {
 	// 	var style="position:fixed; background-color:green;color:whitesmoke; cursor:pointer;border:#f0f0f0 20px ridge";

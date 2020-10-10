@@ -52,14 +52,14 @@ if (typeof GM == 'undefined')
 
 
 if (typeof GM_addStyle == 'undefined') {
-	this.GM_addStyle = (aCss_in_polyfill,id) => {
+	this.GM_addStyle = (key_gm4polyf,id) => {
 		'use strict';
 		let head = document.getElementsByTagName('head')[0];
 		if (head) {
 			let style = document.createElement('style');
 			style.setAttribute('type', 'text/css');
 			if(id) style.setAttribute('id', id);
-			style.textContent = aCss_in_polyfill;
+			style.textContent = key_gm4polyf;
 			head.appendChild(style);
 			return style;
 		}
@@ -73,7 +73,7 @@ if (typeof GM_getResourceText == 'undefined')
 	this.GM_getResourceText = async aResourceName =>
 	( await fetch(await GM.getResourceUrl(aResourceName)) ).text(); 
 
-if (typeof GM_registerMenuCommand=="function" && /is not supported[^]{0,100}$/.test(GM_registerMenuCommand.toString()))
+if (typeof GM_registerMenuCommand=="function" && /is not supported[^]{0,100}$/.test(GM_registerMenuCommand.toString()))  // regexp, '[^]{0,100}' means any char, including newlines, 0 to 100 times.
 	GM_registerMenuCommand=undefined;
 
 GM.registerMenuCommand = function (caption, commandFunc, accessKey_in_polyfill) {
@@ -97,7 +97,6 @@ GM.registerMenuCommand = function (caption, commandFunc, accessKey_in_polyfill) 
 
 if (typeof GM_registerMenuCommand == 'undefined') {
 	this.GM_registerMenuCommand=GM.registerMenuCommand;
-	console.log("in pooyfil set",GM_registerMenuCommand);
 }
 
 Object.entries({
@@ -122,7 +121,7 @@ Object.entries({          // Object.entries() returns a 2-d array of all the giv
 	'GM_setValue': 'setValue',
 	'GM_xmlhttpRequest': 'xmlHttpRequest',
 	'GM_getResourceText': 'getResourceText'
-}).forEach(([oldKey, newKey]) => {         // Enables eg, "await GM.getValue" to run ok on pre GM4. But not vice versa, ie, it defines no GM_getValue in newer GM.
+}).forEach( ([oldKey, newKey]) => {         // Enables eg, "await GM.getValue" to run ok on pre GM4. But not vice versa, ie, it defines no GM_getValue in newer GM.
 	let old = window[oldKey];
 	if (old && (typeof GM[newKey] == 'undefined')) {
 		GM[newKey] = function(...args) {
