@@ -170,7 +170,7 @@ var submenuModule=
 				if(typeof GM_registerMenuCommand!="undefined") trace+=res1=GM_registerMenuCommand(n,f);  // Register in both GM menu and contextmenu.  GM_ returns a number, GM. returns a DOM object.
 			if(which==2 || which==3)
 				if(typeof GM!="undefined" && GM.registerMenuCommand) { 
-					if(GM.info && GM.info.scriptHandler!="Tampermonkey" && GM.registerMenuCommand!=GM_registerMenuCommand)
+					if(GM.info && GM.info.scriptHandler!="Tampermonkey" && GM.registerMenuCommand+""!=""+GM_registerMenuCommand)
 						trace+=res2=GM.registerMenuCommand("███"+" "+n, openSubmenu);
 				}   //regs in context menu if no GM_registerMenuCommand.
 			//console.log("TRace",trace);
@@ -212,7 +212,7 @@ var submenuModule=
 			//console.log(" registerInOwnSubmenu withh doGM_reg:",doGM_reg, name);
 			if(state==null) await defaultScriptRegistration();
 			await regmutex.lock; // if lock still active, wait here.
-			registerCmd_in_GM(name,func,doGM_reg);
+			if(doGM_reg) registerCmd_in_GM(name,func,doGM_reg);
 			if (/^\s*function\s*\(\s*\)\s*{\s*}/.test(func.toString())) return;   // empty functions used in old GM to delineate are ignored here.
 			var li=$("<li class=osm-button title='"+name+"' tabindex="+(nlist++==1 ? 1:"''")
 					 +" style='margin-top:2px;font-size:small;display:block;'>"+name+"</li>");
@@ -739,7 +739,7 @@ var submenuModule=
 		///
 		var interfaceObj={ register:init, unregister:rmitem, open:openSubmenu, getState:x=>state, showMenuIcon:setUpMenuButtonOnPage,
 						   close:closeSubmenu, unGroup:unGroup, ineffect:false, toString:toString, isOpen:false,
-						   changeName:mvitem, positionAt:positionAt,
+						   changeName:mvitem, positionAt:positionAt, isSubmenuModule:true,
 						   resizeIframe: userResizeIframe, revertIframeSize:userRevertIframeSize, 
 						   mkMenuItem:registerInOwnSubmenu, getName:x=>scriptName };
 		return interfaceObj; // interfaceObj becomes the value of the closure variable "submenuModule" in user space.
@@ -806,5 +806,18 @@ var submenuModule=
 window.submenuModule=submenuModule;
 window.registerMenuCommand=submenuModule.mkMenuItem;
 
-submenuModule;    // If this js file is included via the use of eval (trim it first), then this last expression is what the eval will return;  Under GM this return value must be used to define a var submenuModule.  Also on under GM user should nullify window.submenuModule and window.registerMenuCommand to prevent them being accessed for other userscripts.
+submenuModule;    // If this js file is included via the use of eval (trim it first), then this last expression is what the eval will return;  
+//   Under GM this return value m can used to define a script local var submenuModule.  Also on GM, program user might nullify window.submenuModule and window.registerMenuCommand to prevent them being accessed from other userscripts.
+//   eg, 
+//    var mySubmenuModule;
+//    ajsfile="http://.../gm-popup-menus.js"
+//
+//    var result=eval(fetch(ajsfile))
+//    if(result.isSubmenuModule) {
+//       delete window.submenuModule
+//       delete window.registerMenuCommand  
+//       mySubmenuModule=result;
+//       ...use script local var submenuModule 
+//    }
+// 
 
