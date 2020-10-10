@@ -83,7 +83,7 @@
 // menu system.  Setting it to 1 will also try a call to GM_registerMenuCommand, to 2 to call GM.registerMenuCommand(), or 3 to try call both.
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
-console.log("Topof gmpops 4");
+
 var submenuModule=
 	(function() { try {  
 		var sify=JSON.stringify, ownSubmenu, ownSubmenuList, xbutton, body, state=null, getValue, setValue;
