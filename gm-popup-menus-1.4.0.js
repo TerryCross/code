@@ -720,6 +720,7 @@ var submenuModule=
 				console.log("Setting last focus on",v,". Remove from ",$(".osm_last_focus")[0]);
 				$(".osm_last_focus").removeClass("osm_last_focus"); $(v).addClass("osm_last_focus");}
 		};
+		console.log("Check starter.");
 		if(! q(".reset-osm")) { q("body").className+=" reset-osm"; uw.osm_count=0; console.log("Reset osm_count."); } // coords with other scripts using same menu.
 		else console.log("No reset");
 		uw.osm_count++;
