@@ -720,7 +720,7 @@ var submenuModule=
 				console.log("Setting last focus on",v,". Remove from ",$(".osm_last_focus")[0]);
 				$(".osm_last_focus").removeClass("osm_last_focus"); $(v).addClass("osm_last_focus");}
 		};
-		if(! q("#reset-osm")) { q("body").innerHTML+=("<div id=reset-osm>"); uw.osm_count=0; } // coords with other scripts using same menu.
+		if(! q(".reset-osm")) { q("body").classname+="reset-osm"; uw.osm_count=0; } // coords with other scripts using same menu.
 		uw.osm_count++;
 
 		var qhandler={ get: (t,p)=>{ let ar=parse(ls.osm_queue); return ar[p];}, 
