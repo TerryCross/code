@@ -145,7 +145,8 @@ var submenuModule=
 			var tout=uw.osm_queue.length==uw.osm_max ? 20 : 2000;
 			setTimeout(function(msec){ //wait for other scripts to init for grouping.
 				if (uw.osm_shutdoor) {
-					if(coord_GM_menu.done) return; console.log("Door shutter is:",scriptName);
+					console.log("Door shutter is:",scriptName, coord_GM_menu.done);
+					if(coord_GM_menu.done) return; 
 					var str=(scriptName||"Submenu")+".....", sp="\u2001",  vln="\u2503";
 					registerCmd_in_GM("███"+" "+str, openSubmenu, 3); 
 					return;
