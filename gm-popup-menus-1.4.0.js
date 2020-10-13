@@ -93,7 +93,7 @@ var submenuModule=
 		var init=async function(script_name, hotkey, title_color, itsBackgroundColor, dont_focus) //is submenuModule.register() 
 		{ try {
 			// Program user has called submenuModule.register(); in here 'this' points to interfaceObj.
-			console.log("Init...",coord_id,script_name);
+			console.log("Popup menus, init()...",coord_id,script_name);
 			scriptName=script_name||""; nofocus=dont_focus; state="preinit";
 			regmutex=new mutexlock(); // Lock can only be used once.  It is to ensure that init is complete before user commands are registered.
 			$=await ensurejQuery(); //console.log("GM4_rMC Jquery version:",$.fn.jquery);
@@ -129,7 +129,7 @@ var submenuModule=
 				point_of_attachment.append(menuwrap=$("<div id=osm-menuwrap style='position:fixed;"+pos_css+"z-index:2147483647 ;display:table;'></div>"));
 			}
 			menuwrap.append(ownSubmenu);
-			console.log("docready, appended to body menu",ownSubmenu);
+			//console.log("docready, appended to body menu",ownSubmenu);
 			if  (iframe && (body.attr("contenteditable") == "true"  ||
 							(body.text() == "" || (body.children().length <= 3 && body.children().is("#osm-menuwrap")) ) ) )
 			{   //Pages commonly post all text content of such bodies (often in iframes), so blank the menu text, titles give text instead.
@@ -145,15 +145,15 @@ var submenuModule=
 			var tout=uw.osm_queue.length==uw.osm_max ? 20 : 2000;
 			setTimeout(function(msec){ //wait for other scripts to init for grouping.
 				if (uw.osm_shutdoor) {
-					if(coord_GM_menu.done) return;
+					if(coord_GM_menu.done) return; console.log("Door shutter is:",scriptName);
 					var str=(scriptName||"Submenu")+".....", sp="\u2001",  vln="\u2503";
 					registerCmd_in_GM("███"+" "+str, openSubmenu, 3); 
 					return;
 				}
-				console.log(scriptName,coord_id,"Gap elapsed, now to shut door and coord, queue:",uw.osm_queue,"max:",uw.osm_max);
+				console.log(scriptName,coord_id,"Gap elapsed, now to set up door shutter and coord, queue:",uw.osm_queue,"max:",uw.osm_max);
 				handleIframeSize(); // NB, only one client handles this and below.
 				makeDraggable($(".osm-box"));
-				console.log("make draggable: ",$(".osm-box").length,"uw.osm_queue",uw.osm_queue.length);
+				//console.log("make draggable: ",$(".osm-box").length,"uw.osm_queue",uw.osm_queue.length);
 				uw.osm_shutdoor=true;
 				uw.osm_max=uw.osm_queue.length; //Don't wait for queuer that never inits.
 				console.log("uw.osm_max:",uw.osm_max,"dispatch coord events for max.");
@@ -444,7 +444,7 @@ var submenuModule=
 		
 		createOwnSubmenu=function(hotkey, title_color, li_text_color) { // li_text_color is also menu frame background, color must be in string form, eg, '#ffffff'
 			//if (val.startsWith("rgb")) val="#"+val.replace(/[^\d,]/g,"").split(/,/).map(x=>Number(x).toString(16)).join("");
-			console.log("createOwnSubmenu coord_id",coord_id);
+			//console.log("createOwnSubmenu coord_id",coord_id);
 			var style_id= (title_color || li_text_color) ? "#ownSubmenu"+coord_id 	 : "";
 			var selected_bg_color= !li_text_color ? "#f69c55" : modColor(li_text_color+"+0x096399"),
 				selected_color=modColor(selected_bg_color+"^0xffffff"); //, 0x33);
@@ -720,9 +720,7 @@ var submenuModule=
 				console.log("Setting last focus on",v,". Remove from ",$(".osm_last_focus")[0]);
 				$(".osm_last_focus").removeClass("osm_last_focus"); $(v).addClass("osm_last_focus");}
 		};
-		console.log("Check starter.");
-		if(! q(".reset-osm")) { q("body").className+=" reset-osm"; uw.osm_count=0; console.log("Reset osm_count."); } // coords with other scripts using same menu.
-		else console.log("No reset");
+		if(! q(".reset-osm")) { q("head").className+=" reset-osm"; uw.osm_count=0; console.log("Reset osm_count."); } else console.log("No reset of osm count."); // coords with other scripts using same menu.
 		uw.osm_count++;
 
 		var qhandler={ get: (t,p)=>{ let ar=parse(ls.osm_queue); return ar[p];}, 
@@ -732,7 +730,7 @@ var submenuModule=
 		//console.log("OSM_MAX",uw.osm_count);
 		coord_id=uw.osm_count; uw.osm_queue; uw.osm_max=uw.osm_count;  // queue begins after inint(register) is called.
 		shrink_factor=uw.osm_shrink_factor; //need run order of coord_id. for GM_menu position.
-		console.log("Running gm-popup, set coord_id",coord_id);
+		//console.log("Running gm-popup, set coord_id",coord_id);
 		if (uw.osm_count==2) uw.osm_menu_grouping=true;
 
 		///
