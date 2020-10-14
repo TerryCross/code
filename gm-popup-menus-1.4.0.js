@@ -179,7 +179,7 @@ var submenuModule=
 			if(res2 && res2.tagName) return res2;
 		},
 		coord_GM_menu=function(e){try{  // Custom Event handler dispatched in func near above.
-			//console.log("coord_GM_menu e:",e,"Name:"+scriptName+".");
+			console.log("coord_GM_menu e:",e,"Name:"+scriptName+", ",coord_GM_menu.done);
 			var detail=e.originalEvent.detail,menu;
 			if(Number(detail)) { if (detail!=coord_id) return; }// Only handle event directed by coord order.
 			else if (detail && detail.chromeButton) { 
