@@ -150,7 +150,7 @@ var submenuModule=
 					var str=(scriptName||"Submenu")+".....", sp="\u2001",  vln="\u2503";
 					registerCmd_in_GM("███"+" "+str, openSubmenu, 3); 
 					return;
-				}
+				} else console.log("No door shutter.",scriptName);
 				console.log(scriptName,coord_id,"Gap elapsed, now to set up door shutter and coord, queue:",uw.osm_queue,"max:",uw.osm_max);
 				handleIframeSize(); // NB, only one client handles this and below.
 				makeDraggable($(".osm-box"));
