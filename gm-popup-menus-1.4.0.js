@@ -150,7 +150,7 @@ var submenuModule=
 					var str=(scriptName||"Submenu")+".....", sp="\u2001",  vln="\u2503";
 					registerCmd_in_GM("███"+" "+str, openSubmenu, 3); 
 					return;
-				} else console.log("No door shutter.",scriptName);
+				} else console.log("No door shutter yet.",scriptName);
 				console.log(scriptName,coord_id,"Gap elapsed, now to set up door shutter and coord, queue:",uw.osm_queue,"max:",uw.osm_max);
 				handleIframeSize(); // NB, only one client handles this and below.
 				makeDraggable($(".osm-box"));
@@ -712,9 +712,10 @@ var submenuModule=
 		uw={
 			get osm_count(){ return ls.osm_count; },
 			set osm_count(v){ if(v==0)  { ls.osm_count=1; ls.osm_queue="[]"; ls.osm_max=1; ls.osm_shrink_factor="[1]"; ls.osm_menu_grouping=""; ls.osm_shutdoor=""; } ls.osm_count=v; }, // "" == 0, as does "0" == 0.
-			//get osm_queue(){ return parse(ls.osm_queue);}, set osm_queue(v){ ls.osm_queue=sify(v);},
+			//see q proxy handler below, get osm_queue(){ return parse(ls.osm_queue);}, set osm_queue(v){ ls.osm_queue=sify(v);},
 			get osm_shrink_factor(){ return parse(ls.osm_shrink_factor);},		set osm_shrink_factor(v){ ls.osm_shrink_factor=sify(v);},
 			get osm_max(){ return ls.osm_max; }, set osm_max(v){ ls.osm_max=v;},
+			get osm_shutdoor(){ return ls.osm_shutdoor; }, set osm_shutdoor(v){ ls.osm_shutdoor=v;},
 			get osm_menu_grouping(){ return ls.osm_menu_grouping ? true : false;},set osm_menu_grouping(v) {ls.osm_menu_grouping=v?true:"";},
 			get osm_allclosed(){ return ls.osm_allclosed ? true : false;},set osm_allclosed(v) {ls.osm_allclosed=v?true:"";},
 			get osm_last_focus(){ return $(".osm_last_focus")[0];}, set osm_last_focus(v) { 
