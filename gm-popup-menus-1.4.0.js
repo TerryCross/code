@@ -107,6 +107,7 @@ var submenuModule=
 			} 
 
 			uw.osm_queue.push(coord_id);		uw.osm_queue.sort();     // In GM execution order.  Some may not call register();
+			console.log("pushed on queue", coord_id, "sorted q:",uw.osm_queue);
 			ownSubmenu.hide();		    ownSubmenu.find(".osmXbutton").click(closeSubmenu);		ownSubmenu.append(ownSubmenuList);
 			if (plat_chrome && typeof GM_info=="undefined")     await setUpMenuButtonOnPage();
 			interfaceObj.ineffect=true; document.addEventListener("coord_resize",coord_resize);
