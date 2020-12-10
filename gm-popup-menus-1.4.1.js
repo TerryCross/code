@@ -93,7 +93,7 @@ var submenuModule=
 		var init=async function(script_name, hotkey, title_color, itsBackgroundColor, dont_focus) //is submenuModule.register() 
 		{ try {
 			// Program user has called submenuModule.register(); in here 'this' points to interfaceObj.
-			console.log("Popup menus, init()...",coord_id,script_name);
+			//console.log("Popup menus, init()...",coord_id,script_name);
 			scriptName=script_name||""; nofocus=dont_focus; state="preinit";
 			regmutex=new mutexlock(); // Lock can only be used once.  It is to ensure that init is complete before user commands are registered.
 			$=await ensurejQuery(); //console.log("GM4_rMC Jquery version:",$.fn.jquery);
@@ -107,7 +107,7 @@ var submenuModule=
 			} 
 
 			uw.osm_queue.push(coord_id);		uw.osm_queue.sort();     // In GM execution order.  Some may not call register();
-			console.log("pushed on queue", coord_id, "sorted q:",uw.osm_queue);
+			//console.log("pushed on queue", coord_id, "sorted q:",uw.osm_queue);
 			ownSubmenu.hide();		    ownSubmenu.find(".osmXbutton").click(closeSubmenu);		ownSubmenu.append(ownSubmenuList);
 			if (plat_chrome && typeof GM_info=="undefined")     await setUpMenuButtonOnPage();
 			interfaceObj.ineffect=true; document.addEventListener("coord_resize",coord_resize);
@@ -146,19 +146,19 @@ var submenuModule=
 			var tout=uw.osm_queue.length==uw.osm_max ? 20 : 4000;
 			setTimeout(function(msec){ //wait for other scripts to init for grouping.
 				if (uw.osm_shutdoor) {
-					console.log("Door shutter is:",scriptName, coord_GM_menu.done);
+					//console.log("Door shutter is:",scriptName, coord_GM_menu.done);
 					if(coord_GM_menu.done) return; 
 					var str=(scriptName||"Submenu")+".....", sp="\u2001",  vln="\u2503";
 					registerCmd_in_GM("███"+" "+str, openSubmenu, 3); 
 					return;
-				} else console.log("No door shutter yet.",scriptName);
-				console.log(scriptName,coord_id,"Gap elapsed, now to set up door shutter and coord, queue:",uw.osm_queue,"max:",uw.osm_max);
+				} //else console.log("No door shutter yet.",scriptName);
+				//console.log(scriptName,coord_id,"Gap elapsed, now to set up door shutter and coord, queue:",uw.osm_queue,"max:",uw.osm_max);
 				handleIframeSize(); // NB, only one client handles this and below.
 				makeDraggable($(".osm-box"));
 				//console.log("make draggable: ",$(".osm-box").length,"uw.osm_queue",uw.osm_queue.length);
 				uw.osm_shutdoor=true;
 				uw.osm_max=uw.osm_queue.length; //Don't wait for queuer that never inits.
-				console.log("uw.osm_max:",uw.osm_max,"dispatch coord events for max.");
+				//console.log("uw.osm_max:",uw.osm_max,"dispatch coord events for max.");
 				for (let i=0;i<uw.osm_max;i++) 
 					dispatch("coord_GM_menu",uw.osm_queue[i]); // emits one event for each coord_id in order from 1 up.
 				//uw.osm_count=0; //resets storage on next load.
@@ -180,7 +180,7 @@ var submenuModule=
 			if(res2 && res2.tagName) return res2;
 		},
 		coord_GM_menu=function(e){try{  // Custom Event handler dispatched in func near above.
-			console.log("coord_GM_menu e:",e,"Name:"+scriptName+", ",coord_GM_menu.done);
+			//console.log("coord_GM_menu e:",e,"Name:"+scriptName+", ",coord_GM_menu.done);
 			var detail=e.originalEvent.detail,menu;
 			if(Number(detail)) { if (detail!=coord_id) return; }// Only handle event directed by coord order.
 			else if (detail && detail.chromeButton) { 
@@ -723,7 +723,8 @@ var submenuModule=
 				console.log("Setting last focus on",v,". Remove from ",$(".osm_last_focus")[0]);
 				$(".osm_last_focus").removeClass("osm_last_focus"); $(v).addClass("osm_last_focus");}
 		};
-		if(! q(".reset-osm")) { q("head").className+=" reset-osm"; uw.osm_count=0; console.log("Reset osm_count."); } else console.log("No reset of osm count."); // coords with other scripts using same menu.
+		if(! q(".reset-osm")) { q("head").className+=" reset-osm"; uw.osm_count=0; }
+		// console.log("Reset osm_count."); } else console.log("No reset of osm count."); // coords with other scripts using same menu.
 		uw.osm_count++;
 
 		var qhandler={ get: (t,p)=>{ let ar=parse(ls.osm_queue); return ar[p];}, 
